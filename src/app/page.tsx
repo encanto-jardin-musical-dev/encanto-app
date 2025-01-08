@@ -1,14 +1,16 @@
-import { Avatar, Button } from "@nextui-org/react";
+import { Image } from "@nextui-org/react";
+import LoginForm from "./components/auth/LoginForm";
 
-export default function Home() {
+export default async function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Avatar showFallback name="Jorge Ossa" size="lg" />
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <Button color="primary">NextUI Button</Button>
-        </div>
-      </main>
-    </div>
+    <main className="flex h-screen flex-1 items-center justify-center p-4">
+      <section className="flex flex-col w-full md:w-80 gap-8 items-center justify-center">
+        <Image
+          src="/brand/logo-encanto-vertical.svg"
+          alt="Encato logo vertical"
+        />
+        <LoginForm />
+      </section>
+    </main>
   );
 }

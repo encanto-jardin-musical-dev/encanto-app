@@ -17,7 +17,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <PostHogProvider client={posthog}>
       <JotaiProvider>
-        <NextUIProvider>{children}</NextUIProvider>;
+        <NextUIProvider>{children}</NextUIProvider>
       </JotaiProvider>
     </PostHogProvider>
   );

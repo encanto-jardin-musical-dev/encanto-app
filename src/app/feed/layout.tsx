@@ -1,4 +1,4 @@
-export default async function AuthLayout({
+export default async function FeedLayout({
   children,
 }: {
   children: React.ReactNode;

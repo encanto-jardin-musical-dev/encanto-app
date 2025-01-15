@@ -1,32 +1,24 @@
 "use client";
 
-import { createClient } from "@/utils/supabase/client";
 import { Button, Form, Input } from "@nextui-org/react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { login } from "@/app/(auth)/login/actions";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  const router = useRouter();
-  const supabase = createClient();
-
   const togglePasswordVisibility = () =>
     setIsPasswordVisible(!isPasswordVisible);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (!error) {
-      router.refresh();
-      router.push("/dashboard");
-    }
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("password", password);
+    login(formData);
   };
 
   return (

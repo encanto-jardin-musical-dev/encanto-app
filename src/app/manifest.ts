@@ -1,10 +1,11 @@
 import { MetadataRoute } from "next";
+import config from "../../config";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Encanto App",
-    short_name: "Encanto App",
-    description: "Aplicación Encanto Jardín Musical",
+    name: config.appName,
+    short_name: "Encanto",
+    description: config.appDescription,
     start_url: "/",
     display: "standalone",
     background_color: "#f7f7f7",

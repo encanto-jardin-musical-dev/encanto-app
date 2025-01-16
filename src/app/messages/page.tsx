@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { Button } from "@nextui-org/react";
-import { signout } from "../(auth)/login/actions";
+import { signout } from "@/utils/auth/actions";
 import Link from "next/link";
 export default async function MessagesPage() {
   const supabase = await createClient();

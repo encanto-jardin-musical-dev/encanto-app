@@ -3,7 +3,7 @@
 import { Button, Form, Input } from "@nextui-org/react";
 import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import { login } from "@/app/(auth)/login/actions";
+import { login } from "@/utils/auth/actions";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -36,7 +36,7 @@ export default function LoginForm() {
         required
       />
       <Input
-        label="Password"
+        label="Contraseña"
         type={isPasswordVisible ? "text" : "password"}
         name="password"
         value={password}
@@ -59,7 +59,7 @@ export default function LoginForm() {
       />
       <div className="pt-9 w-full">
         <Button color="primary" fullWidth type="submit">
-          Login
+          Ingresar
         </Button>
       </div>
     </Form>

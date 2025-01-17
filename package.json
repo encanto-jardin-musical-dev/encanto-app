@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
-    "@nextui-org/react": "^2.6.8",
+    "@heroui/react": "2.6.13",
     "@sentry/nextjs": "^8.47.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",

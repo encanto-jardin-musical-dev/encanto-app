@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
-import { Button } from "@nextui-org/react";
+import { Button } from "@heroui/react";
 import { signout } from "@/utils/auth/actions";
 import Link from "next/link";
 export default async function MessagesPage() {

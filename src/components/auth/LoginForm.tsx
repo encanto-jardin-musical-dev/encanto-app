@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Form, Input } from "@nextui-org/react";
+import { Button, Form, Input } from "@heroui/react";
 import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { login } from "@/utils/auth/actions";
@@ -58,7 +58,7 @@ export default function LoginForm() {
         }
       />
       <div className="pt-9 w-full">
-        <Button color="primary" fullWidth type="submit">
+        <Button color="primary" fullWidth type="submit" size="lg">
           Ingresar
         </Button>
       </div>

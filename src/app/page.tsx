@@ -1,4 +1,4 @@
-import { Button, Link } from "@nextui-org/react";
+import { Button, Link } from "@heroui/react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 
@@ -17,10 +17,11 @@ export default function Home() {
             width={200}
             height={200}
             unoptimized
+            priority
           />
         </div>
-        <div className="py-4 text-center">
-          <h2>{t("welcome")}</h2>
+        <div className="py-8 text-center">
+          <h2 className="text-4xl font-bold">{t("welcome")}</h2>
           <p>{t("description")}</p>
         </div>
         <div className="pt-8">
@@ -30,6 +31,7 @@ export default function Home() {
             color="primary"
             variant="solid"
             fullWidth
+            size="lg"
           >
             {t("button")}
           </Button>

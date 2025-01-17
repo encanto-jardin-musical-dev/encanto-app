@@ -1,18 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Asap } from "next/font/google";
 import "@/styles/globals.css";
 import { Providers } from "./providers";
 import { getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const asap = Asap({
+  weight: ["100", "300", "400", "700", "900"],
+  variable: "--font-asap",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -28,10 +25,8 @@ export default async function RootLayout({
   const locale = await getLocale();
   const messages = await getMessages();
   return (
-    <html lang={locale} className="light">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang={locale} className="encanto">
+      <body className={`${asap.variable} antialiased`}>
         <Providers>
           <NextIntlClientProvider messages={messages}>
             {children}

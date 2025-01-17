@@ -1,7 +1,7 @@
 "use client";
 
 import { JotaiProvider } from "@/lib/providers/JotaiProvider";
-import { NextUIProvider } from "@nextui-org/react";
+import { HeroUIProvider } from "@heroui/react";
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
 
@@ -17,7 +17,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <PostHogProvider client={posthog}>
       <JotaiProvider>
-        <NextUIProvider>{children}</NextUIProvider>
+        <HeroUIProvider>{children}</HeroUIProvider>
       </JotaiProvider>
     </PostHogProvider>
   );

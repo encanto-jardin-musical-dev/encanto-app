@@ -12,6 +12,7 @@ export default async function LoginPage() {
             width={200}
             height={200}
             unoptimized
+            priority
           />
         </div>
         <div className="flex-1 w-full justify-center items-center pt-8">

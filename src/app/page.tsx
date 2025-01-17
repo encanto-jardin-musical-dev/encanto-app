@@ -1,7 +1,9 @@
 import { Button, Link } from "@nextui-org/react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 
-export default async function Home() {
+export default function Home() {
+  const t = useTranslations("HomePage");
   return (
     <main
       className="flex flex-col items-center justify-center p-4 h-screen"
@@ -17,6 +19,10 @@ export default async function Home() {
             unoptimized
           />
         </div>
+        <div className="py-4 text-center">
+          <h2>{t("welcome")}</h2>
+          <p>{t("description")}</p>
+        </div>
         <div className="pt-8">
           <Button
             as={Link}
@@ -25,7 +31,7 @@ export default async function Home() {
             variant="solid"
             fullWidth
           >
-            Iniciar sesión
+            {t("button")}
           </Button>
         </div>
       </section>

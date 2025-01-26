@@ -10,3 +10,10 @@ export const messageCountAtom = atom(0);
 
 // Derived atom example
 export const hasUnreadMessagesAtom = atom((get) => get(messageCountAtom) > 0);
+
+// User Data
+export const userInformation = atom({
+  firstName: "John",
+  lastName: "Doe",
+  role: "admin",
+});

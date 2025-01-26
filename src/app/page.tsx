@@ -21,7 +21,7 @@ export default function Home() {
           />
         </div>
         <div className="py-8 text-center">
-          <h2 className="text-4xl font-bold">{t("welcome")}</h2>
+          <h2 className="text-4xl font-bold text-primary">{t("welcome")}</h2>
           <p>{t("description")}</p>
         </div>
         <div className="pt-8">

@@ -3,5 +3,24 @@
     "welcome": "Bienvenidos",
     "description": "Nuestra app, nos permite estar más comunicados",
     "button": "Iniciar Sesión"
+  },
+  "UserFeedPage": {
+    "FeedUser": {
+      "greeting": "Hola, {name}",
+      "labels": {
+        "parent": "{count, plural, =0 {Hij@} =1 {Hij@} other {Hij@s}}",
+        "other": "{count, plural, =0 {Grupo} =1 {Grupo} other {Grupos}}"
+      },
+      "placeholders": {
+        "parent": "{count, plural, =0 {No hay hij@s assignados} =1 {Selecciona tu Hij@} other {Selecciona uno de tus Hij@s}}",
+        "other": "{count, plural, =0 {No hay grupos asignados} =1 {Selecciona tu Grupo} other {Selecciona uno de tus Grupos}}"
+      }
+    },
+    "FeedFilters": {
+      "all": "Todo",
+      "reports": "Reportes",
+      "messages": "Mensajes",
+      "tasks": "Tareas"
+    }
   }
 }

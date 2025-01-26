@@ -4,9 +4,11 @@ export default getRequestConfig(async () => {
   // Provide a static locale, fetch a user setting,
   // read from `cookies()`, `headers()`, etc.
   const locale = "es";
+  const timeZone = "America/Bogota";
 
   return {
     locale,
+    timeZone,
     messages: (await import(`../../messages/${locale}.json`)).default,
   };
 });

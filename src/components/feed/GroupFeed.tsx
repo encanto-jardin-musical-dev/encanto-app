@@ -1,64 +1,45 @@
 "use client";
 
-import { userCurrentSelectionAtom, userRoleAtom } from "@/lib/store/user";
+import { groupMessagesAtom } from "@/lib/store/feed";
+import { userCurrentSelectionAtom } from "@/lib/store/user";
+import { getUserMessages } from "@/queries/user";
 import { useAtom } from "jotai";
-import FeedFilters from "./FeedFilters";
-import { createClient } from "@/utils/supabase/client";
-import { useCallback, useEffect } from "react";
-import { groupTasksAtom } from "@/lib/store/feed";
-
-const supabase = createClient();
+import { useCallback, useEffect, useMemo } from "react";
+import { Message } from "@/types/messages.types";
+import MessageCard from "./MessageCard";
 
 export default function GroupFeed() {
   const [selectedContext] = useAtom(userCurrentSelectionAtom);
-  const [userRole] = useAtom(userRoleAtom);
-  const [groupTasks, setGroupTasks] = useAtom(groupTasksAtom);
-
-  const getGroupId = useCallback(async () => {
+  const [groupMessages, setGroupMessages] = useAtom(groupMessagesAtom);
+  const groupId = useMemo(() => {
     const selectedValue = selectedContext as Set<string | number>;
-    if (userRole === "parent") {
-      const { data } = await supabase
-        .from("child_groups")
-        .select("group_id")
-        .eq("child_id", selectedValue.values().next().value)
-        .single();
+    return selectedValue ? selectedValue.values().next().value : "";
+  }, [selectedContext]);
 
-      const groupId = data ? data?.group_id : null;
-      return groupId;
-    }
-    return selectedValue.values().next().value;
-  }, [userRole, selectedContext]);
-
-  const getGroupTasks = useCallback(async () => {
-    const groupId = await getGroupId();
-    const { data } = await supabase
-      .from("tasks")
-      .select("*")
-      .eq("group_id", groupId);
-    if (data) {
-      setGroupTasks(data);
-    }
-
-    return data;
-  }, [getGroupId, setGroupTasks]);
+  const getGroupMessages = useCallback(async () => {
+    const allUserMessages = await getUserMessages();
+    setGroupMessages(allUserMessages as unknown as Message[]);
+  }, [setGroupMessages]);
 
   useEffect(() => {
     if (selectedContext) {
-      getGroupTasks();
+      getGroupMessages();
     }
-  }, [selectedContext, getGroupTasks]);
+  }, [selectedContext, getGroupMessages]);
 
   return (
     <>
-      <FeedFilters />
       <div className="w-full flex flex-col gap-4">
-        {Array.isArray(groupTasks)
-          ? groupTasks.map((task) => (
-              <div key={task.id}>
-                <h3 className="text-xl font-bold">{task.title}</h3>
-                <p>{task.description}</p>
-              </div>
-            ))
+        {Array.isArray(groupMessages)
+          ? groupMessages
+              .filter(
+                (message) =>
+                  message.from?.groups[0]?.group_id === groupId ||
+                  message.from?.role === "admin",
+              )
+              .map((message) => (
+                <MessageCard key={message.id} message={message} />
+              ))
           : []}
       </div>
     </>

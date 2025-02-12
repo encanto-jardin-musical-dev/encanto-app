@@ -18,12 +18,17 @@ type FeedUserProps = {
   loggedUser: UserProfile;
 };
 
+type ChildGroup = {
+  group_id: string;
+};
+
 type UserChildren = {
   relationship: string;
   children: {
     id: string;
     first_name: string;
     last_name: string;
+    child_group: ChildGroup[];
   };
 };
 
@@ -62,7 +67,7 @@ export default function FeedUser({ loggedUser }: FeedUserProps) {
       const rawUserChildren: UserChildren[] | unknown = await getUserChildren();
       const formatedChildren = Array.isArray(rawUserChildren)
         ? rawUserChildren.map((child) => ({
-            key: child?.children?.id,
+            key: child?.children?.child_group[0]?.group_id,
             label: `${child?.children?.first_name} ${child?.children?.last_name}`,
           }))
         : [];

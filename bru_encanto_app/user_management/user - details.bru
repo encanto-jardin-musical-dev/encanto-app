@@ -1,0 +1,21 @@
+meta {
+  name: user - details
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{AUTH}}/user
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.id: isDefined
+  res.body.role: eq authenticated
+}

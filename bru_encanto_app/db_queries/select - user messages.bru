@@ -1,0 +1,20 @@
+meta {
+  name: select - user messages
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{REST}}/messages?select=id%2Ccontent%2Ccreated_at%2Cis_read%2Cread_at%2Cattachments%2Cfrom%3Aprofiles%21messages_sender_id_fkey%28first_name%2Clast_name%2Crole%2Csender_id%3Aid%2Cgroups%28group_id%3Aid%2Cgroup_name%3Aname%2Cteacher_id%29%29%2Cto%3Aprofiles%21messages_receiver_id_fkey%28first_name%2Clast_name%2Crole%2Creceiver_id%3Aid%2Cgroups%28group_id%3Aid%2Cgroup_name%3Aname%2Cteacher_id%29%29&order=created_at.desc
+  body: none
+  auth: bearer
+}
+
+params:query {
+  select: id,content,created_at,is_read,read_at,attachments,from:profiles!messages_sender_id_fkey(first_name,last_name,role,sender_id:id,groups(group_id:id,group_name:name,teacher_id)),to:profiles!messages_receiver_id_fkey(first_name,last_name,role,receiver_id:id,groups(group_id:id,group_name:name,teacher_id))
+  order: created_at.desc
+}
+
+auth:bearer {
+  token: {{user_token}}
+}

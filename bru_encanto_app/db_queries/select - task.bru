@@ -1,0 +1,20 @@
+meta {
+  name: select - task
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{REST}}/tasks?select=*&group_id=eq.{{group_id}}
+  body: none
+  auth: bearer
+}
+
+params:query {
+  select: *
+  group_id: eq.{{group_id}}
+}
+
+auth:bearer {
+  token: {{user_token}}
+}

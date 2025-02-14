@@ -1,0 +1,16 @@
+meta {
+  name: select - teacher groups
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{REST}}/groups?select=*&teacher_id=eq.{{user_id}}
+  body: none
+  auth: none
+}
+
+params:query {
+  select: *
+  teacher_id: eq.{{user_id}}
+}

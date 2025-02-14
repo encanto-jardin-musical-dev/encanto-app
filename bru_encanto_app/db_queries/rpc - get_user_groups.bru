@@ -1,0 +1,30 @@
+meta {
+  name: rpc - get_user_groups
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{RPC}}/get_user_groups?select=*
+  body: json
+  auth: bearer
+}
+
+params:query {
+  select: *
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+body:json {
+  {
+    "user_id": "{{user_id}}",
+    "user_role": "{{user_role}}"
+  }
+}
+
+script:post-response {
+  bru.setVar("group_id", res.body[0].user_groups[0].child_group_id);
+}

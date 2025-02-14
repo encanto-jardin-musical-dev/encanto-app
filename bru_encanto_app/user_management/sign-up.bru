@@ -1,0 +1,33 @@
+meta {
+  name: sign-up
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{AUTH}}/signup
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1eWxuZmllY3ZzYnB4bG1zY3ZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5NjQwMjMsImV4cCI6MjA1MTU0MDAyM30.X4w56swNN2Lxe-C9PFd2z30LhoFnZJklXHNtI-LkbrE
+}
+
+body:json {
+  {
+    "email": "angiemartinez@email.com",
+    "password": "Encanto.1234",
+    "data": {
+      "role": "teacher",
+      "first_name": "Angie",
+      "last_name": "Martinez",
+      "document_type": "cc",
+      "document_number": "321567897"
+    }
+  }
+}
+
+assert {
+  res.status: eq 422
+}

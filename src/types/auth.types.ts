@@ -1,3 +1,5 @@
+import { Database } from "./database.types";
+
 export type AuthUser = {
   id: string;
   aud: string;
@@ -43,3 +45,5 @@ export type Data = {
   role: string;
   sub: string;
 };
+
+export type UserProfile = Database["public"]["Tables"]["profiles"]["Row"];

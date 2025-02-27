@@ -1,9 +1,5 @@
-import GroupFeed from "@/components/feed/GroupFeed";
+import FeedGroup from "@/components/feed/FeedGroup";
 
 export default async function FeedGroupPage() {
-  return (
-    <>
-      <GroupFeed />
-    </>
-  );
+  return <FeedGroup />;
 }

@@ -17,9 +17,5 @@ export default async function UserFeedPage() {
     .eq("id", user.id)
     .single();
 
-  return (
-    <div className="w-full">
-      <FeedUser loggedUser={userData} />
-    </div>
-  );
+  return <FeedUser user={userData} />;
 }

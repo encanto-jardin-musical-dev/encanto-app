@@ -21,9 +21,20 @@
       "reports": "Reportes",
       "messages": "Mensajes",
       "tasks": "Tareas"
+    },
+    "GroupFeed": {
+      "loading": "Cargando..."
     }
   },
   "MessageCard": {
-    "title": "Nuevo mensaje"
+    "title": "Nuevo mensaje",
+    "senderInfo": "de {senderName}",
+    "childInfo": ", {relationship, select, mother {mamá} father {papá} other {acudiente}} de {childName}"
+  },
+  "NavigationBar": {
+    "back": "Atrás"
+  },
+  "MessagesInput": {
+    "placeholder": "Mensaje"
   }
 }

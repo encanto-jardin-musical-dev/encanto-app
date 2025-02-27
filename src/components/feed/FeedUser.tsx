@@ -1,51 +1,44 @@
 "use client";
 
 import { getAllGroups, getUserChildren, getUserGroups } from "@/queries/user";
-import { Database } from "@/types/database.types";
 import { Avatar, Select, SelectItem } from "@heroui/react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect } from "react";
 import { useAtom } from "jotai";
 import {
-  userCurrentSelectionAtom,
   userRoleAtom,
   userSelectOptionsAtom,
+  userIdAtom,
 } from "@/lib/store/user";
-
-type UserProfile = Database["public"]["Tables"]["profiles"]["Row"];
+import { groupContextSelectedAtom } from "@/lib/store";
+import { UserChildren } from "@/types/messages.types";
+import { UserProfile } from "@/types/auth.types";
 
 type FeedUserProps = {
-  loggedUser: UserProfile;
+  user: UserProfile;
 };
 
-type ChildGroup = {
-  group_id: string;
-};
-
-type UserChildren = {
-  relationship: string;
-  children: {
-    id: string;
-    first_name: string;
-    last_name: string;
-    child_group: ChildGroup[];
-  };
-};
-
-export default function FeedUser({ loggedUser }: FeedUserProps) {
+export default function FeedUser({ user }: FeedUserProps) {
   const [selectOptions, setSelectOptions] = useAtom(userSelectOptionsAtom);
-  const [selectValue, setSelectValue] = useAtom(userCurrentSelectionAtom);
+  const [groupContextValue, setGroupContextValue] = useAtom(
+    groupContextSelectedAtom,
+  );
+
+  // TODO: refactor to handle the user info in a derived atom
   const [, setUserRole] = useAtom(userRoleAtom);
+  const [, setUserId] = useAtom(userIdAtom);
   const t = useTranslations("UserFeedPage.FeedUser");
 
+  // store user atoms data
   useEffect(() => {
-    if (loggedUser?.role) {
-      setUserRole(loggedUser?.role);
+    if (user?.role) {
+      setUserRole(user?.role);
+      setUserId(user?.id);
     }
-  }, [setUserRole, loggedUser?.role]);
+  }, [setUserRole, user?.role, setUserId, user?.id]);
 
   const getSelectOptions = useCallback(async () => {
-    if (loggedUser?.role === "admin") {
+    if (user?.role === "admin") {
       const rawAllGroups = await getAllGroups();
       const formatedGroups = Array.isArray(rawAllGroups)
         ? rawAllGroups.map((group) => ({
@@ -54,8 +47,8 @@ export default function FeedUser({ loggedUser }: FeedUserProps) {
           }))
         : [];
       setSelectOptions(formatedGroups);
-    } else if (loggedUser?.role === "teacher") {
-      const rawUserGroups = await getUserGroups(loggedUser?.id);
+    } else if (user?.role === "teacher") {
+      const rawUserGroups = await getUserGroups(user?.id);
       const formatedGroups = Array.isArray(rawUserGroups)
         ? rawUserGroups.map((group) => ({
             key: group?.id,
@@ -73,53 +66,56 @@ export default function FeedUser({ loggedUser }: FeedUserProps) {
         : [];
       setSelectOptions(formatedChildren);
     }
-  }, [loggedUser, setSelectOptions]);
+  }, [user, setSelectOptions]);
 
   useEffect(() => {
     getSelectOptions();
   }, [getSelectOptions]);
 
   useEffect(() => {
-    if (selectOptions.length > 0) {
-      setSelectValue(new Set([selectOptions[0].key]));
+    if (selectOptions.length > 0 && !groupContextValue) {
+      // TODO: check if there is selectedValue in LocalStorage
+      const initialValue = new Set([selectOptions[0].key]);
+      setGroupContextValue(initialValue);
     }
-  }, [selectOptions, setSelectValue]);
+  }, [selectOptions, setGroupContextValue, groupContextValue]);
 
   const getSelectPlaceholder = () => {
-    if (loggedUser?.role === "admin" || loggedUser?.role === "teacher") {
+    if (user?.role === "admin" || user?.role === "teacher") {
       return t("placeholders.other", { count: selectOptions.length });
     }
     return t("placeholders.parent", { count: selectOptions.length });
   };
 
   const getSelectLabel = () => {
-    if (loggedUser?.role === "admin" || loggedUser?.role === "teacher") {
+    if (user?.role === "admin" || user?.role === "teacher") {
       return t("labels.other", { count: selectOptions.length });
     }
     return t("labels.parent", { count: selectOptions.length });
   };
 
   return (
-    <>
+    <div className="w-full">
       <h1>
         {t("greeting", {
-          name: `${loggedUser?.first_name} ${loggedUser?.last_name}`,
+          name: `${user?.first_name} ${user?.last_name}`,
         })}
       </h1>
       <div className="flex w-full gap-4 pt-4">
         <div>
-          <Avatar size="lg" name={loggedUser?.first_name} color="primary" />
+          <Avatar size="lg" name={user?.first_name} color="primary" />
         </div>
         <Select
           label={getSelectLabel()}
           items={selectOptions}
           placeholder={getSelectPlaceholder()}
-          selectedKeys={selectValue}
-          onSelectionChange={setSelectValue}
+          selectedKeys={groupContextValue}
+          onSelectionChange={setGroupContextValue}
+          isDisabled={user.role === "teacher"}
         >
           {(option) => <SelectItem key={option.key}>{option.label}</SelectItem>}
         </Select>
       </div>
-    </>
+    </div>
   );
 }

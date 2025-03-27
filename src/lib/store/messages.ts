@@ -2,10 +2,10 @@ import { Message } from "@/types/messages.types";
 import { atom } from "jotai";
 
 type MessageUser = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  role: string;
+  id: string | undefined;
+  first_name: string | undefined;
+  last_name: string | undefined;
+  role: string | undefined;
 };
 
 // Messages

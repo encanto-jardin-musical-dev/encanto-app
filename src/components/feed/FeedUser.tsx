@@ -9,6 +9,7 @@ import {
   userRoleAtom,
   userSelectOptionsAtom,
   userIdAtom,
+  userGroupIdAtom,
 } from "@/lib/store/user";
 import { groupContextSelectedAtom } from "@/lib/store";
 import { UserChildren } from "@/types/messages.types";
@@ -27,6 +28,7 @@ export default function FeedUser({ user }: FeedUserProps) {
   // TODO: refactor to handle the user info in a derived atom
   const [, setUserRole] = useAtom(userRoleAtom);
   const [, setUserId] = useAtom(userIdAtom);
+  const [, setUserGroupId] = useAtom(userGroupIdAtom);
   const t = useTranslations("UserFeedPage.FeedUser");
 
   // store user atoms data
@@ -34,8 +36,18 @@ export default function FeedUser({ user }: FeedUserProps) {
     if (user?.role) {
       setUserRole(user?.role);
       setUserId(user?.id);
+      if (user?.role === "teacher") {
+        setUserGroupId(selectOptions[0]?.key as string);
+      }
     }
-  }, [setUserRole, user?.role, setUserId, user?.id]);
+  }, [
+    setUserRole,
+    user?.role,
+    setUserId,
+    user?.id,
+    setUserGroupId,
+    selectOptions,
+  ]);
 
   const getSelectOptions = useCallback(async () => {
     if (user?.role === "admin") {

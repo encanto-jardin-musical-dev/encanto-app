@@ -17,7 +17,7 @@ type MessageFeedCardProps = {
 export default function MessageFeedCard({ message }: MessageFeedCardProps) {
   const t = useTranslations("MessageCard");
   const format = useFormatter();
-  const messageDate = new Date(message.created_at);
+  const messageDate = new Date(message.created_at as string);
   const router = useRouter();
 
   const [groupContext] = useAtom(groupContextSelectedAtom);
@@ -25,20 +25,20 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
   const [, setReceiver] = useAtom(receiverAtom);
 
   const handlePress = () => {
-    router.push(`/messages/${message.sender.sender_id}`);
+    router.push(`/messages/${message.sender?.sender_id}`);
     setSender((prev) => ({
       ...prev,
-      id: message.sender.sender_id,
-      first_name: message.sender.first_name,
-      last_name: message.sender.last_name,
-      role: message.sender.role,
+      id: message.receiver?.receiver_id,
+      first_name: message.receiver?.first_name,
+      last_name: message?.receiver?.last_name,
+      role: message?.receiver?.role,
     }));
     setReceiver((prev) => ({
       ...prev,
-      id: message.receiver.receiver_id,
-      first_name: message.receiver.first_name,
-      last_name: message.receiver.last_name,
-      role: message.receiver.role,
+      id: message.sender?.sender_id,
+      first_name: message.sender?.first_name,
+      last_name: message.sender?.last_name,
+      role: message.sender?.role,
     }));
   };
 
@@ -51,7 +51,7 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
 
   return (
     <Card
-      className={`text-white ${message.sender.role === "admin" ? "bg-secondary-400" : "bg-success-600"}`}
+      className={`text-white ${message.sender?.role === "admin" ? "bg-secondary-400" : "bg-success-600"}`}
       isPressable
       onPress={handlePress}
     >

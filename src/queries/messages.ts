@@ -13,6 +13,8 @@ export async function getMessages(senderID: string) {
       is_read,
       read_at,
       attachments,
+      sender_id,
+      receiver_id,
       sender:profiles!messages_sender_id_fkey(
         first_name,
         last_name,
@@ -43,4 +45,37 @@ export async function getMessages(senderID: string) {
   }
 
   return data;
+}
+
+export async function sendMessage(message: Message) {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("messages")
+    .insert({
+      content: message.content,
+      sender_id: message.sender_id,
+      receiver_id: message.receiver_id,
+      ...(message.group_id && { group_id: message.group_id }),
+      created_at: new Date(),
+    })
+    .select();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
+export async function markMessageAsRead(messageID: string) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("messages")
+    .update({ is_read: true, read_at: new Date() })
+    .match({ id: messageID })
+    .select();
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }

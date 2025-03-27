@@ -69,6 +69,8 @@ export const getUserMessages = async (userID: string, groupID?: string) => {
       is_read,
       read_at,
       attachments,
+      sender_id,
+      receiver_id,
       sender:profiles!messages_sender_id_fkey(
         first_name,
         last_name,

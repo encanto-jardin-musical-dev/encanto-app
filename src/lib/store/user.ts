@@ -13,6 +13,7 @@ export const userIdAtom = atom("");
 export const userSelectOptionsAtom = atom<SelectOptions[]>([]);
 export const userAvatarAtom = atom("");
 export const userChildrenGroupAtom = atom();
+export const userGroupIdAtom = atom("");
 
 export const userAtom = atom((get) => ({
   id: get(userIdAtom),

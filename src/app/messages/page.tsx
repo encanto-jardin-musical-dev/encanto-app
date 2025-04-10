@@ -1,9 +1,11 @@
-import { redirect } from "next/navigation";
+import NavigationBar from "@/components/common/NavigationBar";
+import SearchBar from "@/components/common/SearchBar";
+import MessagesContactsList from "@/components/messages/MessagesContactsList";
 import { createClient } from "@/utils/supabase/server";
-import { Button } from "@heroui/react";
-import { signout } from "@/utils/auth/actions";
+import { redirect } from "next/navigation";
 
 export default async function MessagesPage() {
+  // Check if the user is authenticated
   const supabase = await createClient();
   const {
     data: { user },
@@ -12,19 +14,12 @@ export default async function MessagesPage() {
   if (error || !user) {
     redirect("/login");
   }
+
   return (
-    <>
-      <h1>
-        {`Hello, ${user?.user_metadata?.first_name} ${user?.user_metadata?.last_name} here are your messages`}
-      </h1>
-      <Button
-        onPress={signout}
-        type="button"
-        variant="bordered"
-        color="secondary"
-      >
-        Sign Out
-      </Button>
-    </>
+    <section className="grid grid-rows-[auto_auto_1fr] h-full gap-4">
+      <NavigationBar backRoute="/feed" pageTitle="Mensajes" />
+      <SearchBar />
+      <MessagesContactsList />
+    </section>
   );
 }

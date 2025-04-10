@@ -14,7 +14,7 @@ export default async function MessagePage({ params }: MessagePageProps) {
 
   return (
     <div className="grid grid-rows-[auto_auto_1fr_auto] h-full gap-4">
-      <NavigationBar backRoute="/feed" />
+      <NavigationBar backRoute="/messages" />
       <MessagesUserData />
       <MessagesList senderID={senderID} />
       <MessageInput />

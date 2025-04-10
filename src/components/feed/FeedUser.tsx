@@ -9,7 +9,7 @@ import {
   userRoleAtom,
   userSelectOptionsAtom,
   userIdAtom,
-  userGroupIdAtom,
+  // userGroupIdAtom,
 } from "@/lib/store/user";
 import { groupContextSelectedAtom } from "@/lib/store";
 import { UserChildren } from "@/types/messages.types";
@@ -20,34 +20,37 @@ type FeedUserProps = {
 };
 
 export default function FeedUser({ user }: FeedUserProps) {
+  const { id, role } = user;
   const [selectOptions, setSelectOptions] = useAtom(userSelectOptionsAtom);
   const [groupContextValue, setGroupContextValue] = useAtom(
     groupContextSelectedAtom,
   );
 
-  // TODO: refactor to handle the user info in a derived atom
   const [, setUserRole] = useAtom(userRoleAtom);
   const [, setUserId] = useAtom(userIdAtom);
-  const [, setUserGroupId] = useAtom(userGroupIdAtom);
+  // const [, setUserGroupId] = useAtom(userGroupIdAtom);
   const t = useTranslations("UserFeedPage.FeedUser");
 
+  setUserId(id);
+  setUserRole(role);
+
   // store user atoms data
-  useEffect(() => {
-    if (user?.role) {
-      setUserRole(user?.role);
-      setUserId(user?.id);
-      if (user?.role === "teacher") {
-        setUserGroupId(selectOptions[0]?.key as string);
-      }
-    }
-  }, [
-    setUserRole,
-    user?.role,
-    setUserId,
-    user?.id,
-    setUserGroupId,
-    selectOptions,
-  ]);
+  // useEffect(() => {
+  //   if (user?.role) {
+  //     setUserRole(user?.role);
+  //     setUserId(user?.id);
+  //     if (user?.role === "teacher") {
+  //       setUserGroupId(selectOptions[0]?.key as string);
+  //     }
+  //   }
+  // }, [
+  //   setUserRole,
+  //   user?.role,
+  //   setUserId,
+  //   user?.id,
+  //   setUserGroupId,
+  //   selectOptions,
+  // ]);
 
   const getSelectOptions = useCallback(async () => {
     if (user?.role === "admin") {

@@ -1,4 +1,9 @@
 {
+  "LoginPage": {
+    "email": "Email",
+    "password": "Contraseña",
+    "login": "Iniciar Sesión"
+  },
   "HomePage": {
     "welcome": "Bienvenidos",
     "description": "Nuestra app, nos permite estar más comunicados",

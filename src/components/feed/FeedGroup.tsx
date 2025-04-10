@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo } from "react";
 import MessageFeedCard from "./MessageFeedCard";
 import { getGroupContextValue } from "@/utils";
+import { ActionButton } from "../common/ActionButton";
 
 function filterMostRecentMessagesBySender(messages: Message[]) {
   const senderMap = new Map();
@@ -67,6 +68,7 @@ export default function FeedGroup() {
       {filteredMessages.length === 0 && (
         <Spinner color="primary" label={t("GroupFeed.loading")} />
       )}
+      <ActionButton />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Message } from "@/types/messages.types";
+import { Message, UserContact } from "@/types/messages.types";
 import { atom } from "jotai";
 
 type MessageUser = {
@@ -16,3 +16,6 @@ export const senderAtom = atom<MessageUser>();
 
 // Receiver
 export const receiverAtom = atom<MessageUser>();
+
+// User contacts
+export const userContactsAtom = atom<UserContact[]>([]);

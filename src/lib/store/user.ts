@@ -1,3 +1,4 @@
+import type { Selection } from "@heroui/react";
 import { atom } from "jotai";
 import { groupContextSelectedAtom } from ".";
 
@@ -6,20 +7,60 @@ type SelectOptions = {
   label: string;
 };
 
+type UserRole = "parent" | "teacher" | "admin";
+
+interface BaseUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  avatar: string;
+  groupContext: Selection | undefined;
+}
+
+interface ParentUser extends BaseUser {
+  role: "parent";
+  children: SelectOptions[];
+}
+
+interface StaffUser extends BaseUser {
+  role: "teacher" | "admin";
+  groups: SelectOptions[];
+}
+
+type User = ParentUser | StaffUser;
+
 export const userFirstNameAtom = atom("");
 export const userLastNameAtom = atom("");
-export const userRoleAtom = atom("");
+export const userRoleAtom = atom<UserRole>("parent");
 export const userIdAtom = atom("");
 export const userSelectOptionsAtom = atom<SelectOptions[]>([]);
 export const userAvatarAtom = atom("");
 export const userChildrenGroupAtom = atom();
 export const userGroupIdAtom = atom("");
 
-export const userAtom = atom((get) => ({
-  id: get(userIdAtom),
-  name: `${get(userFirstNameAtom)} ${get(userLastNameAtom)}`,
-  groupContext: get(groupContextSelectedAtom),
-  ...(get(userRoleAtom) !== "parent"
-    ? { groups: get(userSelectOptionsAtom) }
-    : { children: get(userSelectOptionsAtom) }),
-}));
+export const userAtom = atom((get): User => {
+  const role = get(userRoleAtom);
+  const baseUser: BaseUser = {
+    id: get(userIdAtom),
+    firstName: get(userFirstNameAtom),
+    lastName: get(userLastNameAtom),
+    role,
+    avatar: get(userAvatarAtom),
+    groupContext: get(groupContextSelectedAtom),
+  };
+
+  if (role === "parent") {
+    return {
+      ...baseUser,
+      role: "parent",
+      children: get(userSelectOptionsAtom),
+    };
+  }
+
+  return {
+    ...baseUser,
+    role: role as "teacher" | "admin",
+    groups: get(userSelectOptionsAtom),
+  };
+});

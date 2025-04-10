@@ -1,4 +1,4 @@
-import { Message } from "@/types/messages.types";
+import { Message, UserContact } from "@/types/messages.types";
 import { createClient } from "@/utils/supabase/client";
 
 export async function getMessages(senderID: string) {
@@ -34,7 +34,6 @@ export async function getMessages(senderID: string) {
     .or(`sender_id.eq.${senderID},receiver_id.eq.${senderID}`)
     .order("created_at")
     .returns<Message[]>();
-  // TODO: Add rage by create_at
 
   if (error) {
     throw new Error(error.message);
@@ -44,7 +43,7 @@ export async function getMessages(senderID: string) {
     return [];
   }
 
-  return data;
+  return { data, error };
 }
 
 export async function sendMessage(message: Message) {
@@ -64,7 +63,7 @@ export async function sendMessage(message: Message) {
     throw new Error(error.message);
   }
 
-  return data;
+  return { data, error };
 }
 
 export async function markMessageAsRead(messageID: string) {
@@ -78,4 +77,20 @@ export async function markMessageAsRead(messageID: string) {
   if (error) {
     throw new Error(error.message);
   }
+
+  return { error };
+}
+
+export async function getUserContacts() {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select(`first_name, last_name, id, avatar_url, role`)
+    .returns<UserContact[]>();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return { data, error };
 }

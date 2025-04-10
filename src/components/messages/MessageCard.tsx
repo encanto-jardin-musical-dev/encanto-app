@@ -1,40 +1,39 @@
 "use client";
 
-import { userAtom } from "@/lib/store/user";
 import { markMessageAsRead } from "@/queries/messages";
 import { Message } from "@/types/messages.types";
 import { CheckIcon } from "@heroicons/react/16/solid";
 import { Card, CardBody } from "@heroui/react";
-import { useAtom } from "jotai";
 import { useFormatter } from "next-intl";
 import { useEffect, useState } from "react";
 
 type MessageCardProps = {
   message: Message;
+  isOwnMessage: boolean;
 };
 
-export default function MessageCard({ message }: MessageCardProps) {
+export default function MessageCard({
+  message,
+  isOwnMessage,
+}: MessageCardProps) {
   const format = useFormatter();
-  const [user] = useAtom(userAtom);
   const [isRead] = useState(message?.is_read);
   const createdDate = new Date(message?.created_at as string);
 
-  const isUserMessageSender = message?.sender_id === user?.id;
-
   useEffect(() => {
-    if (!message?.is_read && !isUserMessageSender) {
+    if (!message?.is_read && !isOwnMessage) {
       markMessageAsRead(message?.id as string);
     }
-  }, [message, isUserMessageSender]);
+  }, [message, isOwnMessage]);
 
   return (
     <div
       key={message?.id}
-      className={`gap-2 flex flex-col ${isUserMessageSender ? "items-end" : "item-start"}`}
+      className={`gap-2 flex flex-col ${isOwnMessage ? "items-end" : "item-start"}`}
     >
       <Card
         key={message?.id}
-        className={`w-11/12 ${isUserMessageSender ? "bg-secondary-200 justify-self-end" : "bg-default-200"}`}
+        className={`w-11/12 ${isOwnMessage ? "bg-secondary-200 justify-self-end" : "bg-default-200"}`}
         shadow="none"
       >
         <CardBody>
@@ -42,9 +41,7 @@ export default function MessageCard({ message }: MessageCardProps) {
         </CardBody>
       </Card>
       <div className="flex">
-        <span
-          className={`text-tiny ${isUserMessageSender && "justify-self-end"}`}
-        >
+        <span className={`text-tiny ${isOwnMessage && "justify-self-end"}`}>
           {format.dateTime(createdDate, {
             year: "numeric",
             month: "short",
@@ -53,7 +50,7 @@ export default function MessageCard({ message }: MessageCardProps) {
             minute: "numeric",
           })}
         </span>
-        {isRead && isUserMessageSender ? (
+        {isRead && isOwnMessage ? (
           <div>
             <CheckIcon className="w-4 h-4 text-success-400" />
           </div>

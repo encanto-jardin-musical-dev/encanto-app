@@ -4,8 +4,10 @@ import { Button, Form, Input } from "@heroui/react";
 import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { login } from "@/utils/auth/actions";
+import { useTranslations } from "next-intl";
 
 export default function LoginForm() {
+  const t = useTranslations("LoginPage");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -28,20 +30,22 @@ export default function LoginForm() {
       onSubmit={handleSubmit}
     >
       <Input
-        label="Email"
+        label={t("email")}
         type="email"
         name="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
+        autoComplete="email"
       />
       <Input
-        label="Contraseña"
+        label={t("password")}
         type={isPasswordVisible ? "text" : "password"}
         name="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
+        autoComplete="current-password"
         endContent={
           <button
             aria-label="toggle password visibility"
@@ -59,7 +63,7 @@ export default function LoginForm() {
       />
       <div className="pt-9 w-full">
         <Button color="primary" fullWidth type="submit" size="lg">
-          Ingresar
+          {t("login")}
         </Button>
       </div>
     </Form>

@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useAtom } from "jotai";
 import { useEffect, useRef } from "react";
 import MessageCard from "./MessageCard";
+import { userIdAtom } from "@/lib/store/user";
 
 type MessagesListProps = {
   senderID: string;
@@ -18,6 +19,7 @@ export default function MessagesList({ senderID }: MessagesListProps) {
   const [messages, setMessages] = useAtom(messagesAtom);
   const [sender] = useAtom(senderAtom);
   const [receiver] = useAtom(receiverAtom);
+  const [userID] = useAtom(userIdAtom);
 
   const messageListRef = useRef<HTMLDivElement | null>(null);
 
@@ -46,16 +48,6 @@ export default function MessagesList({ senderID }: MessagesListProps) {
             };
             setMessages([...messages, incomingMessage as Message]);
             scrollToBottom();
-          } else if (payload?.eventType === "UPDATE") {
-            // TODO: Figured out how to update messages when isRead was updated
-            const updatedMessageIndex = messages.findIndex(
-              (message) => message.id === payload.new.id,
-            );
-            if (updatedMessageIndex !== -1) {
-              const newMessages = [...messages];
-              newMessages[updatedMessageIndex] = payload.new as Message;
-              setMessages(newMessages);
-            }
           }
         },
       )
@@ -67,7 +59,10 @@ export default function MessagesList({ senderID }: MessagesListProps) {
 
   useEffect(() => {
     const fetchMessages = async () => {
-      const messages: Message[] = await getMessages(senderID);
+      const response = await getMessages(senderID);
+      const messages: Message[] = Array.isArray(response)
+        ? response
+        : response.data;
       if (!messages) {
         console.log("error");
       }
@@ -85,7 +80,11 @@ export default function MessagesList({ senderID }: MessagesListProps) {
     >
       {Array.isArray(messages)
         ? messages.map((message) => (
-            <MessageCard key={message.id} message={message} />
+            <MessageCard
+              key={message.id}
+              message={message}
+              isOwnMessage={message.sender_id === userID}
+            />
           ))
         : []}
     </div>

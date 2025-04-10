@@ -47,3 +47,10 @@ export type UserChildren = {
     child_group: ChildGroup[];
   };
 };
+export type UserContact = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  role: string;
+  avatar_url?: string;
+};

@@ -1,13 +1,13 @@
 {
-  "LoginPage": {
-    "email": "Email",
-    "password": "Contraseña",
-    "login": "Iniciar Sesión"
-  },
   "HomePage": {
     "welcome": "Bienvenidos",
     "description": "Nuestra app, nos permite estar más comunicados",
     "button": "Iniciar Sesión"
+  },
+  "LoginPage": {
+    "email": "Email",
+    "password": "Contraseña",
+    "login": "Ingresar"
   },
   "UserFeedPage": {
     "FeedUser": {

@@ -81,16 +81,26 @@ export async function markMessageAsRead(messageID: string) {
   return { error };
 }
 
-export async function getUserContacts() {
+export async function getUserContacts(userID: string) {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("profiles")
     .select(`first_name, last_name, id, avatar_url, role`)
+    .neq("id", userID)
     .returns<UserContact[]>();
 
   if (error) {
     throw new Error(error.message);
   }
 
+  return { data, error };
+}
+
+export async function getProfilesByGuardian() {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_profiles_by_guardian");
+  if (error) {
+    throw new Error(error.message);
+  }
   return { data, error };
 }

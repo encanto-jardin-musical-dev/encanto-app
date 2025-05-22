@@ -9,11 +9,11 @@ import {
   userRoleAtom,
   userSelectOptionsAtom,
   userIdAtom,
-  // userGroupIdAtom,
 } from "@/lib/store/user";
 import { groupContextSelectedAtom } from "@/lib/store";
-import { UserChildren } from "@/types/messages.types";
-import { UserProfile } from "@/types/auth.types";
+import type { UserChildren } from "@/types/messages.types";
+import type { UserProfile } from "@/types/auth.types";
+import type { Key } from "@react-types/shared";
 
 type FeedUserProps = {
   user: UserProfile;
@@ -22,78 +22,62 @@ type FeedUserProps = {
 export default function FeedUser({ user }: FeedUserProps) {
   const { id, role } = user;
   const [selectOptions, setSelectOptions] = useAtom(userSelectOptionsAtom);
-  const [groupContextValue, setGroupContextValue] = useAtom(
+  const [groupContextSelection, setGroupContextSelection] = useAtom(
     groupContextSelectedAtom,
   );
 
   const [, setUserRole] = useAtom(userRoleAtom);
   const [, setUserId] = useAtom(userIdAtom);
-  // const [, setUserGroupId] = useAtom(userGroupIdAtom);
   const t = useTranslations("UserFeedPage.FeedUser");
 
-  setUserId(id);
-  setUserRole(role);
-
-  // store user atoms data
-  // useEffect(() => {
-  //   if (user?.role) {
-  //     setUserRole(user?.role);
-  //     setUserId(user?.id);
-  //     if (user?.role === "teacher") {
-  //       setUserGroupId(selectOptions[0]?.key as string);
-  //     }
-  //   }
-  // }, [
-  //   setUserRole,
-  //   user?.role,
-  //   setUserId,
-  //   user?.id,
-  //   setUserGroupId,
-  //   selectOptions,
-  // ]);
+  useEffect(() => {
+    if (id) setUserId(id);
+    if (role) setUserRole(role);
+  }, [id, role, setUserId, setUserRole]);
 
   const getSelectOptions = useCallback(async () => {
     if (user?.role === "admin") {
       const rawAllGroups = await getAllGroups();
       const formatedGroups = Array.isArray(rawAllGroups)
         ? rawAllGroups.map((group) => ({
-            key: group?.id,
-            label: group?.name,
-          }))
+          key: group?.id as Key,
+          label: group?.name,
+        }))
         : [];
       setSelectOptions(formatedGroups);
     } else if (user?.role === "teacher") {
       const rawUserGroups = await getUserGroups(user?.id);
       const formatedGroups = Array.isArray(rawUserGroups)
         ? rawUserGroups.map((group) => ({
-            key: group?.id,
-            label: group?.name,
-          }))
+          key: group?.id as Key,
+          label: group?.name,
+        }))
         : [];
       setSelectOptions(formatedGroups);
     } else {
       const rawUserChildren: UserChildren[] | unknown = await getUserChildren();
       const formatedChildren = Array.isArray(rawUserChildren)
         ? rawUserChildren.map((child) => ({
-            key: child?.children?.child_group[0]?.group_id,
-            label: `${child?.children?.first_name} ${child?.children?.last_name}`,
-          }))
+          key: child?.children?.child_group[0]?.group_id as Key,
+          label: `${child?.children?.first_name} ${child?.children?.last_name}`,
+        }))
         : [];
       setSelectOptions(formatedChildren);
     }
-  }, [user, setSelectOptions]);
+  }, [user?.id, user?.role, setSelectOptions]);
 
   useEffect(() => {
     getSelectOptions();
   }, [getSelectOptions]);
 
   useEffect(() => {
-    if (selectOptions.length > 0 && !groupContextValue) {
-      // TODO: check if there is selectedValue in LocalStorage
-      const initialValue = new Set([selectOptions[0].key]);
-      setGroupContextValue(initialValue);
+    if (selectOptions.length > 0 && groupContextSelection === undefined) {
+      if (selectOptions[0]?.key !== undefined) {
+        const initialValue = new Set([selectOptions[0].key]);
+        setGroupContextSelection(initialValue);
+      }
     }
-  }, [selectOptions, setGroupContextValue, groupContextValue]);
+  }, [selectOptions, groupContextSelection, setGroupContextSelection]);
 
   const getSelectPlaceholder = () => {
     if (user?.role === "admin" || user?.role === "teacher") {
@@ -124,8 +108,8 @@ export default function FeedUser({ user }: FeedUserProps) {
           label={getSelectLabel()}
           items={selectOptions}
           placeholder={getSelectPlaceholder()}
-          selectedKeys={groupContextValue}
-          onSelectionChange={setGroupContextValue}
+          selectedKeys={groupContextSelection}
+          onSelectionChange={setGroupContextSelection}
           isDisabled={user.role === "teacher"}
         >
           {(option) => <SelectItem key={option.key}>{option.label}</SelectItem>}

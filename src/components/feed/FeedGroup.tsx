@@ -1,6 +1,6 @@
 "use client";
 
-import { groupContextSelectedAtom } from "@/lib/store";
+import { contextGroupValue } from "@/lib/store";
 import { groupMessagesAtom } from "@/lib/store/feed";
 import { userAtom } from "@/lib/store/user";
 import { getUserMessages } from "@/queries/user";
@@ -10,7 +10,6 @@ import { useAtom } from "jotai";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo } from "react";
 import MessageFeedCard from "./MessageFeedCard";
-import { getGroupContextValue } from "@/utils";
 import { ActionButton } from "../common/ActionButton";
 
 function filterMostRecentMessagesBySender(messages: Message[]) {
@@ -22,7 +21,7 @@ function filterMostRecentMessagesBySender(messages: Message[]) {
     if (
       !senderMap.has(senderId) ||
       new Date(message.created_at as string) >
-        new Date(senderMap.get(senderId).created_at)
+      new Date(senderMap.get(senderId).created_at)
     ) {
       senderMap.set(senderId, message);
     }
@@ -36,10 +35,9 @@ function filterMostRecentMessagesBySender(messages: Message[]) {
 
 export default function FeedGroup() {
   const [user] = useAtom(userAtom);
-  const [groupContext] = useAtom(groupContextSelectedAtom);
+  const [groupContextId] = useAtom(contextGroupValue);
   const [groupMessages, setGroupMessages] = useAtom(groupMessagesAtom);
   const t = useTranslations("UserFeedPage");
-  const groupContextId = getGroupContextValue(groupContext);
 
   const getGroupMessages = useCallback(async () => {
     const allUserMessages = await getUserMessages(
@@ -50,15 +48,17 @@ export default function FeedGroup() {
   }, [setGroupMessages, user.id, groupContextId]);
 
   useEffect(() => {
-    if (groupContext) {
+    if (groupContextId) {
       getGroupMessages();
     }
-  }, [groupContext, getGroupMessages]);
+  }, [groupContextId, getGroupMessages]);
 
   const filteredMessages = useMemo(() => {
     if (!Array.isArray(groupMessages)) return [];
     return filterMostRecentMessagesBySender(groupMessages);
   }, [groupMessages]);
+
+  console.log({ filteredMessages })
 
   return (
     <div className="w-full flex flex-col gap-4">

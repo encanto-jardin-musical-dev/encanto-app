@@ -1,4 +1,5 @@
 "use client";
+
 import { receiverAtom } from "@/lib/store/messages";
 import { userGroupIdAtom, userIdAtom, userRoleAtom } from "@/lib/store/user";
 import { sendMessage } from "@/queries/messages";
@@ -41,9 +42,11 @@ export default function MessageInput() {
         value={content}
         onValueChange={setContent}
       />
-      <Button isIconOnly aria-label="add files" isDisabled>
-        <PlusIcon className="w-4 h-4" />
-      </Button>
+      {userRole !== 'parent' ? (
+        <Button isIconOnly aria-label="add files" isDisabled>
+          <PlusIcon className="w-4 h-4" />
+        </Button>
+      ) : null}
       <Button
         isIconOnly
         aria-label="submit message"

@@ -54,3 +54,19 @@ export type UserContact = {
   role: string;
   avatar_url?: string;
 };
+
+export type DetailedMessage = {
+  message_id: string;
+  message_content: string;
+  message_created_at: string;
+  sender_id: string;
+  sender_first_name: string;
+  sender_last_name: string;
+  sender_role: string;
+  receiver_id: string;
+  receiver_first_name: string;
+  receiver_last_name: string;
+  receiver_role: string;
+  group_id?: string;
+  message_attachments?: string[];
+}

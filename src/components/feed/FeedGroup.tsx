@@ -2,17 +2,17 @@
 
 import { contextGroupValue } from "@/lib/store";
 import { groupMessagesAtom } from "@/lib/store/feed";
-import { userAtom } from "@/lib/store/user";
 import { getUserMessages } from "@/queries/user";
-import { Message } from "@/types/messages.types";
+import { DetailedMessage } from "@/types/messages.types";
 import { Spinner } from "@heroui/react";
 import { useAtom } from "jotai";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo } from "react";
 import MessageFeedCard from "./MessageFeedCard";
 import { ActionButton } from "../common/ActionButton";
+import { userAtom } from "@/lib/store/user";
 
-function filterMostRecentMessagesBySender(messages: Message[]) {
+function filterMostRecentMessagesBySender(messages: DetailedMessage[]) {
   const senderMap = new Map();
 
   for (const message of messages) {
@@ -20,8 +20,8 @@ function filterMostRecentMessagesBySender(messages: Message[]) {
 
     if (
       !senderMap.has(senderId) ||
-      new Date(message.created_at as string) >
-      new Date(senderMap.get(senderId).created_at)
+      new Date(message.message_created_at as string) >
+      new Date(senderMap.get(senderId).message_created_at)
     ) {
       senderMap.set(senderId, message);
     }
@@ -29,7 +29,7 @@ function filterMostRecentMessagesBySender(messages: Message[]) {
 
   return Array.from(senderMap.values()).sort(
     (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      new Date(b.message_created_at).getTime() - new Date(a.message_created_at).getTime(),
   );
 }
 
@@ -40,12 +40,9 @@ export default function FeedGroup() {
   const t = useTranslations("UserFeedPage");
 
   const getGroupMessages = useCallback(async () => {
-    const allUserMessages = await getUserMessages(
-      user.id,
-      groupContextId as string,
-    );
-    setGroupMessages(allUserMessages as unknown as Message[]);
-  }, [setGroupMessages, user.id, groupContextId]);
+    const allUserMessages = await getUserMessages(user.id, groupContextId as string);
+    setGroupMessages(allUserMessages as unknown as DetailedMessage[]);
+  }, [groupContextId, setGroupMessages, user.id]);
 
   useEffect(() => {
     if (groupContextId) {
@@ -58,12 +55,12 @@ export default function FeedGroup() {
     return filterMostRecentMessagesBySender(groupMessages);
   }, [groupMessages]);
 
-  console.log({ filteredMessages })
+
 
   return (
     <div className="w-full flex flex-col gap-4">
       {filteredMessages.map((message) => (
-        <MessageFeedCard key={message.id} message={message} />
+        <MessageFeedCard key={message.message_id} message={message} />
       ))}
       {filteredMessages.length === 0 && (
         <Spinner color="primary" label={t("GroupFeed.loading")} />

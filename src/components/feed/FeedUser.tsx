@@ -9,6 +9,7 @@ import {
   userRoleAtom,
   userSelectOptionsAtom,
   userIdAtom,
+  userGroupIdAtom,
 } from "@/lib/store/user";
 import { groupContextSelectedAtom } from "@/lib/store";
 import type { UserChildren } from "@/types/messages.types";
@@ -28,11 +29,13 @@ export default function FeedUser({ user }: FeedUserProps) {
 
   const [, setUserRole] = useAtom(userRoleAtom);
   const [, setUserId] = useAtom(userIdAtom);
+  const [, setUserGroup] = useAtom(userGroupIdAtom);
   const t = useTranslations("UserFeedPage.FeedUser");
 
   useEffect(() => {
     if (id) setUserId(id);
     if (role) setUserRole(role);
+
   }, [id, role, setUserId, setUserRole]);
 
   const getSelectOptions = useCallback(async () => {
@@ -47,6 +50,7 @@ export default function FeedUser({ user }: FeedUserProps) {
       setSelectOptions(formatedGroups);
     } else if (user?.role === "teacher") {
       const rawUserGroups = await getUserGroups(user?.id);
+      setUserGroup(rawUserGroups.find((group) => group.teacher_id === user.id).id);
       const formatedGroups = Array.isArray(rawUserGroups)
         ? rawUserGroups.map((group) => ({
           key: group?.id as Key,
@@ -64,7 +68,7 @@ export default function FeedUser({ user }: FeedUserProps) {
         : [];
       setSelectOptions(formatedChildren);
     }
-  }, [user?.id, user?.role, setSelectOptions]);
+  }, [user?.role, user.id, setSelectOptions, setUserGroup]);
 
   useEffect(() => {
     getSelectOptions();

@@ -64,7 +64,7 @@ export default function MessagesList({ senderID }: MessagesListProps) {
         ? response
         : response.data;
       if (!messages) {
-        console.log("error");
+        console.error("error");
       }
       setMessages(messages);
     };
@@ -80,12 +80,12 @@ export default function MessagesList({ senderID }: MessagesListProps) {
     >
       {Array.isArray(messages)
         ? messages.map((message) => (
-            <MessageCard
-              key={message.id}
-              message={message}
-              isOwnMessage={message.sender_id === userID}
-            />
-          ))
+          <MessageCard
+            key={message.id}
+            message={message}
+            isOwnMessage={message.sender_id === userID}
+          />
+        ))
         : []}
     </div>
   );

@@ -16,7 +16,7 @@ export default function NavigationBar({
 }: NavigationBarProps) {
   const t = useTranslations("NavigationBar");
   return (
-    <div className="grid grid-cols-[.3fr_1fr_.3fr] text-small items-center gap-2 pt-10">
+    <div className="grid grid-cols-[.3fr_1fr_.3fr] text-small items-center gap-2">
       <Link href={backRoute} className="flex text-small items-center gap-2">
         <ArrowLeftIcon className="w-4 h-4" />
         {t("back")}

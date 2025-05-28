@@ -1,56 +1,116 @@
 "use client";
 
+import { contextGroupValue } from "@/lib/store";
 import { receiverAtom, senderAtom } from "@/lib/store/messages";
+import { getSenderChildren } from "@/queries/user";
 import { DetailedMessage as MessageFeedResponse } from "@/types/messages.types";
-import { EnvelopeIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { ClockIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import { useAtom } from "jotai";
 import { useFormatter, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 type MessageFeedCardProps = {
   message: MessageFeedResponse;
 };
 
+export type FilteredParentChild = {
+  relationship: string;
+  children: Child;
+}
+
+type Child = {
+  id: string;
+  last_name: string;
+  first_name: string;
+  child_groups?: ChildGroup[];
+}
+
+type ChildGroup = {
+  group_id: string;
+}
+
 export default function MessageFeedCard({ message }: MessageFeedCardProps) {
   const t = useTranslations("MessageCard");
   const format = useFormatter();
-  const messageDate = new Date(message.message_created_at as string);
   const router = useRouter();
 
-  // const [groupContext] = useAtom(groupContextSelectedAtom);
+  const {
+    message_created_at,
+    sender_id,
+    receiver_id,
+    receiver_first_name,
+    receiver_last_name,
+    receiver_role,
+    sender_first_name,
+    sender_last_name,
+    sender_role,
+    message_content
+  } = message;
+
+  const messageDate = new Date(message_created_at as string);
+
   const [, setSender] = useAtom(senderAtom);
   const [, setReceiver] = useAtom(receiverAtom);
+  const [groupContextId] = useAtom(contextGroupValue);
+  const [parentSenderChild, setParentSenderChild] = useState<FilteredParentChild | null>(null);
 
-  const handlePress = () => {
-    router.push(`/messages/${message.sender_id}`);
+  const handlePress = useCallback(() => {
+    router.push(`/messages/${sender_id}`);
     setSender((prev) => ({
       ...prev,
-      id: message.receiver_id,
-      first_name: message.receiver_first_name,
-      last_name: message.receiver_last_name,
-      role: message.receiver_role,
+      id: receiver_id,
+      first_name: receiver_first_name,
+      last_name: receiver_last_name,
+      role: receiver_role,
     }));
     setReceiver((prev) => ({
       ...prev,
-      id: message.sender_id,
-      first_name: message.sender_first_name,
-      last_name: message.sender_last_name,
-      role: message.sender_role,
+      id: sender_id,
+      first_name: sender_first_name,
+      last_name: sender_last_name,
+      role: sender_role,
     }));
-  };
+  }, [
+    router,
+    sender_id,
+    receiver_id,
+    receiver_first_name,
+    receiver_last_name,
+    receiver_role,
+    sender_first_name,
+    sender_last_name,
+    sender_role,
+    setSender,
+    setReceiver,
+  ]);
 
-  //FIXME: Get sender user children for teacher messages subtitle
-  // const messageChild = message?.sender?.children?.find((child) => {
-  //   return (
-  //     child?.children?.child_group[0]?.group_id ===
-  //     getGroupContextValue(groupContext as Selection)
-  //   );
-  // });
+  const fetchParentSenderChild = useCallback(async () => {
+    if (!groupContextId) return;
+
+    try {
+      const parentSenderChildren = await getSenderChildren(sender_id, groupContextId as string);
+      const foundChild = parentSenderChildren.find(
+        (child) =>
+          Array.isArray(child.children?.child_groups) &&
+          child.children.child_groups.some((group) => group.group_id === groupContextId)
+      );
+      setParentSenderChild(foundChild as FilteredParentChild | null || null);
+    } catch (error) {
+      console.error("Failed to fetch parent sender children:", error);
+    }
+  }, [sender_id, groupContextId]);
+
+  useEffect(() => {
+    if (sender_role === 'parent') {
+      fetchParentSenderChild();
+    }
+  }, [fetchParentSenderChild, sender_role]);
 
   return (
     <Card
-      className={`text-white ${message.sender_role === "admin" ? "bg-secondary-400" : "bg-success-600"}`}
+      className={`text-white ${sender_role === "admin" ? "bg-secondary-400" : "bg-success-600"}`}
       isPressable
       onPress={handlePress}
     >
@@ -61,15 +121,13 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
         <div className="text-left flex-1">
           <h3 className="text-medium">{t("title")}</h3>
           <p className="text-tiny text-white/50">
-            {t("senderInfo", {
-              senderName: `${message?.sender_first_name}`,
-            })}
-            {/* {messageChild */}
-            {/*   ? t("childInfo", { */}
-            {/*       relationship: `${messageChild?.relationship}`, */}
-            {/*       childName: `${messageChild?.children?.first_name} ${messageChild?.children?.last_name}`, */}
-            {/*     }) */}
-            {/*   : null} */}
+            {t("senderInfo", { senderName: sender_first_name })}
+            {parentSenderChild && ( // Conditionally render child info
+              t("childInfo", {
+                relationship: parentSenderChild.relationship,
+                childName: `${parentSenderChild.children.first_name} ${parentSenderChild.children.last_name}`,
+              })
+            )}
           </p>
         </div>
         <div className="flex justify-end items-center text-tiny">
@@ -78,7 +136,7 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
         </div>
       </CardHeader>
       <CardBody>
-        <p className="text-small  pl-8">{message.message_content}</p>
+        <p className="text-small  pl-8">{message_content}</p>
       </CardBody>
     </Card>
   );

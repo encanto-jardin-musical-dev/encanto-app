@@ -1,3 +1,4 @@
+import { FilteredParentChild } from "@/components/feed/MessageFeedCard";
 import { createClient } from "@/utils/supabase/client";
 
 export const getUserChildren = async () => {
@@ -73,3 +74,32 @@ export const getUserMessages = async (userID: string, groupID: string) => {
   }
   return data;
 };
+
+export const getSenderChildren = async (senderID: string, groupID: string): Promise<FilteredParentChild[]> => {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('child_guardians')
+    .select(`
+      relationship,
+      children (
+        id,
+        first_name,
+        last_name,
+        child_groups (
+          group_id
+        )
+      )
+    `
+    )
+    .eq('guardian_id', senderID)
+    .eq('children.child_groups.group_id', groupID);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  if (!data) {
+    return [];
+  }
+  return data as unknown as FilteredParentChild[];
+}

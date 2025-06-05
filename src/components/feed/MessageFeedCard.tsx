@@ -7,7 +7,7 @@ import { DetailedMessage as MessageFeedResponse } from "@/types/messages.types";
 import { ClockIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import { useAtom } from "jotai";
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useNow, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
@@ -34,6 +34,7 @@ type ChildGroup = {
 export default function MessageFeedCard({ message }: MessageFeedCardProps) {
   const t = useTranslations("MessageCard");
   const format = useFormatter();
+  const now = useNow();
   const router = useRouter();
 
   const {
@@ -132,7 +133,7 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
         </div>
         <div className="flex justify-end items-center text-tiny">
           <ClockIcon className="w-4 h-4" />
-          <span>{format.relativeTime(messageDate)}</span>
+          <span>{format.relativeTime(messageDate, now)}</span>
         </div>
       </CardHeader>
       <CardBody>

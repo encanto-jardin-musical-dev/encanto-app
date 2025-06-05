@@ -13,7 +13,7 @@
     "@heroicons/react": "^2.2.0",
     "@heroui/react": "^2.7.9",
     "@sentry/nextjs": "^8.47.0",
-    "@supabase/ssr": "^0.5.2",
+    "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.10",
     "framer-motion": "^12.16.0",
     "jotai": "^2.12.5",

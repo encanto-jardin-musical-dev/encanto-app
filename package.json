@@ -14,7 +14,7 @@
     "@heroui/react": "^2.6.13",
     "@sentry/nextjs": "^8.47.0",
     "@supabase/ssr": "^0.5.2",
-    "@supabase/supabase-js": "^2.49.8",
+    "@supabase/supabase-js": "^2.49.10",
     "framer-motion": "^11.15.0",
     "jotai": "^2.11.0",
     "next": "^15.1.3",

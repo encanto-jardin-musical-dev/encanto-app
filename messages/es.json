@@ -28,6 +28,7 @@
       "tasks": "Tareas"
     },
     "GroupFeed": {
+      "emptyFeed": "No hay mensajes",
       "loading": "Cargando..."
     }
   },

@@ -4,13 +4,12 @@ import { contextGroupValue } from "@/lib/store";
 import { groupMessagesAtom } from "@/lib/store/feed";
 import { getUserMessages } from "@/queries/user";
 import { DetailedMessage } from "@/types/messages.types";
-import { Spinner } from "@heroui/react";
 import { useAtom } from "jotai";
-import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo } from "react";
 import MessageFeedCard from "./MessageFeedCard";
 import { ActionButton } from "../common/ActionButton";
 import { userAtom } from "@/lib/store/user";
+import EmptyFeed from "./EmptyFeed";
 
 function filterMostRecentMessagesBySender(messages: DetailedMessage[]) {
   const senderMap = new Map();
@@ -37,7 +36,6 @@ export default function FeedGroup() {
   const [user] = useAtom(userAtom);
   const [groupContextId] = useAtom(contextGroupValue);
   const [groupMessages, setGroupMessages] = useAtom(groupMessagesAtom);
-  const t = useTranslations("UserFeedPage");
 
   const getGroupMessages = useCallback(async () => {
     const allUserMessages = await getUserMessages(user.id, groupContextId as string);
@@ -58,13 +56,12 @@ export default function FeedGroup() {
 
 
   return (
-    <div className="w-full flex flex-col gap-4">
-      {filteredMessages.map((message) => (
-        <MessageFeedCard key={message.message_id} message={message} />
-      ))}
-      {filteredMessages.length === 0 && (
-        <Spinner color="primary" label={t("GroupFeed.loading")} />
-      )}
+    <div className="w-full flex flex-col gap-4 h-full">
+      {filteredMessages.length > 0
+        ? filteredMessages.map(message => (
+          <MessageFeedCard key={message.message_id} message={message} />
+        ))
+        : (<EmptyFeed />)}
       <ActionButton />
     </div>
   );

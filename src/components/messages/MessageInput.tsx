@@ -1,11 +1,13 @@
 "use client";
 
+import useSendMessage from "@/hooks/UseSendMessageMutation";
+import { USER_ROLES } from "@/lib/const";
+import { contextGroupValue } from "@/lib/store/common";
 import { receiverAtom } from "@/lib/store/messages";
-import { userGroupIdAtom, userIdAtom, userRoleAtom } from "@/lib/store/user";
-import { sendMessage } from "@/queries/messages";
-import { Message } from "@/types/messages.types";
+import { userIdAtom, userRoleAtom } from "@/lib/store/user";
+import { Database } from "@/types/database.types";
 import { PaperAirplaneIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { Button, Textarea } from "@heroui/react";
+import { addToast, Button, Textarea } from "@heroui/react";
 import { useAtom } from "jotai";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -15,20 +17,29 @@ export default function MessageInput() {
   const [content, setContent] = useState("");
   const [userId] = useAtom(userIdAtom);
   const [userRole] = useAtom(userRoleAtom);
-  const [groupId] = useAtom(userGroupIdAtom);
   const [receiver] = useAtom(receiverAtom);
+  const [groupContextId] = useAtom(contextGroupValue);
+
+  const { mutate: sendMessageMutation } = useSendMessage();
 
   const handleSubmit = async () => {
-    const newMessage: Message = {
+    const newMessage: Database["public"]["Tables"]["messages"]["Insert"] = {
       content,
       sender_id: userId,
       receiver_id: receiver?.id,
-      ...(userRole === "teacher" && { group_id: groupId }),
+      group_id: userRole === USER_ROLES.TEACHER ? groupContextId as string : null,
     };
     if (newMessage.content) {
-      sendMessage(newMessage);
+      sendMessageMutation(newMessage);
+    } else {
+      addToast({
+        title: t("emptyMessageTitle", { defaultValue: "Mensaje vacío" }),
+        description: t("emptyMessageDescription", { defaultValue: "No puedes enviar un mensaje vacío." }),
+        color: "warning",
+        hideIcon: true,
+      });
+      return;
     }
-    //TODO: add empty message notification
     setContent("");
   };
 
@@ -41,6 +52,7 @@ export default function MessageInput() {
         isClearable
         value={content}
         onValueChange={setContent}
+        name="messageInput"
       />
       {userRole !== 'parent' ? (
         <Button isIconOnly aria-label="add files" isDisabled>
@@ -52,6 +64,7 @@ export default function MessageInput() {
         aria-label="submit message"
         color="primary"
         onPress={handleSubmit}
+        isDisabled={!content.trim()}
       >
         <PaperAirplaneIcon className="w-4 h-4" />
       </Button>

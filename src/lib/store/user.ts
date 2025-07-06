@@ -1,6 +1,7 @@
 import type { Selection } from "@heroui/react";
 import { atom } from "jotai";
-import { groupContextSelectedAtom } from ".";
+import { groupContextSelectedAtom } from "./common";
+import { USER_ROLES } from "../const";
 
 type SelectOptions = {
   key: string | number;
@@ -37,7 +38,6 @@ export const userIdAtom = atom("");
 export const userSelectOptionsAtom = atom<SelectOptions[]>([]);
 export const userAvatarAtom = atom("");
 export const userChildrenGroupAtom = atom();
-export const userGroupIdAtom = atom("");
 
 export const userAtom = atom((get): User => {
   const role = get(userRoleAtom);
@@ -50,7 +50,7 @@ export const userAtom = atom((get): User => {
     groupContext: get(groupContextSelectedAtom),
   };
 
-  if (role === "parent") {
+  if (role === USER_ROLES.PARENT) {
     return {
       ...baseUser,
       role: "parent",

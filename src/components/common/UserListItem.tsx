@@ -1,5 +1,6 @@
 "use client";
 
+import { USER_ROLES } from "@/lib/const";
 import { receiverAtom } from "@/lib/store/messages";
 import { UserContact } from "@/types/messages.types";
 import { User } from "@heroui/react";
@@ -30,10 +31,10 @@ export default function UserListItem({
     >
       <User
         avatarProps={{
-          src: avatar_url,
+          src: avatar_url ?? undefined,
           showFallback: true,
           name: fullUserName.toUpperCase(),
-          color: role === "admin" ? "primary" : "default",
+          color: role === USER_ROLES.ADMIN ? "primary" : "default",
         }}
         name={fullUserName}
         description={role}

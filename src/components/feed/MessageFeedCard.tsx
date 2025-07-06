@@ -1,11 +1,12 @@
 "use client";
 
-import { contextGroupValue } from "@/lib/store";
+import useUserChildrenQuery from "@/hooks/UseGetUserChildrenQuery";
+import { USER_ROLES } from "@/lib/const";
+import { contextGroupValue } from "@/lib/store/common";
 import { receiverAtom, senderAtom } from "@/lib/store/messages";
-import { getSenderChildren } from "@/queries/user";
 import { DetailedMessage as MessageFeedResponse } from "@/types/messages.types";
 import { ClockIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
-import { Card, CardBody, CardHeader } from "@heroui/react";
+import { Card, CardBody, CardHeader, Skeleton } from "@heroui/react";
 import { useAtom } from "jotai";
 import { useFormatter, useNow, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -57,6 +58,8 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
   const [groupContextId] = useAtom(contextGroupValue);
   const [parentSenderChild, setParentSenderChild] = useState<FilteredParentChild | null>(null);
 
+  const { data: senderUserChildren, isLoading } = useUserChildrenQuery({ params: { userID: sender_id, groupID: groupContextId as string }, options: { enabled: !!sender_id } });
+
   const handlePress = useCallback(() => {
     router.push(`/messages/${sender_id}`);
     setSender((prev) => ({
@@ -91,8 +94,7 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
     if (!groupContextId) return;
 
     try {
-      const parentSenderChildren = await getSenderChildren(sender_id, groupContextId as string);
-      const foundChild = parentSenderChildren.find(
+      const foundChild = Array.isArray(senderUserChildren) && senderUserChildren.find(
         (child) =>
           Array.isArray(child.children?.child_groups) &&
           child.children.child_groups.some((group) => group.group_id === groupContextId)
@@ -101,17 +103,17 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
     } catch (error) {
       console.error("Failed to fetch parent sender children:", error);
     }
-  }, [sender_id, groupContextId]);
+  }, [groupContextId, senderUserChildren]);
 
   useEffect(() => {
-    if (sender_role === 'parent') {
+    if (sender_role === USER_ROLES.PARENT) {
       fetchParentSenderChild();
     }
   }, [fetchParentSenderChild, sender_role]);
 
   return (
     <Card
-      className={`text-white ${sender_role === "admin" ? "bg-secondary-400" : "bg-success-600"}`}
+      className={`text-white ${sender_role === USER_ROLES.ADMIN ? "bg-secondary-400" : "bg-success-600"}`}
       isPressable
       onPress={handlePress}
     >
@@ -121,15 +123,17 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
         </div>
         <div className="text-left flex-1">
           <h3 className="text-medium">{t("title")}</h3>
-          <p className="text-tiny text-white/50">
-            {t("senderInfo", { senderName: sender_first_name })}
-            {parentSenderChild && ( // Conditionally render child info
-              t("childInfo", {
-                relationship: parentSenderChild.relationship,
-                childName: `${parentSenderChild.children.first_name} ${parentSenderChild.children.last_name}`,
-              })
-            )}
-          </p>
+          <Skeleton className="rounded-lg bg-success-700 bg-blend-multiply" disableAnimation={true} isLoaded={!isLoading}>
+            <p className="text-tiny text-white/50">
+              {t("senderInfo", { senderName: sender_first_name })}
+              {parentSenderChild && (
+                t("childInfo", {
+                  relationship: parentSenderChild.relationship,
+                  childName: `${parentSenderChild.children.first_name} ${parentSenderChild.children.last_name}`,
+                })
+              )}
+            </p>
+          </Skeleton>
         </div>
         <div className="flex justify-end items-center text-tiny">
           <ClockIcon className="w-4 h-4" />

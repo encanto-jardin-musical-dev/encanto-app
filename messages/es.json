@@ -41,6 +41,8 @@
     "back": "Atrás"
   },
   "MessagesInput": {
-    "placeholder": "Mensaje"
+    "placeholder": "Mensaje",
+    "emptyMessageTitle": "Mensaje vacío",
+    "emptyMessageDescription": "No puedes enviar un mensaje vacío."
   }
 }

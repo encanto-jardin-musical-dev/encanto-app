@@ -1,9 +1,10 @@
+import { UserRoles } from "./common.types";
 import { Database } from "./database.types";
 
 export type AuthUser = {
   id: string;
   aud: string;
-  role: string;
+  role: UserRoles;
   email: string;
   email_confirmed_at: Date;
   phone: string;

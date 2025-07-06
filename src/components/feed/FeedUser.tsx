@@ -1,6 +1,5 @@
 "use client";
 
-import { getAllGroups, getUserChildren, getUserGroups } from "@/queries/user";
 import { Avatar, Select, SelectItem } from "@heroui/react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect } from "react";
@@ -9,12 +8,14 @@ import {
   userRoleAtom,
   userSelectOptionsAtom,
   userIdAtom,
-  userGroupIdAtom,
 } from "@/lib/store/user";
-import { groupContextSelectedAtom } from "@/lib/store";
-import type { UserChildren } from "@/types/messages.types";
+import { groupContextSelectedAtom } from "@/lib/store/common";
 import type { UserProfile } from "@/types/auth.types";
 import type { Key } from "@react-types/shared";
+import useUserChildrenQuery from "@/hooks/UseGetUserChildrenQuery";
+import useUserGroupsQuery from "@/hooks/UseGetUserGroupsQuery";
+import useUserAllGroupsQuery from "@/hooks/UseGetAllGroupsQuery";
+import { USER_ROLES } from "@/lib/const";
 
 type FeedUserProps = {
   user: UserProfile;
@@ -29,7 +30,6 @@ export default function FeedUser({ user }: FeedUserProps) {
 
   const [, setUserRole] = useAtom(userRoleAtom);
   const [, setUserId] = useAtom(userIdAtom);
-  const [, setUserGroup] = useAtom(userGroupIdAtom);
   const t = useTranslations("UserFeedPage.FeedUser");
 
   useEffect(() => {
@@ -38,37 +38,39 @@ export default function FeedUser({ user }: FeedUserProps) {
 
   }, [id, role, setUserId, setUserRole]);
 
+  const { data: userChildren } = useUserChildrenQuery({ params: {}, options: { enabled: user?.role === USER_ROLES.PARENT } });
+  const { data: userGroups } = useUserGroupsQuery(user?.id, { enabled: user?.role === USER_ROLES.TEACHER });
+  const { data: allGroups } = useUserAllGroupsQuery({ enabled: user?.role === USER_ROLES.ADMIN });
+
   const getSelectOptions = useCallback(async () => {
-    if (user?.role === "admin") {
-      const rawAllGroups = await getAllGroups();
-      const formatedGroups = Array.isArray(rawAllGroups)
-        ? rawAllGroups.map((group) => ({
+    if (user?.role === USER_ROLES.ADMIN) {
+      const formatedGroups = Array.isArray(allGroups)
+        ? allGroups.map((group) => ({
           key: group?.id as Key,
           label: group?.name,
         }))
         : [];
       setSelectOptions(formatedGroups);
-    } else if (user?.role === "teacher") {
-      const rawUserGroups = await getUserGroups(user?.id);
-      setUserGroup(rawUserGroups.find((group) => group.teacher_id === user.id).id);
-      const formatedGroups = Array.isArray(rawUserGroups)
-        ? rawUserGroups.map((group) => ({
+    } else if (user?.role === USER_ROLES.TEACHER) {
+      const formatedGroups = Array.isArray(userGroups)
+        ? userGroups.map((group) => ({
           key: group?.id as Key,
           label: group?.name,
         }))
         : [];
       setSelectOptions(formatedGroups);
     } else {
-      const rawUserChildren: UserChildren[] | unknown = await getUserChildren();
-      const formatedChildren = Array.isArray(rawUserChildren)
-        ? rawUserChildren.map((child) => ({
-          key: child?.children?.child_group[0]?.group_id as Key,
+      const formatedChildren = Array.isArray(userChildren)
+        ? userChildren.map((child) => ({
+          key: child?.children?.child_groups[0]?.group_id as Key,
           label: `${child?.children?.first_name} ${child?.children?.last_name}`,
         }))
         : [];
       setSelectOptions(formatedChildren);
     }
-  }, [user?.role, user.id, setSelectOptions, setUserGroup]);
+  },
+    [user?.role, allGroups, setSelectOptions, userGroups, userChildren]
+  );
 
   useEffect(() => {
     getSelectOptions();
@@ -84,14 +86,14 @@ export default function FeedUser({ user }: FeedUserProps) {
   }, [selectOptions, groupContextSelection, setGroupContextSelection]);
 
   const getSelectPlaceholder = () => {
-    if (user?.role === "admin" || user?.role === "teacher") {
+    if (user?.role === USER_ROLES.ADMIN || user?.role === USER_ROLES.TEACHER) {
       return t("placeholders.other", { count: selectOptions.length });
     }
     return t("placeholders.parent", { count: selectOptions.length });
   };
 
   const getSelectLabel = () => {
-    if (user?.role === "admin" || user?.role === "teacher") {
+    if (user?.role === USER_ROLES.ADMIN || user?.role === USER_ROLES.TEACHER) {
       return t("labels.other", { count: selectOptions.length });
     }
     return t("labels.parent", { count: selectOptions.length });
@@ -114,7 +116,7 @@ export default function FeedUser({ user }: FeedUserProps) {
           placeholder={getSelectPlaceholder()}
           selectedKeys={groupContextSelection}
           onSelectionChange={setGroupContextSelection}
-          isDisabled={user.role === "teacher"}
+          isDisabled={user.role === USER_ROLES.TEACHER}
         >
           {(option) => <SelectItem key={option.key}>{option.label}</SelectItem>}
         </Select>

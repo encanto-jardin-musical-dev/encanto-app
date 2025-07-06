@@ -1,13 +1,14 @@
 "use client";
 
 import { messagesAtom, receiverAtom, senderAtom } from "@/lib/store/messages";
-import { getMessages } from "@/queries/messages";
 import { Message } from "@/types/messages.types";
 import { createClient } from "@/utils/supabase/client";
 import { useAtom } from "jotai";
 import { useEffect, useRef } from "react";
 import MessageCard from "./MessageCard";
 import { userIdAtom } from "@/lib/store/user";
+import UseGetMessagesQuery from "@/hooks/UseGetMessagesQuery";
+import { Spinner } from "@heroui/react";
 
 type MessagesListProps = {
   senderID: string;
@@ -42,11 +43,14 @@ export default function MessagesList({ senderID }: MessagesListProps) {
         (payload) => {
           if (payload?.eventType === "INSERT") {
             const incomingMessage = {
-              ...payload.new,
-              sender,
-              receiver,
+              message_id: payload.new.id,
+              message_content: payload.new.content,
+              sender_id: payload.new.sender_id,
+              receiver_id: payload.new.receiver_id,
+              message_created_at: payload.new.created_at,
+              is_read: payload.new.is_read,
             };
-            setMessages([...messages, incomingMessage as Message]);
+            setMessages([...messages, incomingMessage as unknown as Message]);
             scrollToBottom();
           }
         },
@@ -57,31 +61,23 @@ export default function MessagesList({ senderID }: MessagesListProps) {
     };
   }, [setMessages, messages, sender, receiver]);
 
+  const { data: responseMessages, isLoading: isLoadingMessages } = UseGetMessagesQuery({ params: { userID: senderID } })
+
   useEffect(() => {
-    const fetchMessages = async () => {
-      const response = await getMessages(senderID);
-      const messages: Message[] = Array.isArray(response)
-        ? response
-        : response.data;
-      if (!messages) {
-        console.error("error");
-      }
-      setMessages(messages);
-    };
-    if (senderID) {
-      fetchMessages();
-    }
-  }, [senderID, setMessages]);
+    setMessages(responseMessages || []);
+  }, [responseMessages, setMessages]);
+
 
   return (
     <div
       className="w-full flex flex-col gap-4 overflow-auto scroll-smooth"
       ref={messageListRef}
     >
+      {isLoadingMessages && (<Spinner />)}
       {Array.isArray(messages)
         ? messages.map((message) => (
           <MessageCard
-            key={message.id}
+            key={message.message_id}
             message={message}
             isOwnMessage={message.sender_id === userID}
           />

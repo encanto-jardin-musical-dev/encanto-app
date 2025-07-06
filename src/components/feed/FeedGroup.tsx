@@ -1,15 +1,16 @@
 "use client";
 
-import { contextGroupValue } from "@/lib/store";
+import { contextGroupValue } from "@/lib/store/common";
 import { groupMessagesAtom } from "@/lib/store/feed";
-import { getUserMessages } from "@/queries/user";
 import { DetailedMessage } from "@/types/messages.types";
 import { useAtom } from "jotai";
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import MessageFeedCard from "./MessageFeedCard";
 import { ActionButton } from "../common/ActionButton";
 import { userAtom } from "@/lib/store/user";
 import EmptyFeed from "./EmptyFeed";
+import useGetUserFeedMessages from "@/hooks/UseGetUserFeedMessages";
+import { Spinner } from "@heroui/react";
 
 function filterMostRecentMessagesBySender(messages: DetailedMessage[]) {
   const senderMap = new Map();
@@ -37,31 +38,46 @@ export default function FeedGroup() {
   const [groupContextId] = useAtom(contextGroupValue);
   const [groupMessages, setGroupMessages] = useAtom(groupMessagesAtom);
 
-  const getGroupMessages = useCallback(async () => {
-    const allUserMessages = await getUserMessages(user.id, groupContextId as string);
-    setGroupMessages(allUserMessages as unknown as DetailedMessage[]);
-  }, [groupContextId, setGroupMessages, user.id]);
+  const { id } = user;
+
+  const {
+    data: feedMeessages,
+    refetch: refetchMessages,
+    isLoading,
+    isPending
+  } = useGetUserFeedMessages(id, groupContextId as string, id !== "" && groupContextId !== "");
 
   useEffect(() => {
     if (groupContextId) {
-      getGroupMessages();
+      refetchMessages();
     }
-  }, [groupContextId, getGroupMessages]);
+  }, [groupContextId, refetchMessages])
+
+  useEffect(() => {
+    if (feedMeessages) {
+      setGroupMessages(feedMeessages as DetailedMessage[]);
+    }
+  }, [feedMeessages, setGroupMessages]);
 
   const filteredMessages = useMemo(() => {
     if (!Array.isArray(groupMessages)) return [];
     return filterMostRecentMessagesBySender(groupMessages);
   }, [groupMessages]);
 
-
-
   return (
     <div className="w-full flex flex-col gap-4 h-full">
-      {filteredMessages.length > 0
+      {isLoading && (
+        <Spinner />
+      )}
+      {filteredMessages.length === 0 && !isLoading && !isPending ? (
+        <EmptyFeed />
+      ) : null}
+      {filteredMessages.length > 0 && !isLoading
         ? filteredMessages.map(message => (
           <MessageFeedCard key={message.message_id} message={message} />
         ))
-        : (<EmptyFeed />)}
+        : null
+      }
       <ActionButton />
     </div>
   );

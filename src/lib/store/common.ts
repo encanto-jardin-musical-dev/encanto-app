@@ -1,7 +1,7 @@
 import { atom } from "jotai";
 import { atomWithStorage, RESET } from "jotai/utils";
 
-import { getGroupContextValue, getSelectionFromStoredValue } from "@/utils";
+import { getGroupContextValue, getSelectionFromStoredValue } from "@/utils/jotai";
 
 import type { Key } from "@react-types/shared";
 import type { Selection } from "@heroui/react";

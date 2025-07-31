@@ -17,8 +17,13 @@
         "other": "{count, plural, =0 {Grupo} =1 {Grupo} other {Grupos}}"
       },
       "placeholders": {
-        "parent": "{count, plural, =0 {No hay hij@s assignados} =1 {Selecciona tu Hij@} other {Selecciona uno de tus Hij@s}}",
+        "parent": "{count, plural, =0 {No hay hij@s asignados} =1 {Selecciona tu Hij@} other {Selecciona uno de tus Hij@s}}",
         "other": "{count, plural, =0 {No hay grupos asignados} =1 {Selecciona tu Grupo} other {Selecciona uno de tus Grupos}}"
+      },
+      "notifications": {
+        "title": "Configuración de notificaciones",
+        "enable": "Activar notificaciones",
+        "description": "Recibe notificaciones sobre nuevos mensajes y actualizaciones"
       }
     },
     "FeedFilters": {

@@ -1,21 +1,22 @@
 "use client";
 
-import { Avatar, Select, SelectItem } from "@heroui/react";
-import { useTranslations } from "next-intl";
-import { useCallback, useEffect } from "react";
-import { useAtom } from "jotai";
-import {
-  userRoleAtom,
-  userSelectOptionsAtom,
-  userIdAtom,
-} from "@/lib/store/user";
-import { groupContextSelectedAtom } from "@/lib/store/common";
-import type { UserProfile } from "@/types/auth.types";
-import type { Key } from "@react-types/shared";
+import useUserAllGroupsQuery from "@/hooks/UseGetAllGroupsQuery";
 import useUserChildrenQuery from "@/hooks/UseGetUserChildrenQuery";
 import useUserGroupsQuery from "@/hooks/UseGetUserGroupsQuery";
-import useUserAllGroupsQuery from "@/hooks/UseGetAllGroupsQuery";
 import { USER_ROLES } from "@/lib/const";
+import { groupContextSelectedAtom } from "@/lib/store/common";
+import {
+  userIdAtom,
+  userRoleAtom,
+  userSelectOptionsAtom,
+} from "@/lib/store/user";
+import type { UserProfile } from "@/types/auth.types";
+import { Avatar, Select, SelectItem } from "@heroui/react";
+import type { Key } from "@react-types/shared";
+import { useAtom } from "jotai";
+import { useTranslations } from "next-intl";
+import { useCallback, useEffect } from "react";
+import FeedUserHeader from "./FeedUserHeader";
 
 type FeedUserProps = {
   user: UserProfile;
@@ -101,11 +102,7 @@ export default function FeedUser({ user }: FeedUserProps) {
 
   return (
     <div className="w-full">
-      <h1>
-        {t("greeting", {
-          name: `${user?.first_name} ${user?.last_name}`,
-        })}
-      </h1>
+      <FeedUserHeader user={user} />
       <div className="flex w-full gap-4 pt-4">
         <div>
           <Avatar size="lg" name={user?.first_name} color="primary" />

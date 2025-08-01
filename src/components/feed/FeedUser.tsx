@@ -1,22 +1,24 @@
-"use client";
+'use client';
 
-import useUserAllGroupsQuery from "@/hooks/UseGetAllGroupsQuery";
-import useUserChildrenQuery from "@/hooks/UseGetUserChildrenQuery";
-import useUserGroupsQuery from "@/hooks/UseGetUserGroupsQuery";
-import { USER_ROLES } from "@/lib/const";
-import { groupContextSelectedAtom } from "@/lib/store/common";
+import useUserAllGroupsQuery from '@/hooks/UseGetAllGroupsQuery';
+import useUserChildrenQuery from '@/hooks/UseGetUserChildrenQuery';
+import useUserGroupsQuery from '@/hooks/UseGetUserGroupsQuery';
+import { USER_ROLES } from '@/lib/const';
+import { groupContextSelectedAtom } from '@/lib/store/common';
 import {
+  pushNotificationPermissionAtom,
   userIdAtom,
   userRoleAtom,
   userSelectOptionsAtom,
-} from "@/lib/store/user";
-import type { UserProfile } from "@/types/auth.types";
-import { Avatar, Select, SelectItem } from "@heroui/react";
-import type { Key } from "@react-types/shared";
-import { useAtom } from "jotai";
-import { useTranslations } from "next-intl";
-import { useCallback, useEffect } from "react";
-import FeedUserHeader from "./FeedUserHeader";
+} from '@/lib/store/user';
+import type { UserProfile } from '@/types/auth.types';
+import { checkAndRequestPermission } from '@/utils/pushNotifications';
+import { Avatar, Select, SelectItem } from '@heroui/react';
+import type { Key } from '@react-types/shared';
+import { useAtom } from 'jotai';
+import { useTranslations } from 'next-intl';
+import { useCallback, useEffect } from 'react';
+import FeedUserHeader from './FeedUserHeader';
 
 type FeedUserProps = {
   user: UserProfile;
@@ -26,57 +28,87 @@ export default function FeedUser({ user }: FeedUserProps) {
   const { id, role } = user;
   const [selectOptions, setSelectOptions] = useAtom(userSelectOptionsAtom);
   const [groupContextSelection, setGroupContextSelection] = useAtom(
-    groupContextSelectedAtom,
+    groupContextSelectedAtom
   );
 
   const [, setUserRole] = useAtom(userRoleAtom);
   const [, setUserId] = useAtom(userIdAtom);
-  const t = useTranslations("UserFeedPage.FeedUser");
+  const t = useTranslations('UserFeedPage.FeedUser');
+  // push notifications
+  const [, setPushPermission] = useAtom(pushNotificationPermissionAtom);
 
+  useEffect(() => {
+    const initializePushNotifications = async () => {
+      try {
+        const permission = await checkAndRequestPermission();
+        setPushPermission(permission);
+
+        if (permission === 'granted') {
+          console.log('Push notifications enabled');
+        } else {
+          console.log('Push notifications not granted:', permission);
+        }
+      } catch (error) {
+        console.error('Error initializing push notifications:', error);
+        setPushPermission('denied');
+      }
+    };
+
+    initializePushNotifications();
+  }, [setPushPermission]);
+
+  // user id and role
   useEffect(() => {
     if (id) setUserId(id);
     if (role) setUserRole(role);
-
   }, [id, role, setUserId, setUserRole]);
 
-  const { data: userChildren } = useUserChildrenQuery({ params: {}, options: { enabled: user?.role === USER_ROLES.PARENT } });
-  const { data: userGroups } = useUserGroupsQuery(user?.id, { enabled: user?.role === USER_ROLES.TEACHER });
-  const { data: allGroups } = useUserAllGroupsQuery({ enabled: user?.role === USER_ROLES.ADMIN });
+  // user children
+  const { data: userChildren } = useUserChildrenQuery({
+    params: {},
+    options: { enabled: user?.role === USER_ROLES.PARENT },
+  });
+  const { data: userGroups } = useUserGroupsQuery(user?.id, {
+    enabled: user?.role === USER_ROLES.TEACHER,
+  });
+  const { data: allGroups } = useUserAllGroupsQuery({
+    enabled: user?.role === USER_ROLES.ADMIN,
+  });
 
+  // select options
   const getSelectOptions = useCallback(async () => {
     if (user?.role === USER_ROLES.ADMIN) {
       const formatedGroups = Array.isArray(allGroups)
-        ? allGroups.map((group) => ({
-          key: group?.id as Key,
-          label: group?.name,
-        }))
+        ? allGroups.map(group => ({
+            key: group?.id as Key,
+            label: group?.name,
+          }))
         : [];
       setSelectOptions(formatedGroups);
     } else if (user?.role === USER_ROLES.TEACHER) {
       const formatedGroups = Array.isArray(userGroups)
-        ? userGroups.map((group) => ({
-          key: group?.id as Key,
-          label: group?.name,
-        }))
+        ? userGroups.map(group => ({
+            key: group?.id as Key,
+            label: group?.name,
+          }))
         : [];
       setSelectOptions(formatedGroups);
     } else {
       const formatedChildren = Array.isArray(userChildren)
-        ? userChildren.map((child) => ({
-          key: child?.children?.child_groups[0]?.group_id as Key,
-          label: `${child?.children?.first_name} ${child?.children?.last_name}`,
-        }))
+        ? userChildren.map(child => ({
+            key: child?.children?.child_groups[0]?.group_id as Key,
+            label: `${child?.children?.first_name} ${child?.children?.last_name}`,
+          }))
         : [];
       setSelectOptions(formatedChildren);
     }
-  },
-    [user?.role, allGroups, setSelectOptions, userGroups, userChildren]
-  );
+  }, [user?.role, allGroups, setSelectOptions, userGroups, userChildren]);
 
   useEffect(() => {
     getSelectOptions();
   }, [getSelectOptions]);
 
+  // group context selection
   useEffect(() => {
     if (selectOptions.length > 0 && groupContextSelection === undefined) {
       if (selectOptions[0]?.key !== undefined) {
@@ -86,18 +118,20 @@ export default function FeedUser({ user }: FeedUserProps) {
     }
   }, [selectOptions, groupContextSelection, setGroupContextSelection]);
 
+  // get select placeholder
   const getSelectPlaceholder = () => {
     if (user?.role === USER_ROLES.ADMIN || user?.role === USER_ROLES.TEACHER) {
-      return t("placeholders.other", { count: selectOptions.length });
+      return t('placeholders.other', { count: selectOptions.length });
     }
-    return t("placeholders.parent", { count: selectOptions.length });
+    return t('placeholders.parent', { count: selectOptions.length });
   };
 
+  // get select label
   const getSelectLabel = () => {
     if (user?.role === USER_ROLES.ADMIN || user?.role === USER_ROLES.TEACHER) {
-      return t("labels.other", { count: selectOptions.length });
+      return t('labels.other', { count: selectOptions.length });
     }
-    return t("labels.parent", { count: selectOptions.length });
+    return t('labels.parent', { count: selectOptions.length });
   };
 
   return (
@@ -115,7 +149,7 @@ export default function FeedUser({ user }: FeedUserProps) {
           onSelectionChange={setGroupContextSelection}
           isDisabled={user.role === USER_ROLES.TEACHER}
         >
-          {(option) => <SelectItem key={option.key}>{option.label}</SelectItem>}
+          {option => <SelectItem key={option.key}>{option.label}</SelectItem>}
         </Select>
       </div>
     </div>

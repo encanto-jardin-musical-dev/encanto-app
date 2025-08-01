@@ -23,7 +23,8 @@
       "notifications": {
         "title": "Configuración de notificaciones",
         "enable": "Activar notificaciones",
-        "description": "Recibe notificaciones sobre nuevos mensajes y actualizaciones"
+        "description": "Recibe notificaciones sobre nuevos mensajes y actualizaciones",
+        "permissionDenied": "Permisos de notificación denegados, por favor, habilítalos en tu navegador"
       }
     },
     "FeedFilters": {

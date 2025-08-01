@@ -1,14 +1,14 @@
-import type { Selection } from "@heroui/react";
-import { atom } from "jotai";
-import { USER_ROLES } from "../const";
-import { groupContextSelectedAtom } from "./common";
+import type { Selection } from '@heroui/react';
+import { atom } from 'jotai';
+import { USER_ROLES } from '../const';
+import { groupContextSelectedAtom } from './common';
 
 type SelectOptions = {
   key: string | number;
   label: string;
 };
 
-type UserRole = "parent" | "teacher" | "admin";
+type UserRole = 'parent' | 'teacher' | 'admin';
 
 interface BaseUser {
   id: string;
@@ -20,25 +20,27 @@ interface BaseUser {
 }
 
 interface ParentUser extends BaseUser {
-  role: "parent";
+  role: 'parent';
   children: SelectOptions[];
 }
 
 interface StaffUser extends BaseUser {
-  role: "teacher" | "admin";
+  role: 'teacher' | 'admin';
   groups: SelectOptions[];
 }
 
 type User = ParentUser | StaffUser;
 
-export const userFirstNameAtom = atom("");
-export const userLastNameAtom = atom("");
-export const userRoleAtom = atom<UserRole>("parent");
-export const userIdAtom = atom("");
+export const userFirstNameAtom = atom('');
+export const userLastNameAtom = atom('');
+export const userRoleAtom = atom<UserRole>('parent');
+export const userIdAtom = atom('');
 export const userSelectOptionsAtom = atom<SelectOptions[]>([]);
-export const userAvatarAtom = atom("");
+export const userAvatarAtom = atom('');
 export const userChildrenGroupAtom = atom();
 export const userNotificationSettingsAtom = atom<boolean>(true);
+export const pushNotificationPermissionAtom =
+  atom<NotificationPermission>('default');
 
 export const userAtom = atom((get): User => {
   const role = get(userRoleAtom);
@@ -54,14 +56,14 @@ export const userAtom = atom((get): User => {
   if (role === USER_ROLES.PARENT) {
     return {
       ...baseUser,
-      role: "parent",
+      role: 'parent',
       children: get(userSelectOptionsAtom),
     };
   }
 
   return {
     ...baseUser,
-    role: role as "teacher" | "admin",
+    role: role as 'teacher' | 'admin',
     groups: get(userSelectOptionsAtom),
   };
 });

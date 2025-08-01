@@ -1,0 +1,31 @@
+meta {
+  name: post - new message
+  type: http
+  seq: 6
+}
+
+post {
+  url: https://buylnfiecvsbpxlmscvb.supabase.co/rest/v1/messages
+  body: json
+  auth: bearer
+}
+
+headers {
+  Prefer: return=minimal
+}
+
+auth:bearer {
+  token: {{user_token}}
+}
+
+body:json {
+  {
+    "content": "Hola profe laura",
+    "receiver_id": "c3828c9a-9b73-4727-96c9-78503141db5e",
+    "sender_id": "54a2b309-99bc-4fe3-997e-fb8aef2a393a"
+  }
+}
+
+settings {
+  encodeUrl: false
+}

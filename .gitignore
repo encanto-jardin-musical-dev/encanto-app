@@ -45,3 +45,10 @@ next-env.d.ts
 
 # Cursor
 .cursor/*
+
+# Serwist
+public/sw*
+public/swe-worker*
+
+# Supabase
+supabase/*

@@ -1,5 +1,10 @@
-import { initializeApp } from "firebase/app";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import { initializeApp } from 'firebase/app';
+import {
+  getMessaging,
+  getToken,
+  MessagePayload,
+  onMessage,
+} from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -29,7 +34,9 @@ export const getFCMToken = async (): Promise<string | null> => {
 };
 
 // Handle foreground messages
-export const onForegroundMessage = (callback: (payload: any) => void) => {
+export const onForegroundMessage = (
+  callback: (payload: MessagePayload) => void
+) => {
   return onMessage(messaging, callback);
 };
 

@@ -1,4 +1,5 @@
 import { withSentryConfig } from "@sentry/nextjs";
+import withSerwistInit from "@serwist/next";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
@@ -43,5 +44,12 @@ const sentryOptions = {
   automaticVercelMonitors: true,
 };
 const withNextIntl = createNextIntlPlugin();
+const withSerwist = withSerwistInit({
+  swSrc: "src/app/sw.ts",
+  swDest: "./public/sw.js",
+});
 
-export default withSentryConfig(withNextIntl(nextConfig), sentryOptions);
+export default withSentryConfig(
+  withNextIntl(withSerwist(nextConfig)),
+  sentryOptions,
+);

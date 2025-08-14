@@ -6,13 +6,11 @@ import useUserGroupsQuery from '@/hooks/UseGetUserGroupsQuery';
 import { USER_ROLES } from '@/lib/const';
 import { groupContextSelectedAtom } from '@/lib/store/common';
 import {
-  pushNotificationPermissionAtom,
   userIdAtom,
   userRoleAtom,
   userSelectOptionsAtom,
 } from '@/lib/store/user';
 import type { UserProfile } from '@/types/auth.types';
-import { checkAndRequestPermission } from '@/utils/pushNotifications';
 import { Avatar, Select, SelectItem } from '@heroui/react';
 import type { Key } from '@react-types/shared';
 import { useAtom } from 'jotai';
@@ -34,28 +32,6 @@ export default function FeedUser({ user }: FeedUserProps) {
   const [, setUserRole] = useAtom(userRoleAtom);
   const [, setUserId] = useAtom(userIdAtom);
   const t = useTranslations('UserFeedPage.FeedUser');
-  // push notifications
-  const [, setPushPermission] = useAtom(pushNotificationPermissionAtom);
-
-  useEffect(() => {
-    const initializePushNotifications = async () => {
-      try {
-        const permission = await checkAndRequestPermission();
-        setPushPermission(permission);
-
-        if (permission === 'granted') {
-          console.log('Push notifications enabled');
-        } else {
-          console.log('Push notifications not granted:', permission);
-        }
-      } catch (error) {
-        console.error('Error initializing push notifications:', error);
-        setPushPermission('denied');
-      }
-    };
-
-    initializePushNotifications();
-  }, [setPushPermission]);
 
   // user id and role
   useEffect(() => {

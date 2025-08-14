@@ -1,3 +1,4 @@
+import type { NotificationPermission } from '@/types/notifications.types';
 import type { Selection } from '@heroui/react';
 import { atom } from 'jotai';
 import { USER_ROLES } from '../const';

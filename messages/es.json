@@ -24,7 +24,11 @@
         "title": "Configuración de notificaciones",
         "enable": "Activar notificaciones",
         "description": "Recibe notificaciones sobre nuevos mensajes y actualizaciones",
-        "permissionDenied": "Permisos de notificación denegados, por favor, habilítalos en tu navegador"
+        "activateButton": "Activar notificaciones",
+        "activeStatus": "Notificaciones activas",
+        "blockedStatus": "Notificaciones bloqueadas",
+        "permissionsBlocked": "Permisos bloqueados",
+        "permissionsBlockedDescription": "Para activar notificaciones, ve a Configuración del navegador → Notificaciones → Permitir"
       }
     },
     "FeedFilters": {
@@ -34,8 +38,7 @@
       "tasks": "Tareas"
     },
     "GroupFeed": {
-      "emptyFeed": "No hay mensajes",
-      "loading": "Cargando..."
+      "emptyFeed": "No hay mensajes"
     }
   },
   "MessageCard": {

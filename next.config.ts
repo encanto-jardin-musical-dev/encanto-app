@@ -1,15 +1,16 @@
-import { withSentryConfig } from "@sentry/nextjs";
-import withSerwistInit from "@serwist/next";
-import type { NextConfig } from "next";
-import createNextIntlPlugin from "next-intl/plugin";
+import { withSentryConfig } from '@sentry/nextjs';
+import withSerwistInit from '@serwist/next';
+import type { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {};
 const sentryOptions = {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
 
-  org: "encanto-jardin-musical",
-  project: "encanto-app",
+  org: 'encanto-jardin-musical',
+  project: 'encanto-app',
+  authToken: process.env.SENTRY_AUTH_TOKEN,
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
@@ -45,11 +46,11 @@ const sentryOptions = {
 };
 const withNextIntl = createNextIntlPlugin();
 const withSerwist = withSerwistInit({
-  swSrc: "src/app/sw.ts",
-  swDest: "./public/sw.js",
+  swSrc: 'src/app/sw.ts',
+  swDest: './public/sw.js',
 });
 
 export default withSentryConfig(
   withNextIntl(withSerwist(nextConfig)),
-  sentryOptions,
+  sentryOptions
 );

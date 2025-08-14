@@ -20,18 +20,17 @@ const app = initializeApp(firebaseConfig);
 // Initialize messaging
 export const messaging = getMessaging(app);
 
-// Get FCM token
-export const getFCMToken = async (): Promise<string | null> => {
-  try {
-    const token = await getToken(messaging, {
-      vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
-    });
-    return token;
-  } catch (error) {
-    console.error('Error getting FCM token:', error);
-    return null;
-  }
-};
+getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY })
+  .then(currentToken => {
+    if (currentToken) {
+      console.log('currentToken', currentToken);
+    } else {
+      console.log('No registration token');
+    }
+  })
+  .catch(err => {
+    console.log('Error getting token', err);
+  });
 
 // Handle foreground messages
 export const onForegroundMessage = (

@@ -50,5 +50,8 @@ next-env.d.ts
 public/sw*
 public/swe-worker*
 
+# Firebase (generated at build time)
+public/firebase-messaging-sw.js
+
 # Supabase
 supabase/*

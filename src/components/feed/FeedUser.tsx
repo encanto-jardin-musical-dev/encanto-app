@@ -11,6 +11,7 @@ import {
   userSelectOptionsAtom,
 } from '@/lib/store/user';
 import type { UserProfile } from '@/types/auth.types';
+import { checkAndRequestPermission } from '@/utils/pushNotifications';
 import { Avatar, Select, SelectItem } from '@heroui/react';
 import type { Key } from '@react-types/shared';
 import { useAtom } from 'jotai';
@@ -38,6 +39,34 @@ export default function FeedUser({ user }: FeedUserProps) {
     if (id) setUserId(id);
     if (role) setUserRole(role);
   }, [id, role, setUserId, setUserRole]);
+
+  // check push notification permissions
+  useEffect(() => {
+    const checkPermissions = async () => {
+      try {
+        console.log(
+          '[FeedUser] Starting push notification permission check...'
+        );
+        const permission = await checkAndRequestPermission();
+        console.log(
+          '[FeedUser] Push notification permission result:',
+          permission
+        );
+      } catch (error) {
+        console.error(
+          '[FeedUser] Error checking push notification permissions:',
+          error
+        );
+      }
+    };
+
+    // Add a small delay to ensure the component is fully mounted
+    const timer = setTimeout(() => {
+      checkPermissions();
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // user children
   const { data: userChildren } = useUserChildrenQuery({

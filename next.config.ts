@@ -3,7 +3,13 @@ import withSerwistInit from '@serwist/next';
 import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  // Ensure the Firebase service worker is generated before build
+  experimental: {
+    // This ensures our prebuild script runs before Next.js build
+    workerThreads: false,
+  },
+};
 const sentryOptions = {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options

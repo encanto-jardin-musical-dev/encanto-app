@@ -99,7 +99,6 @@ export const getNotificationPermission =
       });
 
       if (token) {
-        localStorage.setItem('fcmToken', token);
         await storeFCMToken(token);
         console.log('[pushNotifications] FCM token obtained successfully');
       } else {

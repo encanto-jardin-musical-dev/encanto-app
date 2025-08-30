@@ -1,25 +1,24 @@
-"use client";
+'use client';
 
-import { JotaiProvider } from "@/lib/providers/JotaiProvider";
-import { HeroUIProvider, ToastProvider } from "@heroui/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useRouter } from "next/navigation";
-import posthog from "posthog-js";
-import { PostHogProvider } from "posthog-js/react";
+import { JotaiProvider } from '@/lib/providers/JotaiProvider';
+import { HeroUIProvider, ToastProvider } from '@heroui/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { useRouter } from 'next/navigation';
+import posthog from 'posthog-js';
+import { PostHogProvider } from 'posthog-js/react';
 
-if (typeof window !== "undefined") {
-  const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY ?? "";
-  posthog.init(posthogKey, {
+if (typeof window !== 'undefined') {
+  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
     api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
-    person_profiles: "identified_only",
+    person_profiles: 'always',
   });
 }
 
-declare module "@react-types/shared" {
+declare module '@react-types/shared' {
   interface RouterConfig {
     routerOptions: NonNullable<
-      Parameters<ReturnType<typeof useRouter>["push"]>[1]
+      Parameters<ReturnType<typeof useRouter>['push']>[1]
     >;
   }
 }

@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import useSendMessage from "@/hooks/UseSendMessageMutation";
-import { USER_ROLES } from "@/lib/const";
-import { contextGroupValue } from "@/lib/store/common";
-import { receiverAtom } from "@/lib/store/messages";
-import { userIdAtom, userRoleAtom } from "@/lib/store/user";
-import { Database } from "@/types/database.types";
-import { PaperAirplaneIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { addToast, Button, Textarea } from "@heroui/react";
-import { useAtom } from "jotai";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
+import useSendMessage from '@/hooks/UseSendMessageMutation';
+import { USER_ROLES } from '@/lib/const';
+import { contextGroupValue } from '@/lib/store/common';
+import { receiverAtom } from '@/lib/store/messages';
+import { userIdAtom, userRoleAtom } from '@/lib/store/user';
+import { Database } from '@/types/database.types';
+import { PaperAirplaneIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { addToast, Button, Textarea } from '@heroui/react';
+import { useAtom } from 'jotai';
+import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
 export default function MessageInput() {
-  const t = useTranslations("MessagesInput");
-  const [content, setContent] = useState("");
+  const t = useTranslations('MessagesInput');
+  const [content, setContent] = useState('');
   const [userId] = useAtom(userIdAtom);
   const [userRole] = useAtom(userRoleAtom);
   const [receiver] = useAtom(receiverAtom);
@@ -23,24 +23,27 @@ export default function MessageInput() {
   const { mutate: sendMessageMutation } = useSendMessage();
 
   const handleSubmit = async () => {
-    const newMessage: Database["public"]["Tables"]["messages"]["Insert"] = {
+    const newMessage: Database['public']['Tables']['messages']['Insert'] = {
       content,
       sender_id: userId,
       receiver_id: receiver?.id,
-      group_id: userRole === USER_ROLES.TEACHER ? groupContextId as string : null,
+      group_id:
+        userRole === USER_ROLES.TEACHER ? (groupContextId as string) : null,
     };
     if (newMessage.content) {
       sendMessageMutation(newMessage);
     } else {
       addToast({
-        title: t("emptyMessageTitle", { defaultValue: "Mensaje vacío" }),
-        description: t("emptyMessageDescription", { defaultValue: "No puedes enviar un mensaje vacío." }),
-        color: "warning",
+        title: t('emptyMessageTitle', { defaultValue: 'Mensaje vacío' }),
+        description: t('emptyMessageDescription', {
+          defaultValue: 'No puedes enviar un mensaje vacío.',
+        }),
+        color: 'warning',
         hideIcon: true,
       });
       return;
     }
-    setContent("");
+    setContent('');
   };
 
   return (
@@ -48,7 +51,7 @@ export default function MessageInput() {
       <Textarea
         variant="bordered"
         minRows={1}
-        placeholder={t("placeholder")}
+        placeholder={t('placeholder')}
         isClearable
         value={content}
         onValueChange={setContent}

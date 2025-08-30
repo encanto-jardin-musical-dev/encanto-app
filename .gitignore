@@ -45,3 +45,13 @@ next-env.d.ts
 
 # Cursor
 .cursor/*
+
+# Serwist
+public/sw.js
+public/swe-worker*
+
+# Firebase (generated at build time)
+public/firebase-messaging-sw.js
+
+# Supabase
+supabase/*

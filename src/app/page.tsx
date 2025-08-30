@@ -1,9 +1,9 @@
-import { Button, Link } from "@heroui/react";
-import { useTranslations } from "next-intl";
-import Image from "next/image";
+import { Button, Link } from '@heroui/react';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 export default function Home() {
-  const t = useTranslations("HomePage");
+  const t = useTranslations('HomePage');
   return (
     <main
       className="flex flex-col items-center justify-center p-4 h-screen"
@@ -13,7 +13,7 @@ export default function Home() {
         <div className="flex flex-1 items-center justify-center">
           <Image
             src="/brand/logo-encanto-vertical.svg"
-            alt="Encato logo vertical"
+            alt="Encanto logo vertical"
             width={200}
             height={200}
             unoptimized
@@ -21,8 +21,8 @@ export default function Home() {
           />
         </div>
         <div className="py-8 text-center">
-          <h2 className="text-4xl font-bold text-primary">{t("welcome")}</h2>
-          <p>{t("description")}</p>
+          <h2 className="text-4xl font-bold text-primary">{t('welcome')}</h2>
+          <p>{t('description')}</p>
         </div>
         <div className="pt-8">
           <Button
@@ -33,7 +33,7 @@ export default function Home() {
             fullWidth
             size="lg"
           >
-            {t("button")}
+            {t('button')}
           </Button>
         </div>
       </section>

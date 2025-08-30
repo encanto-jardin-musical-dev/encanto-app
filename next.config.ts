@@ -1,14 +1,22 @@
-import { withSentryConfig } from "@sentry/nextjs";
-import type { NextConfig } from "next";
-import createNextIntlPlugin from "next-intl/plugin";
+import { withSentryConfig } from '@sentry/nextjs';
+import withSerwistInit from '@serwist/next';
+import type { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  // Ensure the Firebase service worker is generated before build
+  experimental: {
+    // This ensures our prebuild script runs before Next.js build
+    workerThreads: false,
+  },
+};
 const sentryOptions = {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
 
-  org: "encanto-jardin-musical",
-  project: "encanto-app",
+  org: 'encanto-jardin-musical',
+  project: 'encanto-app',
+  authToken: process.env.SENTRY_AUTH_TOKEN,
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
@@ -43,5 +51,12 @@ const sentryOptions = {
   automaticVercelMonitors: true,
 };
 const withNextIntl = createNextIntlPlugin();
+const withSerwist = withSerwistInit({
+  swSrc: 'src/app/sw.ts',
+  swDest: './public/sw.js',
+});
 
-export default withSentryConfig(withNextIntl(nextConfig), sentryOptions);
+export default withSentryConfig(
+  withNextIntl(withSerwist(nextConfig)),
+  sentryOptions
+);

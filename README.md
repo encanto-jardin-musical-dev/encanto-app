@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Encanto App
 
-## Getting Started
+A Progressive Web App (PWA) for Encanto Jardín Musical, built with Next.js 15, React 19, and Supabase.
 
-First, run the development server:
+## Features
+
+- **Progressive Web App**: Installable with offline capabilities
+- **Real-time Messaging**: Live communication between parents and teachers
+- **Push Notifications**: Browser-based notifications for new messages
+- **Multi-language Support**: Internationalization with next-intl
+- **Role-based Access**: Support for parents, teachers, and administrators
+
+## Push Notifications Setup
+
+This app includes web push notification functionality. To enable it, you need to:
+
+1. **Generate VAPID Keys**: Create VAPID (Voluntary Application Server Identification) keys for your domain
+2. **Environment Variables**: Add the following to your `.env.local` file:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=your_vapid_public_key_here
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Service Worker**: The app includes a service worker (`public/sw.js`) that handles push notifications
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Generating VAPID Keys
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+You can generate VAPID keys using the web-push library:
 
-## Learn More
+```bash
+npm install web-push -g
+web-push generate-vapid-keys
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Testing Push Notifications
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+To test push notifications, you can use the browser's developer tools or send a test notification from your backend.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Development
 
-## Deploy on Vercel
+```bash
+npm install
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Environment Variables
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Create a `.env.local` file with the following variables:
+
+```bash
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Push Notifications
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=your_vapid_public_key
+
+# Analytics
+NEXT_PUBLIC_POSTHOG_KEY=your_posthog_key
+NEXT_PUBLIC_POSTHOG_HOST=your_posthog_host
+
+# Sentry
+NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
+```
+
+## Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS, HeroUI
+- **State Management**: Jotai, TanStack React Query
+- **Backend**: Supabase (PostgreSQL, Auth, Real-time)
+- **Internationalization**: next-intl
+- **Monitoring**: Sentry, PostHog
+- **Deployment**: Vercel
+
+## Project Structure
+
+```
+src/
+├── app/                 # Next.js App Router pages
+├── components/          # React components
+├── hooks/              # Custom React hooks
+├── lib/                # Utilities and configurations
+├── queries/            # React Query definitions
+├── types/              # TypeScript type definitions
+└── utils/              # Utility functions
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+This project is private and proprietary to Encanto Jardín Musical.

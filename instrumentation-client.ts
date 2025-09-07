@@ -2,7 +2,8 @@ import * as Sentry from '@sentry/nextjs';
 import posthog from 'posthog-js';
 
 posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-  api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+  api_host: '/d4t4-3nc4nt0/',
+  ui_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   defaults: '2025-05-24',
 });
 

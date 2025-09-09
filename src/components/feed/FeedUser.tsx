@@ -139,6 +139,13 @@ export default function FeedUser({ user }: FeedUserProps) {
     return t('labels.parent', { count: selectOptions.length });
   };
 
+  const getSelectedKey = () => {
+    if (selectOptions.length > 0 && groupContextSelection) {
+      return groupContextSelection;
+    }
+    return 'all';
+  };
+
   return (
     <div className="w-full">
       <FeedUserHeader user={user} />
@@ -150,7 +157,7 @@ export default function FeedUser({ user }: FeedUserProps) {
           label={getSelectLabel()}
           items={selectOptions}
           placeholder={getSelectPlaceholder()}
-          selectedKeys={groupContextSelection}
+          selectedKeys={getSelectedKey()}
           onSelectionChange={setGroupContextSelection}
           isDisabled={user.role === USER_ROLES.TEACHER}
         >

@@ -9,6 +9,19 @@ const nextConfig: NextConfig = {
     // This ensures our prebuild script runs before Next.js build
     workerThreads: false,
   },
+  // PostHog reverse proxy for local development (matches vercel.json rewrites)
+  rewrites: async () => {
+    return [
+      {
+        source: '/d4t4-3nc4nt0/static/:path*',
+        destination: 'https://us-assets.i.posthog.com/static/:path*',
+      },
+      {
+        source: '/d4t4-3nc4nt0/:path*',
+        destination: 'https://us.posthog.com/:path*',
+      },
+    ];
+  },
 };
 const sentryOptions = {
   // For all available options, see:

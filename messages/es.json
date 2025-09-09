@@ -20,15 +20,16 @@
         "parent": "{count, plural, =0 {No hay hij@s asignados} =1 {Selecciona tu Hij@} other {Selecciona uno de tus Hij@s}}",
         "other": "{count, plural, =0 {No hay grupos asignados} =1 {Selecciona tu Grupo} other {Selecciona uno de tus Grupos}}"
       },
-      "notifications": {
-        "title": "Configuración de notificaciones",
+      "settings": {
+        "title": "Opciones de usuario",
         "enable": "Activar notificaciones",
         "description": "Recibe notificaciones sobre nuevos mensajes y actualizaciones",
         "activateButton": "Activar notificaciones",
         "activeStatus": "Notificaciones activas",
         "blockedStatus": "Notificaciones bloqueadas",
         "permissionsBlocked": "Permisos bloqueados",
-        "permissionsBlockedDescription": "Para activar notificaciones, ve a Configuración del navegador → Notificaciones → Permitir"
+        "permissionsBlockedDescription": "Para activar notificaciones, ve a Configuración del navegador → Notificaciones → Permitir",
+        "signoutButton": "Cerrar sesión"
       }
     },
     "FeedFilters": {

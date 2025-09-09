@@ -1,15 +1,17 @@
 'use client';
 
+import { signout } from '@/utils/auth/actions';
 import { checkAndRequestPermission } from '@/utils/pushNotifications';
-import { BellIcon } from '@heroicons/react/24/outline';
+import { UserIcon } from '@heroicons/react/24/solid';
 import {
-  Badge,
   Button,
+  Divider,
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@heroui/react';
 import { useTranslations } from 'next-intl';
+import { usePostHog } from 'posthog-js/react';
 import { useEffect, useState } from 'react';
 
 // Function to get current notification permission without requesting it
@@ -27,7 +29,9 @@ export default function NotificationSettingsPopover() {
   const [pushPermission, setPushPermission] = useState<
     'default' | 'granted' | 'denied'
   >('default');
-  const t = useTranslations('UserFeedPage.FeedUser');
+  const t = useTranslations('UserFeedPage.FeedUser.settings');
+
+  const posthog = usePostHog();
 
   // Check current permissions when component mounts
   useEffect(() => {
@@ -35,46 +39,42 @@ export default function NotificationSettingsPopover() {
     setPushPermission(currentPermission);
   }, []);
 
+  const handleSignOut = () => {
+    posthog?.capture('user_signed_out');
+    signout();
+    posthog?.reset();
+  };
+
   return (
     <Popover placement="bottom-end">
       <PopoverTrigger>
         <Button
           isIconOnly
           variant="light"
-          aria-label="Notification settings"
+          aria-label="User settings"
           className="text-foreground"
         >
-          <Badge
-            color="danger"
-            shape="circle"
-            content=""
-            isInvisible={pushPermission === 'granted'}
-            isDot
-          >
-            <BellIcon className="w-5 h-5" />
-          </Badge>
+          <UserIcon className="w-5 h-5" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
         <div className="px-1 py-2">
           <h4 className="text-lg font-medium text-foreground mb-2">
-            {t('notifications.title')}
+            {t('title')}
           </h4>
           <div className="space-y-3">
             <div>
               <p className="text-sm font-medium text-foreground">
-                {t('notifications.enable')}
+                {t('enable')}
               </p>
-              <p className="text-xs text-default-500">
-                {t('notifications.description')}
-              </p>
+              <p className="text-xs text-default-500">{t('description')}</p>
               {pushPermission === 'denied' && (
                 <div className="mt-2 p-2 bg-danger-50 border border-danger-200 rounded-md">
                   <p className="text-xs text-danger font-medium mb-1">
-                    {t('notifications.permissionsBlocked')}
+                    {t('permissionsBlocked')}
                   </p>
                   <p className="text-xs text-danger">
-                    {t('notifications.permissionsBlockedDescription')}
+                    {t('permissionsBlockedDescription')}
                   </p>
                 </div>
               )}
@@ -90,17 +90,28 @@ export default function NotificationSettingsPopover() {
                     setPushPermission(permission);
                   }}
                 >
-                  {t('notifications.activateButton')}
+                  {t('activateButton')}
                 </Button>
               ) : pushPermission === 'granted' ? (
                 <Button size="sm" variant="solid" color="success" isDisabled>
-                  {t('notifications.activeStatus')}
+                  {t('activeStatus')}
                 </Button>
               ) : (
                 <Button size="sm" variant="bordered" color="danger" isDisabled>
-                  {t('notifications.blockedStatus')}
+                  {t('blockedStatus')}
                 </Button>
               )}
+            </div>
+            <Divider />
+            <div>
+              <Button
+                size="sm"
+                variant="ghost"
+                color="danger"
+                onPress={handleSignOut}
+              >
+                {t('signoutButton')}
+              </Button>
             </div>
           </div>
         </div>

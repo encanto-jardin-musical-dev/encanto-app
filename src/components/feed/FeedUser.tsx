@@ -18,6 +18,7 @@ import { useAtom } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect } from 'react';
 import FeedUserHeader from './FeedUserHeader';
+import { usePostHog } from 'posthog-js/react';
 
 type FeedUserProps = {
   user: UserProfile;
@@ -34,11 +35,16 @@ export default function FeedUser({ user }: FeedUserProps) {
   const [, setUserId] = useAtom(userIdAtom);
   const t = useTranslations('UserFeedPage.FeedUser');
 
+  const posthog = usePostHog();
+
   // user id and role
   useEffect(() => {
-    if (id) setUserId(id);
+    if (id) {
+      setUserId(id);
+      posthog.identify(id);
+    }
     if (role) setUserRole(role);
-  }, [id, role, setUserId, setUserRole]);
+  }, [id, posthog, role, setUserId, setUserRole]);
 
   // check push notification permissions
   useEffect(() => {

@@ -30,8 +30,8 @@ export async function login(formData: FormData) {
       name: `${user_metadata?.first_name} ${user_metadata?.last_name}`,
       role: user_metadata?.role,
     });
+    trackServerAction('user_signed-in', undefined, id);
   }
-  trackServerAction('user_logged');
 
   revalidatePath('/', 'layout');
   redirect('/feed');

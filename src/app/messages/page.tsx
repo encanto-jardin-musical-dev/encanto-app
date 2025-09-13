@@ -1,8 +1,7 @@
-import NavigationBar from "@/components/common/NavigationBar";
-import SearchBar from "@/components/common/SearchBar";
-import MessagesContactsList from "@/components/messages/MessagesContactsList";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import NavigationBar from '@/components/common/NavigationBar';
+import MessagesContactsList from '@/components/messages/MessagesContactsList';
+import { createClient } from '@/utils/supabase/server';
+import { redirect } from 'next/navigation';
 
 export default async function MessagesPage() {
   // Check if the user is authenticated
@@ -12,13 +11,12 @@ export default async function MessagesPage() {
     error,
   } = await supabase.auth.getUser();
   if (error || !user) {
-    redirect("/login");
+    redirect('/login');
   }
 
   return (
     <section className="grid grid-rows-[auto_auto_1fr] h-full gap-4">
       <NavigationBar backRoute="/feed" pageTitle="Mensajes" />
-      <SearchBar />
       <MessagesContactsList />
     </section>
   );

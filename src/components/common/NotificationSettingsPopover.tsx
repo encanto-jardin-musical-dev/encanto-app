@@ -40,7 +40,7 @@ export default function NotificationSettingsPopover() {
   }, []);
 
   const handleSignOut = () => {
-    posthog?.capture('user_signed_out');
+    posthog?.capture('user_signed-out');
     signout();
     posthog?.reset();
   };

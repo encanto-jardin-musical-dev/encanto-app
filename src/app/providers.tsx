@@ -1,21 +1,14 @@
 'use client';
 
 import { JotaiProvider } from '@/lib/providers/JotaiProvider';
+import { initPostHogClient } from '@/lib/posthog/client';
 import { HeroUIProvider, ToastProvider } from '@heroui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useRouter } from 'next/navigation';
-import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 
-if (typeof window !== 'undefined') {
-  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-    api_host: '/d4t4-3nc4nt0/',
-    ui_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
-    person_profiles: 'always',
-    defaults: '2025-05-24',
-  });
-}
+const posthog = initPostHogClient();
 
 declare module '@react-types/shared' {
   interface RouterConfig {

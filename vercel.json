@@ -7,6 +7,10 @@
     {
       "source": "/d4t4-3nc4nt0/(.*)",
       "destination": "https://us.posthog.com/$1"
+    },
+    {
+      "source": "/batch/(.*)",
+      "destination": "https://us.posthog.com/batch/$1"
     }
   ]
 }

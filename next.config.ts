@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
         source: '/d4t4-3nc4nt0/:path*',
         destination: 'https://us.posthog.com/:path*',
       },
+      {
+        source: '/batch/:path*',
+        destination: 'https://us.posthog.com/batch/:path*',
+      },
     ];
   },
 };

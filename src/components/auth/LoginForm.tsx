@@ -1,26 +1,38 @@
-"use client";
+'use client';
 
-import { Button, Form, Input } from "@heroui/react";
-import { useState } from "react";
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import { login } from "@/utils/auth/actions";
-import { useTranslations } from "next-intl";
+import { Alert, Button, Form, Input } from '@heroui/react';
+import { useState } from 'react';
+import { signin } from '@/utils/auth/actions';
+import { useTranslations } from 'next-intl';
 
 export default function LoginForm() {
-  const t = useTranslations("LoginPage");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
-  const togglePasswordVisibility = () =>
-    setIsPasswordVisible(!isPasswordVisible);
+  const t = useTranslations('LoginPage');
+  const [email, setEmail] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+
     const formData = new FormData();
-    formData.append("email", email);
-    formData.append("password", password);
-    login(formData);
+    formData.append('email', email);
+
+    const result = await signin(formData);
+
+    if (result.error) {
+      setIsError(true);
+      setErrorMessage(result.error);
+      setIsSuccess(result.success);
+    } else {
+      setIsSuccess(result.success);
+      setIsError(false);
+      setErrorMessage('');
+    }
+
+    setIsLoading(false);
   };
 
   return (
@@ -30,40 +42,40 @@ export default function LoginForm() {
       onSubmit={handleSubmit}
     >
       <Input
-        label={t("email")}
+        label={t('email')}
         type="email"
         name="email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={e => setEmail(e.target.value)}
         required
         autoComplete="email"
       />
-      <Input
-        label={t("password")}
-        type={isPasswordVisible ? "text" : "password"}
-        name="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-        autoComplete="current-password"
-        endContent={
-          <button
-            aria-label="toggle password visibility"
-            className="focus:outline-none"
-            type="button"
-            onClick={togglePasswordVisibility}
-          >
-            {isPasswordVisible ? (
-              <EyeSlashIcon className="w-6 h-6 text-gray-500" />
-            ) : (
-              <EyeIcon className="w-6 h-6 text-gray-500" />
-            )}
-          </button>
-        }
-      />
+      {isSuccess ? (
+        <div className="w-full flex items-center my-3">
+          <Alert
+            color="success"
+            title={t('magicLinkSuccessMessage', { email })}
+          />
+        </div>
+      ) : null}
+      {isError ? (
+        <div className="w-full flex items-center my-3">
+          <Alert
+            color="danger"
+            title={t('magicLinkErrorMessage')}
+            description={errorMessage}
+          />
+        </div>
+      ) : null}
       <div className="pt-9 w-full">
-        <Button color="primary" fullWidth type="submit" size="lg">
-          {t("login")}
+        <Button
+          color="primary"
+          fullWidth
+          type="submit"
+          size="lg"
+          isLoading={isLoading}
+        >
+          {t('magicLinkButton')}
         </Button>
       </div>
     </Form>

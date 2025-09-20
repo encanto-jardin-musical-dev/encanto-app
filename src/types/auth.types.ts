@@ -1,5 +1,5 @@
-import { UserRoles } from "./common.types";
-import { Database } from "./database.types";
+import { UserRoles } from './common.types';
+import { Database } from './database.types';
 
 export type AuthUser = {
   id: string;
@@ -47,4 +47,6 @@ export type Data = {
   sub: string;
 };
 
-export type UserProfile = Database["public"]["Tables"]["profiles"]["Row"];
+export type UserProfile = Database['public']['Tables']['profiles']['Row'];
+
+export type OtpTypes = 'email';

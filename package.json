@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:https": "next dev --experimental-https",
+    "dev:https": "NODE_OPTIONS='--inspect' next dev --experimental-https",
     "dev:node": "NODE_OPTIONS='--inspect' next dev",
     "prebuild": "node scripts/generate-firebase-sw.js",
     "build": "next build",

@@ -3,38 +3,28 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-import { identifyUser, trackServerAction } from '@/lib/posthog/ssr';
+import { identifyUser } from '@/lib/posthog/ssr';
 import { createClient } from '@/utils/supabase/server';
 
-export async function login(formData: FormData) {
+export async function signin(formData: FormData) {
   const supabase = await createClient();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
+  const credentials = {
     email: formData.get('email') as string,
-    password: formData.get('password') as string,
+    options: {
+      shouldCreateUser: false,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/confirm`,
+    },
   };
 
-  const { error, data: userData } =
-    await supabase.auth.signInWithPassword(data);
+  const { error, data } = await supabase.auth.signInWithOtp(credentials);
 
   if (error) {
-    redirect('/error');
-  }
-
-  if (userData.user) {
-    const { id, email, user_metadata } = userData?.user;
-    await identifyUser(id, {
-      email: email,
-      name: `${user_metadata?.first_name} ${user_metadata?.last_name}`,
-      role: user_metadata?.role,
-    });
-    trackServerAction('user_signed-in', undefined, id);
+    return { success: false, error: error.code };
   }
 
   revalidatePath('/', 'layout');
-  redirect('/feed');
+  return { success: true, data };
 }
 
 export async function signup(formData: FormData) {

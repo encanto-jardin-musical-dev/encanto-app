@@ -1,4 +1,4 @@
-import { UserRoles } from "./common.types";
+import { UserRoles } from './common.types';
 
 export type QueryParams = {
   params?: {
@@ -9,4 +9,4 @@ export type QueryParams = {
   options?: {
     enabled?: boolean;
   };
-}
+};

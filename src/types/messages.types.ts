@@ -37,4 +37,6 @@ export type DetailedMessage = {
   receiver_role: string;
   group_id?: string;
   message_attachments?: string[];
+  is_read?: boolean | null;
+  read_at?: string | null;
 }

@@ -88,7 +88,9 @@ export default function FeedGroup() {
       receiver_last_name: receiver?.last_name || '',
       receiver_role: receiver?.role || '',
       group_id: rawMessage.group_id || undefined,
-      message_attachments: rawMessage.attachments ? [rawMessage.attachments as string] : []
+      message_attachments: rawMessage.attachments ? [rawMessage.attachments as string] : [],
+      is_read: rawMessage.is_read,
+      read_at: rawMessage.read_at
     };
   }, []);
 

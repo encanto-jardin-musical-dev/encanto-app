@@ -6,7 +6,7 @@ import { contextGroupValue } from '@/lib/store/common';
 import { receiverAtom, senderAtom } from '@/lib/store/messages';
 import { DetailedMessage as MessageFeedResponse } from '@/types/messages.types';
 import { ClockIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
-import { Card, CardBody, CardHeader, Skeleton } from '@heroui/react';
+import { Card, CardBody, CardHeader, Skeleton, Badge } from '@heroui/react';
 import { useAtom } from 'jotai';
 import { useFormatter, useNow, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -49,6 +49,7 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
     sender_last_name,
     sender_role,
     message_content,
+    is_read,
   } = message;
 
   const messageDate = new Date(message_created_at as string);
@@ -129,7 +130,15 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
     >
       <CardHeader className="gap-2 items-start">
         <div>
-          <EnvelopeIcon className="w-6 h-6" />
+          <Badge
+            color="danger"
+            isInvisible={is_read as boolean}
+            shape="circle"
+            variant="solid"
+            content=""
+          >
+            <EnvelopeIcon className="w-6 h-6" />
+          </Badge>
         </div>
         <div className="text-left flex-1">
           <h3 className="text-medium">{t('title')}</h3>
@@ -148,9 +157,11 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
             </p>
           </Skeleton>
         </div>
-        <div className="flex justify-end items-center text-tiny">
-          <ClockIcon className="w-4 h-4" />
-          <span>{format.relativeTime(messageDate, now)}</span>
+        <div className="flex justify-end items-center gap-2 text-tiny">
+          <div className="flex items-center gap-1">
+            <ClockIcon className="w-4 h-4" />
+            <span>{format.relativeTime(messageDate, now)}</span>
+          </div>
         </div>
       </CardHeader>
       <CardBody>

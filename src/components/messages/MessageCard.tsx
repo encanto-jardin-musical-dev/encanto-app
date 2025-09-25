@@ -24,16 +24,32 @@ export default function MessageCard({
     is_read,
   } = message;
   const format = useFormatter();
-  const [isRead] = useState(is_read);
+  const [isRead, setIsRead] = useState(is_read);
   const createdDate = new Date(message_created_at as string);
 
   const { mutate: markMessageAsRead } = useMarkMessageRead();
 
+  // Auto-mark incoming messages as read
   useEffect(() => {
     if (!is_read && !isOwnMessage) {
       markMessageAsRead(message_id!);
     }
   }, [isOwnMessage, is_read, markMessageAsRead, message_id]);
+
+  // Handle real-time read status updates with 3-second delay for own messages
+  useEffect(() => {
+    if (is_read && isOwnMessage && !isRead) {
+      // For own messages, add a 3-second delay to show "message delivered then read" progression
+      const timer = setTimeout(() => {
+        setIsRead(true);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    } else if (!isOwnMessage) {
+      // For incoming messages, sync immediately with prop changes
+      setIsRead(is_read);
+    }
+  }, [is_read, isOwnMessage, isRead]);
 
   return (
     <div

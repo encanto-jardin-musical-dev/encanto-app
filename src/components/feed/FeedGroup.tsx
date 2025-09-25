@@ -4,7 +4,7 @@ import { contextGroupValue } from '@/lib/store/common';
 import { groupMessagesAtom } from '@/lib/store/feed';
 import { DetailedMessage } from '@/types/messages.types';
 import { useAtom } from 'jotai';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import MessageFeedCard from './MessageFeedCard';
 import { ActionButton } from '../common/ActionButton';
 import { userAtom } from '@/lib/store/user';
@@ -12,11 +12,14 @@ import EmptyFeed from './EmptyFeed';
 import useGetUserFeedMessages from '@/hooks/UseGetUserFeedMessages';
 import { Spinner } from '@heroui/react';
 import { UseSupabaseRealtime } from '@/hooks/UseSupabaseRealtime';
+import UseGetUserProfilesQuery from '@/hooks/UseGetUserProfilesQuery';
+import type { Database } from '@/types/database.types';
 
 export default function FeedGroup() {
   const [user] = useAtom(userAtom);
   const [groupContextId] = useAtom(contextGroupValue);
   const [groupMessages, setGroupMessages] = useAtom(groupMessagesAtom);
+  const [pendingUserIds, setPendingUserIds] = useState<string[]>([]);
 
   const { id } = user;
 
@@ -35,6 +38,11 @@ export default function FeedGroup() {
     schema: 'public',
     table: 'messages',
     event: 'INSERT',
+  });
+
+  const { data: userProfiles = [] } = UseGetUserProfilesQuery({
+    params: { userIds: pendingUserIds },
+    options: { enabled: pendingUserIds.length > 0 }
   });
 
   const filterMostRecentMessagesBySender = useCallback(
@@ -60,6 +68,30 @@ export default function FeedGroup() {
     []
   );
 
+  const transformMessageToDetailed = useCallback((
+    rawMessage: Database['public']['Tables']['messages']['Row'], 
+    profiles: Array<{id: string, first_name: string, last_name: string, role: string}>
+  ): DetailedMessage => {
+    const sender = profiles.find(p => p.id === rawMessage.sender_id);
+    const receiver = profiles.find(p => p.id === rawMessage.receiver_id);
+    
+    return {
+      message_id: rawMessage.id,
+      message_content: rawMessage.content,
+      message_created_at: rawMessage.created_at || '',
+      sender_id: rawMessage.sender_id || '',
+      sender_first_name: sender?.first_name || '',
+      sender_last_name: sender?.last_name || '',
+      sender_role: sender?.role || '',
+      receiver_id: rawMessage.receiver_id || '',
+      receiver_first_name: receiver?.first_name || '',
+      receiver_last_name: receiver?.last_name || '',
+      receiver_role: receiver?.role || '',
+      group_id: rawMessage.group_id || undefined,
+      message_attachments: rawMessage.attachments ? [rawMessage.attachments as string] : []
+    };
+  }, []);
+
   useEffect(() => {
     if (groupContextId) {
       refetchMessages();
@@ -67,13 +99,54 @@ export default function FeedGroup() {
   }, [groupContextId, refetchMessages]);
 
   useEffect(() => {
-    if (status === 'connected' && data) {
-      console.log({ data });
-    }
     if (feedMeessages) {
       setGroupMessages(feedMeessages as DetailedMessage[]);
     }
-  }, [data, feedMeessages, setGroupMessages, status]);
+  }, [feedMeessages, setGroupMessages]);
+
+  useEffect(() => {
+    if (status === 'connected' && data) {
+      // Check if message is relevant to current user/group context
+      const isRelevant = data.receiver_id === id && 
+        (data.group_id === groupContextId || data.group_id === null);
+      
+      if (isRelevant && data.sender_id && data.receiver_id) {
+        // Set user IDs to fetch profiles for
+        setPendingUserIds([data.sender_id, data.receiver_id]);
+      }
+    }
+  }, [data, status, id, groupContextId]);
+
+  // Separate effect to handle profile data and message transformation
+  useEffect(() => {
+    if (data && userProfiles.length > 0 && pendingUserIds.length > 0) {
+      const detailedMessage = transformMessageToDetailed(data, userProfiles);
+      
+      // Update groupMessages state
+      setGroupMessages(prev => {
+        if (!Array.isArray(prev)) return [detailedMessage];
+        
+        const existingIndex = prev.findIndex(msg => msg.sender_id === data.sender_id);
+        
+        if (existingIndex >= 0) {
+          // Update if this message is more recent
+          const existing = prev[existingIndex];
+          if (data.created_at! > existing.message_created_at) {
+            const updated = [...prev];
+            updated[existingIndex] = detailedMessage;
+            return updated;
+          }
+          return prev;
+        } else {
+          // Add new message
+          return [detailedMessage, ...prev];
+        }
+      });
+      
+      // Clear pending user IDs
+      setPendingUserIds([]);
+    }
+  }, [data, userProfiles, pendingUserIds, transformMessageToDetailed, setGroupMessages]);
 
   const filteredMessages = useMemo(() => {
     if (!Array.isArray(groupMessages)) return [];

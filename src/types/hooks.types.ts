@@ -5,6 +5,7 @@ export type QueryParams = {
     userID?: string;
     groupID?: string;
     userRole?: UserRoles;
+    userIds?: string[];
   };
   options?: {
     enabled?: boolean;

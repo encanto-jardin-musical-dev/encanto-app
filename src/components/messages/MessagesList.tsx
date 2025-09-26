@@ -144,12 +144,21 @@ export default function MessagesList({ senderID }: MessagesListProps) {
   }, [responseMessages, setMessages]);
 
 
+  // Show full-screen centered loader when initially loading messages
+  if (isLoadingMessages && messages.length === 0) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center gap-4">
+        <Spinner size="lg" />
+        <p className="text-default-500 text-sm">Loading conversation...</p>
+      </div>
+    );
+  }
+
   return (
     <div
       className="w-full flex flex-col gap-4 overflow-auto scroll-smooth"
       ref={messageListRef}
     >
-      {isLoadingMessages && (<Spinner />)}
       {Array.isArray(messages)
         ? messages.map((message) => (
           <MessageCard

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 
@@ -10,23 +10,26 @@ import { createClient } from '@/utils/supabase/client';
  */
 export default function AuthRedirect() {
   const router = useRouter();
-  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     const checkSession = async () => {
       const supabase = createClient();
       const {
         data: { user },
+        error,
       } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error('Error checking session:', error);
+        return;
+      }
 
       if (user) {
         router.push('/feed');
-      } else {
-        setIsChecking(false);
       }
     };
 
-    checkSession();
+    void checkSession();
   }, [router]);
 
   // Return null - this component only handles redirect logic

@@ -2,7 +2,7 @@ import { getUserGroups } from "@/queries/users/get-user-groups";
 import { createClient } from "@/utils/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
-function useUserGroupsQuery(userID: string, queryOptions = {}) {
+function useUserGroupsQuery(userID: string, { enabled = true }: { enabled?: boolean } = {}) {
   const client = createClient();
   const queryKey = ["user-groups"];
 
@@ -11,7 +11,7 @@ function useUserGroupsQuery(userID: string, queryOptions = {}) {
       .then((result) => result.data);
   }
 
-  return useQuery({ queryKey, queryFn, ...queryOptions });
+  return useQuery({ queryKey, queryFn, enabled });
 }
 
 export default useUserGroupsQuery;

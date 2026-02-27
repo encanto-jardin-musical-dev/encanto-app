@@ -18,7 +18,7 @@
     "@heroui/react": "^2.7.9",
     "@sentry/nextjs": "^10.5.0",
     "@serwist/next": "^9.1.1",
-    "@supabase/ssr": "^0.6.1",
+    "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.49.8",
     "@tanstack/react-query": "^5.80.7",
     "firebase": "^12.0.0",

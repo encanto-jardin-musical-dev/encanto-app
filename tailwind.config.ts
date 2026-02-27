@@ -18,6 +18,7 @@ export default {
   },
   darkMode: "class",
   plugins: [
+    // @ts-expect-error - HeroUI bundles its own tailwindcss types that conflict with the project's version
     heroui({
       themes: {
         encanto: {

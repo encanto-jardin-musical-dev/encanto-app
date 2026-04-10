@@ -43,8 +43,12 @@ next-env.d.ts
 # Sentry Config File
 .env.sentry-build-plugin
 
-# Cursor
+# AI
 .cursor/*
+.claude/*
+.coda/*
+.opencode/*
+.mcp.*
 
 # Serwist
 public/sw.js

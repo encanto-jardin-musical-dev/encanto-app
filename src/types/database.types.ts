@@ -340,7 +340,6 @@ export type Database = {
           created_at: string | null
           document_number: string
           document_type: Database["public"]["Enums"]["document_type"]
-          fcm_token: string | null
           first_name: string
           id: string
           last_name: string
@@ -353,7 +352,6 @@ export type Database = {
           created_at?: string | null
           document_number: string
           document_type: Database["public"]["Enums"]["document_type"]
-          fcm_token?: string | null
           first_name: string
           id: string
           last_name: string
@@ -366,43 +364,12 @@ export type Database = {
           created_at?: string | null
           document_number?: string
           document_type?: Database["public"]["Enums"]["document_type"]
-          fcm_token?: string | null
           first_name?: string
           id?: string
           last_name?: string
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
-        }
-        Relationships: []
-      }
-      subscriptions: {
-        Row: {
-          auth_key: string
-          created_at: string | null
-          endpoint: string
-          id: string
-          p256dh_key: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          auth_key: string
-          created_at?: string | null
-          endpoint: string
-          id?: string
-          p256dh_key: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          auth_key?: string
-          created_at?: string | null
-          endpoint?: string
-          id?: string
-          p256dh_key?: string
-          updated_at?: string | null
-          user_id?: string
         }
         Relationships: []
       }
@@ -510,7 +477,6 @@ export type Database = {
           created_at: string | null
           document_number: string
           document_type: Database["public"]["Enums"]["document_type"]
-          fcm_token: string | null
           first_name: string
           id: string
           last_name: string

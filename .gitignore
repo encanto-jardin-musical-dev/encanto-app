@@ -59,6 +59,3 @@ public/firebase-messaging-sw.js
 
 # Supabase
 supabase/*
-
-# openspec
-openspec/*

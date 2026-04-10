@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { Asap } from 'next/font/google';
+import { PushNotificationProvider } from '@/components/providers/PushNotificationProvider';
 import { Providers } from './providers';
 
 const asap = Asap({
@@ -29,6 +30,7 @@ export default async function RootLayout({
       <body className={`${asap.variable} antialiased`}>
         <Providers>
           <NextIntlClientProvider messages={messages}>
+            <PushNotificationProvider />
             {children}
           </NextIntlClientProvider>
         </Providers>

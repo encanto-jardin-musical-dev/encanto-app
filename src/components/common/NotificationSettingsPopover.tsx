@@ -1,7 +1,12 @@
 'use client';
 
 import { signout } from '@/utils/auth/actions';
-import { checkAndRequestPermission } from '@/utils/pushNotifications';
+import {
+  checkAndRequestPermission,
+  clearCachedFcmToken,
+  getCachedFcmToken,
+} from '@/utils/pushNotifications';
+import { removeDeviceToken } from '@/utils/pushNotifications/removeDeviceToken';
 import { UserIcon } from '@heroicons/react/24/solid';
 import {
   Button,
@@ -39,8 +44,17 @@ export default function NotificationSettingsPopover() {
     setPushPermission(currentPermission);
   }, []);
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     posthog?.capture('user_signed-out');
+    // Remove this device's FCM token before signing out (must happen while still
+    // authenticated so the RLS-protected DELETE succeeds).
+    const token = getCachedFcmToken();
+    if (token) {
+      await removeDeviceToken(token).catch(() => {
+        // Non-fatal — token will eventually be cleaned up by stale-token detection
+      });
+      clearCachedFcmToken();
+    }
     signout();
     posthog?.reset();
   };

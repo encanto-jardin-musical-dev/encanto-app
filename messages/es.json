@@ -57,5 +57,10 @@
     "placeholder": "Mensaje",
     "emptyMessageTitle": "Mensaje vacío",
     "emptyMessageDescription": "No puedes enviar un mensaje vacío."
+  },
+  "PushNotifications": {
+    "defaultTitle": "Nuevo mensaje",
+    "defaultBody": "Tienes un nuevo mensaje",
+    "openAction": "Abrir"
   }
 }

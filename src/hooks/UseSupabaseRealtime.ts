@@ -5,76 +5,50 @@ import { RealtimeChannel, REALTIME_LISTEN_TYPES, RealtimePostgresChangesPayload 
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/types/database.types";
 
-type DatabaseSchema = keyof Database;
-type TableName<S extends DatabaseSchema> = S extends "public" 
-  ? keyof Database["public"]["Tables"] 
-  : S extends "auth" 
-  ? keyof Database["auth"]["Tables"]
-  : never;
-
-type TableRow<
-  S extends DatabaseSchema,
-  T extends TableName<S>
-> = S extends "public"
-  ? T extends keyof Database["public"]["Tables"]
-    ? Database["public"]["Tables"][T]["Row"]
-    : never
-  : S extends "auth"
-  ? T extends keyof Database["auth"]["Tables"]
-    ? Database["auth"]["Tables"][T]["Row"]
-    : never
-  : never;
+type TableName = keyof Database["public"]["Tables"];
+type TableRow<T extends TableName> = Database["public"]["Tables"][T]["Row"];
 
 type RealtimeEvent = "INSERT" | "UPDATE" | "DELETE" | "*";
 
 type PostgresChangesPayload = RealtimePostgresChangesPayload<{ [key: string]: unknown }>;
 
-export interface UseSupabaseRealtimeConfig<
-  S extends DatabaseSchema,
-  T extends TableName<S>
-> {
+export interface UseSupabaseRealtimeConfig<T extends TableName> {
   channelName: string;
-  schema: S;
+  schema: "public";
   table: T;
   event: RealtimeEvent;
   filter?: string;
 }
 
-export interface UseSupabaseRealtimeResult<
-  S extends DatabaseSchema,
-  T extends TableName<S>
-> {
-  data: TableRow<S, T> | null;
+export interface UseSupabaseRealtimeResult<T extends TableName> {
+  data: TableRow<T> | null;
   payload: PostgresChangesPayload | null;
   status: "connecting" | "connected" | "disconnected" | "error";
   error: string | null;
 }
 
-export function UseSupabaseRealtime<
-  S extends DatabaseSchema = "public",
-  T extends TableName<S> = TableName<S>
->({
+export function UseSupabaseRealtime<T extends TableName>({
   channelName,
   schema,
   table,
   event,
   filter,
-}: UseSupabaseRealtimeConfig<S, T>): UseSupabaseRealtimeResult<S, T> {
-  const [data, setData] = useState<TableRow<S, T> | null>(null);
+}: UseSupabaseRealtimeConfig<T>): UseSupabaseRealtimeResult<T> {
+  const [data, setData] = useState<TableRow<T> | null>(null);
   const [payload, setPayload] = useState<PostgresChangesPayload | null>(null);
   const [status, setStatus] = useState<"connecting" | "connected" | "disconnected" | "error">("disconnected");
   const [error, setError] = useState<string | null>(null);
-  
+
   const channelRef = useRef<RealtimeChannel | null>(null);
   const supabase = createClient();
 
   const handleRealtimeEvent = useCallback((eventPayload: PostgresChangesPayload) => {
     setPayload(eventPayload);
-    
+
     if (eventPayload.new) {
-      setData(eventPayload.new as TableRow<S, T>);
+      setData(eventPayload.new as TableRow<T>);
     } else if (eventPayload.old) {
-      setData(eventPayload.old as TableRow<S, T>);
+      setData(eventPayload.old as TableRow<T>);
     }
     
     setError(null);

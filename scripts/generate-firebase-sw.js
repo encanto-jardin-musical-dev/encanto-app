@@ -84,8 +84,10 @@ if (messaging) {
     console.log('[firebase-messaging-sw.js] Background message received:', payload);
 
     const data = payload.data || {};
-    const notificationTitle = payload.notification?.title || 'Nuevo mensaje';
-    const notificationBody = payload.notification?.body || 'Tienes un nuevo mensaje';
+    const notificationTitle =
+      data.title || payload.notification?.title || 'Nuevo mensaje';
+    const notificationBody =
+      data.body || payload.notification?.body || 'Tienes un nuevo mensaje';
 
     // Per-conversation tag: collapses multiple messages from the same conversation
     // while allowing messages from different conversations to stack.

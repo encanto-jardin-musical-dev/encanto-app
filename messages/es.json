@@ -58,6 +58,9 @@
     "emptyMessageTitle": "Mensaje vacío",
     "emptyMessageDescription": "No puedes enviar un mensaje vacío."
   },
+  "MessagesUserData": {
+    "unavailable": "Usuario no disponible"
+  },
   "PushNotifications": {
     "defaultTitle": "Nuevo mensaje",
     "defaultBody": "Tienes un nuevo mensaje",

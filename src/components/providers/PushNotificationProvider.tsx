@@ -36,8 +36,8 @@ export function PushNotificationProvider() {
       // Suppress toast if the user is already on the matching conversation route
       if (currentPath === route) return;
 
-      const title = payload.notification?.title ?? t('defaultTitle');
-      const body = payload.notification?.body ?? t('defaultBody');
+      const title = data.title ?? payload.notification?.title ?? t('defaultTitle');
+      const body = data.body ?? payload.notification?.body ?? t('defaultBody');
 
       addToast({
         title,

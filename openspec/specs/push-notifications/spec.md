@@ -54,17 +54,22 @@ The system SHALL bind Firebase Cloud Messaging to the dedicated `/firebase-messa
 
 ### Requirement: Background Notification Rendering
 
-When a push arrives while the app is closed or backgrounded, the Firebase messaging service worker SHALL render a system notification whose content and routing reflect the underlying message.
+When a push arrives while the app is closed or backgrounded, the Firebase messaging service worker SHALL render **exactly one** system notification whose content and routing reflect the underlying message. The service worker SHALL be the sole renderer of background notifications — the FCM payload MUST NOT include a top-level `notification` block that would cause the browser to auto-display a second notification.
+
+#### Scenario: Single notification per background message
+
+- **WHEN** a push payload arrives while the user has no focused tab
+- **THEN** the system SHALL render exactly one system notification via the service worker's `onBackgroundMessage` handler, and the browser SHALL NOT auto-display an additional notification from an FCM `notification` block
 
 #### Scenario: Direct message received in background
 
 - **WHEN** a push payload arrives for a 1:1 message and no app tab is in focus
-- **THEN** the service worker SHALL call `showNotification` with the sender's name as title, the message preview as body, and `tag = 'conversation:<senderId>'` so repeat messages from the same sender collapse per-conversation (not globally)
+- **THEN** the service worker SHALL call `showNotification` with the sender's name as title (read from `data.title`), the message preview as body (read from `data.body`), and `tag = 'conversation:<senderId>'` so repeat messages from the same sender collapse per-conversation (not globally)
 
 #### Scenario: Group message received in background
 
 - **WHEN** a push payload arrives for a group message and no app tab is in focus
-- **THEN** the service worker SHALL render a notification whose title includes the group name and whose `tag = 'conversation:group:<groupId>'`
+- **THEN** the service worker SHALL render a notification whose title includes the group name (read from `data.title`) and whose `tag = 'conversation:group:<groupId>'`
 
 #### Scenario: Notification click routes to the thread
 
@@ -87,7 +92,7 @@ When a push arrives while the app is open, the system SHALL handle it via `onMes
 
 ### Requirement: Supabase Edge Function Dispatch
 
-The system SHALL include a `push` Supabase Edge Function, stored in the repository at `supabase/functions/push/`, that receives database webhook events for `INSERT` on `messages` and dispatches FCM push notifications to all relevant devices using the FCM HTTP v1 API.
+The system SHALL include a `push` Supabase Edge Function, stored in the repository at `supabase/functions/push/`, that receives database webhook events for `INSERT` on `messages` and dispatches FCM push notifications to all relevant devices using the FCM HTTP v1 API. The dispatched payload SHALL be **data-only** — it MUST NOT contain a top-level `message.notification` block — so that the service worker is the sole renderer of the resulting notification.
 
 #### Scenario: Webhook secret verification
 
@@ -103,6 +108,11 @@ The system SHALL include a `push` Supabase Edge Function, stored in the reposito
 
 - **WHEN** a webhook event fires for a new row where `group_id` is set
 - **THEN** the function SHALL resolve group members via the `get_user_groups` database function (or equivalent), exclude the sender, and dispatch one FCM request per device token of each remaining member
+
+#### Scenario: Data-only payload shape
+
+- **WHEN** the function builds an FCM request body
+- **THEN** `message.notification` SHALL be absent, and `message.data` SHALL include string-valued `title`, `body`, `route`, `conversationId`, `senderId`, `type`, `tag`, and `messageId` fields
 
 #### Scenario: FCM HTTP v1 authentication
 

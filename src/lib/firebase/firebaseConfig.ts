@@ -24,10 +24,6 @@ if (missingEnvVars.length > 0) {
   console.warn('[firebaseConfig] Missing environment variables:', missingEnvVars);
 }
 
-if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
-  console.warn('[firebaseConfig] Missing NEXT_PUBLIC_VAPID_PUBLIC_KEY — push notifications will not work');
-}
-
 // Initialize Firebase and messaging synchronously in browser-only context.
 // FCM background messages are handled by the dedicated service worker
 // (/firebase-messaging-sw.js) registered with scope /firebase-cloud-messaging-push-scope.

@@ -1,9 +1,9 @@
 'use client';
 
 import useSendMessage from '@/hooks/UseSendMessageMutation';
+import { useGetProfileByIdQuery } from '@/hooks/UseGetProfileByIdQuery';
 import { USER_ROLES } from '@/lib/const';
 import { contextGroupValue } from '@/lib/store/common';
-import { receiverAtom } from '@/lib/store/messages';
 import { userIdAtom, userRoleAtom } from '@/lib/store/user';
 import { Database } from '@/types/database.types';
 import { PaperAirplaneIcon, PlusIcon } from '@heroicons/react/24/outline';
@@ -12,13 +12,24 @@ import { useAtom } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
-export default function MessageInput() {
+type MessageInputProps = {
+  receiverId: string;
+};
+
+export default function MessageInput({ receiverId }: MessageInputProps) {
   const t = useTranslations('MessagesInput');
   const [content, setContent] = useState('');
   const [userId] = useAtom(userIdAtom);
   const [userRole] = useAtom(userRoleAtom);
-  const [receiver] = useAtom(receiverAtom);
   const [groupContextId] = useAtom(contextGroupValue);
+
+  const {
+    data: receiverProfile,
+    isPending: isProfilePending,
+    isError: isProfileError,
+  } = useGetProfileByIdQuery(receiverId);
+  const isReceiverMissing =
+    isProfileError || (!isProfilePending && !receiverProfile);
 
   const { mutate: sendMessageMutation } = useSendMessage();
 
@@ -26,7 +37,7 @@ export default function MessageInput() {
     const newMessage: Database['public']['Tables']['messages']['Insert'] = {
       content,
       sender_id: userId,
-      receiver_id: receiver?.id,
+      receiver_id: receiverId,
       group_id:
         userRole === USER_ROLES.TEACHER ? (groupContextId as string) : null,
     };
@@ -56,6 +67,7 @@ export default function MessageInput() {
         value={content}
         onValueChange={setContent}
         name="messageInput"
+        isDisabled={isReceiverMissing}
       />
       {userRole !== 'parent' ? (
         <Button isIconOnly aria-label="add files" isDisabled>
@@ -67,7 +79,7 @@ export default function MessageInput() {
         aria-label="submit message"
         color="primary"
         onPress={handleSubmit}
-        isDisabled={!content.trim()}
+        isDisabled={!content.trim() || isReceiverMissing}
       >
         <PaperAirplaneIcon className="w-4 h-4" />
       </Button>

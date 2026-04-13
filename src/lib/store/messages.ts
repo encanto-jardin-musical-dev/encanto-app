@@ -11,9 +11,6 @@ type MessageUser = {
 // Messages
 export const messagesAtom = atom<Message[]>([]);
 
-// Sender
-export const senderAtom = atom<MessageUser>();
-
 // Receiver
 export const receiverAtom = atom<MessageUser>();
 

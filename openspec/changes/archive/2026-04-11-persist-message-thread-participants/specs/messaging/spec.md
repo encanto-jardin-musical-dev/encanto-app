@@ -7,17 +7,19 @@ The `/messages/[senderID]` route SHALL derive the other participant's identity f
 #### Scenario: Cold reload of a conversation route
 
 - **WHEN** a user reloads the page while on `/messages/<id>`
-- **THEN** the header SHALL display the other participant's name and avatar, and the message input SHALL be enabled and capable of sending a reply whose `receiver_id` equals `<id>`
+- **THEN** the header SHALL display the other participant's name and avatar, and the message input SHALL construct its insert payload with `receiver_id` equal to `<id>` (the URL parameter, not in-memory atom state)
+
+> Note: the end-to-end send success on cold reload also requires the current user to be hydrated; that guarantee is owned by the `user-session` spec in `hydrate-user-atoms-on-cold-load`.
 
 #### Scenario: Push-notification deep link
 
 - **WHEN** a user clicks a background push notification that routes to `/messages/<id>` from a tab that has never visited `/feed`
-- **THEN** the header SHALL display the other participant's name and the input SHALL be capable of sending a reply
+- **THEN** the header SHALL display the other participant's name
 
 #### Scenario: Shared URL opened in a new tab
 
 - **WHEN** a user opens a pasted `/messages/<id>` URL in a new tab
-- **THEN** the page SHALL render the conversation with the correct participant data
+- **THEN** the page SHALL render the conversation header with the correct participant data
 
 #### Scenario: Participant profile unavailable
 

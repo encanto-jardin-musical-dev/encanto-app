@@ -2,6 +2,7 @@
 
 import { JotaiProvider } from '@/lib/providers/JotaiProvider';
 import { initPostHogClient } from '@/lib/posthog/client';
+import { UserHydrator } from '@/components/providers/UserHydrator';
 import { HeroUIProvider, ToastProvider } from '@heroui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -26,6 +27,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <PostHogProvider client={posthog}>
         <JotaiProvider>
+          <UserHydrator />
           <HeroUIProvider navigate={router.push}>
             <ToastProvider placement="top-center" />
             {children}

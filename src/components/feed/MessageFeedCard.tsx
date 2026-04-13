@@ -3,7 +3,7 @@
 import useUserChildrenQuery from '@/hooks/UseGetUserChildrenQuery';
 import { USER_ROLES } from '@/lib/const';
 import { contextGroupValue } from '@/lib/store/common';
-import { receiverAtom, senderAtom } from '@/lib/store/messages';
+import { receiverAtom } from '@/lib/store/messages';
 import { DetailedMessage as MessageFeedResponse } from '@/types/messages.types';
 import { ClockIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import { Card, CardBody, CardHeader, Skeleton, Badge } from '@heroui/react';
@@ -41,10 +41,6 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
   const {
     message_created_at,
     sender_id,
-    receiver_id,
-    receiver_first_name,
-    receiver_last_name,
-    receiver_role,
     sender_first_name,
     sender_last_name,
     sender_role,
@@ -54,7 +50,6 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
 
   const messageDate = new Date(message_created_at as string);
 
-  const [, setSender] = useAtom(senderAtom);
   const [, setReceiver] = useAtom(receiverAtom);
   const [groupContextId] = useAtom(contextGroupValue);
   const [parentSenderChild, setParentSenderChild] =
@@ -67,13 +62,6 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
 
   const handlePress = useCallback(() => {
     router.push(`/messages/${sender_id}`);
-    setSender(prev => ({
-      ...prev,
-      id: receiver_id,
-      first_name: receiver_first_name,
-      last_name: receiver_last_name,
-      role: receiver_role,
-    }));
     setReceiver(prev => ({
       ...prev,
       id: sender_id,
@@ -84,14 +72,9 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
   }, [
     router,
     sender_id,
-    receiver_id,
-    receiver_first_name,
-    receiver_last_name,
-    receiver_role,
     sender_first_name,
     sender_last_name,
     sender_role,
-    setSender,
     setReceiver,
   ]);
 

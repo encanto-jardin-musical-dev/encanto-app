@@ -49,6 +49,7 @@ next-env.d.ts
 .coda/*
 .opencode/*
 .mcp.*
+.kilo/*
 
 # Serwist
 public/sw.js

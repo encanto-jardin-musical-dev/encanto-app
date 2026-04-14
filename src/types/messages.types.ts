@@ -2,6 +2,22 @@ import { Database } from "./database.types";
 
 export type Message = Database["public"]["Views"]["detailed_messages"]["Row"];
 
+/**
+ * A single file attachment stored in the messages.attachments jsonb column.
+ * key: S3 object key (e.g. "messages/2024/01/<uuid>.webp")
+ * contentType: MIME type of the file
+ * size: file size in bytes
+ * name: sanitized original filename
+ */
+export type Attachment = {
+  key: string;
+  contentType: string;
+  size: number;
+  name: string;
+};
+
+export type MessageAttachments = Attachment[];
+
 export type MessagePage = Message[];
 
 export type MessagesCursor = string | null;

@@ -3,3 +3,5 @@ export const USER_ROLES = {
   TEACHER: "teacher",
   PARENT: "parent",
 }
+
+export const MESSAGES_PAGE_SIZE = 25;

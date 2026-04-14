@@ -1,0 +1,146 @@
+## ADDED Requirements
+
+### Requirement: Role-gated attachment uploads
+The system SHALL allow only users with `teacher` or `admin` role to upload attachments to messages. Parents MUST be prevented from uploading attachments in v1.
+
+#### Scenario: Teacher requests a presigned upload URL
+- **WHEN** an authenticated user with role `teacher` calls the `upload-attachment-url` edge function with a valid file descriptor
+- **THEN** the function returns a presigned S3 PUT URL bound to the requested content type and size limit
+
+#### Scenario: Parent attempts to request an upload URL
+- **WHEN** an authenticated user with role `parent` calls the `upload-attachment-url` edge function
+- **THEN** the function returns HTTP 403 and no S3 URL is issued
+
+#### Scenario: Unauthenticated caller
+- **WHEN** a caller with no valid Supabase JWT calls the `upload-attachment-url` edge function
+- **THEN** the function returns HTTP 401
+
+### Requirement: Allowed file types and sizes
+The system SHALL accept only the following MIME types for message attachments: `image/jpeg`, `image/png`, `image/webp`, `image/heic`, and `application/pdf`. The maximum file size per attachment MUST be 10 megabytes. A single message MUST NOT contain more than 5 attachments.
+
+#### Scenario: Accepted image upload
+- **WHEN** a teacher uploads a 2 MB `image/webp` file
+- **THEN** the presigned URL is issued and the upload succeeds
+
+#### Scenario: Rejected MIME type
+- **WHEN** a teacher requests an upload URL for `video/mp4`
+- **THEN** the edge function returns HTTP 400 with an explanatory error
+
+#### Scenario: Oversized file
+- **WHEN** a teacher requests an upload URL declaring a size of 15 MB
+- **THEN** the edge function returns HTTP 400 and no URL is issued
+
+#### Scenario: Too many attachments
+- **WHEN** a teacher attempts to send a message with 6 attachments
+- **THEN** the client blocks the send and surfaces an error explaining the 5-attachment limit
+
+### Requirement: Client-side pre-upload validation
+The client SHALL validate file type and size before requesting a presigned URL, and SHALL display an error message when validation fails.
+
+#### Scenario: User selects an unsupported file
+- **WHEN** the user picks a `.mov` file in the message composer
+- **THEN** the file is rejected locally and an error toast is shown without calling any edge function
+
+### Requirement: Direct-to-S3 upload via presigned PUT
+The client SHALL upload attachment files directly to the S3 bucket using the presigned PUT URL returned by the edge function. Uploads MUST NOT be proxied through the Next.js server.
+
+#### Scenario: Successful upload
+- **WHEN** the client receives a presigned PUT URL and issues a PUT with the matching content type
+- **THEN** S3 stores the object under the provided key and responds 200
+
+#### Scenario: Upload failure aborts send
+- **WHEN** any attachment upload fails before the message is sent
+- **THEN** the message is not inserted into the `messages` table and the user is shown a retry prompt
+
+### Requirement: Attachment persistence in messages.attachments
+The system SHALL persist attachment metadata in the existing `messages.attachments` jsonb column as an array. Each entry MUST include at least the fields `key`, `contentType`, `size`, and `name`. Image entries MAY include `width` and `height`. PDF entries MAY include `thumbnailKey`.
+
+#### Scenario: Sending a message with one image
+- **WHEN** a teacher sends a message with one uploaded image
+- **THEN** the inserted `messages` row has `attachments = [{ key, contentType: "image/webp", size, name, width, height }]`
+
+#### Scenario: Sending a message with one PDF and thumbnail
+- **WHEN** a teacher sends a message with one uploaded PDF whose thumbnail was generated
+- **THEN** the inserted `messages` row has an attachment entry whose `thumbnailKey` references the generated thumbnail
+
+#### Scenario: Sending a plain text message
+- **WHEN** a user sends a message without attachments
+- **THEN** the inserted `messages` row has `attachments = null`
+
+### Requirement: Private bucket with presigned GET on read
+The S3 bucket SHALL block all public access. When a message participant fetches a thread, the system SHALL provide short-lived presigned GET URLs (TTL at most 1 hour) that can be used to display the attachments.
+
+#### Scenario: Participant loads a thread with attachments
+- **WHEN** an authenticated participant loads a message thread containing attachments
+- **THEN** the client receives presigned GET URLs for each attachment key it needs to render
+
+#### Scenario: Non-participant attempts to sign a URL
+- **WHEN** an authenticated user who is not a participant of a message calls the signing function for that message's attachment keys
+- **THEN** the function returns HTTP 403 and no URLs are issued
+
+#### Scenario: GET URL expires
+- **WHEN** more than one hour has passed since a GET URL was signed
+- **THEN** the URL no longer authorizes S3 access
+
+### Requirement: HEIC upload handling
+The client SHALL attempt to convert HEIC files to WEBP before upload. When conversion fails, the client MAY upload the raw HEIC file and MUST display a warning indicating the preview may not render on some devices.
+
+#### Scenario: Successful HEIC conversion
+- **WHEN** a teacher selects a `.heic` photo on a supported browser
+- **THEN** the client converts it to WEBP and uploads the converted file
+
+#### Scenario: HEIC conversion fallback
+- **WHEN** HEIC conversion throws an error
+- **THEN** the client uploads the original HEIC file and shows a warning toast
+
+### Requirement: PDF thumbnail generation
+After a PDF is uploaded, the system SHALL attempt to generate a WEBP thumbnail of the first page and store it in the same bucket. The thumbnail key MUST be recorded in the attachment entry under `thumbnailKey`.
+
+#### Scenario: Successful thumbnail generation
+- **WHEN** a PDF upload completes
+- **THEN** a WEBP thumbnail of page 1 is written to S3 and `thumbnailKey` is included when the message is sent
+
+#### Scenario: Thumbnail generation failure
+- **WHEN** thumbnail generation throws or times out
+- **THEN** the message is still sent, `thumbnailKey` is omitted, and the UI renders a generic PDF icon
+
+### Requirement: Rendering attachments in the message UI
+The message thread SHALL render image attachments as inline thumbnails arranged in a grid, and PDF attachments as a card showing the thumbnail (or a generic icon) with the filename. Clicking an image SHALL open a full-screen viewer. Clicking a PDF SHALL open it in a new browser tab.
+
+#### Scenario: Rendering an image message
+- **WHEN** a thread contains a message with one image attachment
+- **THEN** the bubble shows the image thumbnail and clicking it opens a full-screen viewer
+
+#### Scenario: Rendering a PDF message
+- **WHEN** a thread contains a message with a PDF attachment
+- **THEN** the bubble shows the PDF thumbnail (or icon) and filename, and clicking opens the PDF in a new tab
+
+#### Scenario: Rendering a mixed message
+- **WHEN** a thread contains a message with 2 images and 1 PDF
+- **THEN** images appear in a grid and the PDF card appears below them within the same bubble
+
+### Requirement: Push notifications for image messages
+The FCM push payload SHALL include `attachmentCount` and, when the first attachment is an image, a short-lived presigned URL to its thumbnail so the notification can display a preview image.
+
+#### Scenario: Image message notification
+- **WHEN** a teacher sends a message with an image attachment
+- **THEN** the FCM payload contains `attachmentCount: 1` and `firstAttachmentThumbUrl` pointing at a presigned thumbnail URL
+
+#### Scenario: Text-only message notification
+- **WHEN** a teacher sends a plain text message
+- **THEN** the FCM payload contains `attachmentCount: 0` and no thumbnail URL
+
+#### Scenario: Signing failure on notification path
+- **WHEN** thumbnail URL signing fails while preparing the FCM payload
+- **THEN** the notification is still delivered as text-only and the error is logged
+
+### Requirement: Upload rate limiting
+The upload-URL edge function SHALL enforce a per-user rate limit of at most 50 presigned URL requests per hour.
+
+#### Scenario: Within the limit
+- **WHEN** a teacher has requested 49 presigned URLs in the past hour and requests one more
+- **THEN** the function issues the URL
+
+#### Scenario: Over the limit
+- **WHEN** a teacher has already requested 50 presigned URLs in the past hour and requests another
+- **THEN** the function returns HTTP 429

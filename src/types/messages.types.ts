@@ -2,6 +2,12 @@ import { Database } from "./database.types";
 
 export type Message = Database["public"]["Views"]["detailed_messages"]["Row"];
 
+export type MessagePage = Message[];
+
+export type MessagesCursor = string | null;
+
+export type ThreadKind = "direct" | "group";
+
 type ChildGroup = {
   group_id: string;
 };

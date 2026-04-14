@@ -132,6 +132,8 @@ NEXT_PUBLIC_FIREBASE_APP_ID=
 
 3. **Mutations** (same pattern with `Mutation` suffix in hook names)
 
+**Paginated queries**: For cursor-paginated data (e.g. message threads), use `useInfiniteQuery` instead of `useQuery`. Keep the query key scoped — e.g. `["messages", currentUserId, threadId]` — so navigating between threads or accounts never reads another thread's cache. The query function returns one keyset page (DESC on the cursor column); `getNextPageParam` returns the cursor of the oldest row or `undefined` when the last page was shorter than `PAGE_SIZE`. See `src/hooks/UseGetMessagesQuery.ts` for the canonical example.
+
 **Database Query Guidelines:**
 - Always use generated types from `src/types/database.types.ts`
 - Handle errors explicitly - never ignore the `error` property

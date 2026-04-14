@@ -58,6 +58,13 @@
     "emptyMessageTitle": "Mensaje vacío",
     "emptyMessageDescription": "No puedes enviar un mensaje vacío."
   },
+  "MessagesList": {
+    "loading": "Cargando conversación...",
+    "newMessagePill": {
+      "one": "↓ Nuevo mensaje",
+      "other": "↓ {count} mensajes nuevos"
+    }
+  },
   "MessagesUserData": {
     "unavailable": "Usuario no disponible"
   },

@@ -13,7 +13,7 @@ import { PaperAirplaneIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { addToast, Button, Chip, Progress, Textarea } from '@heroui/react';
 import { useAtom } from 'jotai';
 import { useTranslations } from 'next-intl';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // 8.8 Feature flag — attachment picker is only shown when this env var is truthy
 const ATTACHMENTS_ENABLED = process.env.NEXT_PUBLIC_ATTACHMENTS_ENABLED === 'true';
@@ -34,6 +34,12 @@ export default function MessageInput({ receiverId }: MessageInputProps) {
   const [fileProgress, setFileProgress] = useState<FileProgress[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Tracks file → object URL for image preview chips. Keyed by file identity string.
+  // Using a ref (not state) to avoid re-renders on URL creation/revocation.
+  const objectUrlsRef = useRef<Map<string, string>>(new Map());
+
+  /** Stable key for a File object — combines name, size, and lastModified. */
+  const fileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`;
 
   const [userId] = useAtom(userIdAtom);
   const [userRole] = useAtom(userRoleAtom);
@@ -48,6 +54,15 @@ export default function MessageInput({ receiverId }: MessageInputProps) {
     isProfileError || (!isProfilePending && !receiverProfile);
 
   const { mutate: sendMessageMutation } = useSendMessage();
+
+  // 4.4 Revoke all object URLs on unmount to prevent memory leaks
+  useEffect(() => {
+    const urlMap = objectUrlsRef.current;
+    return () => {
+      urlMap.forEach(url => URL.revokeObjectURL(url));
+      urlMap.clear();
+    };
+  }, []);
 
   // 8.3 Only show attachment picker for non-parent roles and when feature flag is on
   const showAttachmentPicker =
@@ -80,12 +95,34 @@ export default function MessageInput({ receiverId }: MessageInputProps) {
       return;
     }
 
+    // 4.1 Create object URLs for newly added image files
+    for (const file of newFiles) {
+      if (file.type.startsWith('image/')) {
+        const key = fileKey(file);
+        if (!objectUrlsRef.current.has(key)) {
+          objectUrlsRef.current.set(key, URL.createObjectURL(file));
+        }
+      }
+    }
+
     setSelectedFiles(allFiles);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleRemoveFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setSelectedFiles(prev => {
+      const file = prev[index];
+      // 4.3 Revoke object URL for image files when removed
+      if (file && file.type.startsWith('image/')) {
+        const key = fileKey(file);
+        const url = objectUrlsRef.current.get(key);
+        if (url) {
+          URL.revokeObjectURL(url);
+          objectUrlsRef.current.delete(key);
+        }
+      }
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const formatBytes = (bytes: number): string => {
@@ -178,6 +215,9 @@ export default function MessageInput({ receiverId }: MessageInputProps) {
       {
         onSuccess: () => {
           setContent('');
+          // Revoke all object URLs on successful send
+          objectUrlsRef.current.forEach(url => URL.revokeObjectURL(url));
+          objectUrlsRef.current.clear();
           setSelectedFiles([]);
           setFileProgress([]);
         },
@@ -197,31 +237,71 @@ export default function MessageInput({ receiverId }: MessageInputProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      {/* 8.2 Selected file chips */}
+      {/* 8.2 Selected file previews — image thumbnails or text chips depending on file type */}
       {selectedFiles.length > 0 && (
         <div className="flex flex-wrap gap-2 px-1">
           {selectedFiles.map((file, index) => {
             const progress = fileProgress.find(fp => fp.file === file);
+            const isImage = file.type.startsWith('image/');
+            const objectUrl = isImage ? objectUrlsRef.current.get(fileKey(file)) : undefined;
+
             return (
-              <div key={`${file.name}-${index}`} className="flex flex-col gap-1 max-w-[180px]">
-                <Chip
-                  onClose={!isUploading ? () => handleRemoveFile(index) : undefined}
-                  variant="flat"
-                  size="sm"
-                  className="max-w-[180px]"
-                >
-                  <span className="truncate text-xs">
-                    {file.name} ({formatBytes(file.size)})
-                  </span>
-                </Chip>
-                {/* 8.6 Upload progress indicator */}
-                {isUploading && progress !== undefined && (
-                  <Progress
-                    size="sm"
-                    value={progress.percent}
-                    className="max-w-[180px]"
-                    aria-label={`Uploading ${file.name}`}
-                  />
+              <div key={`${file.name}-${index}`} className="flex flex-col gap-1">
+                {/* 4.1 Image file: show thumbnail preview */}
+                {isImage && objectUrl ? (
+                  <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-default-100 shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={objectUrl}
+                      alt={file.name}
+                      className="w-full h-full object-cover"
+                    />
+                    {/* Remove button overlay */}
+                    {!isUploading && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFile(index)}
+                        aria-label={`Remove ${file.name}`}
+                        className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
+                      >
+                        <span className="text-[10px] leading-none">✕</span>
+                      </button>
+                    )}
+                    {/* Upload progress overlay */}
+                    {isUploading && progress !== undefined && (
+                      <div className="absolute bottom-0 left-0 right-0">
+                        <Progress
+                          size="sm"
+                          value={progress.percent}
+                          aria-label={`Uploading ${file.name}`}
+                          classNames={{ base: 'rounded-none', track: 'rounded-none' }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* 4.2 Non-image (PDF): keep existing chip style */
+                  <>
+                    <Chip
+                      onClose={!isUploading ? () => handleRemoveFile(index) : undefined}
+                      variant="flat"
+                      size="sm"
+                      className="max-w-[180px]"
+                    >
+                      <span className="truncate text-xs">
+                        {file.name} ({formatBytes(file.size)})
+                      </span>
+                    </Chip>
+                    {/* 8.6 Upload progress indicator */}
+                    {isUploading && progress !== undefined && (
+                      <Progress
+                        size="sm"
+                        value={progress.percent}
+                        className="max-w-[180px]"
+                        aria-label={`Uploading ${file.name}`}
+                      />
+                    )}
+                  </>
                 )}
               </div>
             );

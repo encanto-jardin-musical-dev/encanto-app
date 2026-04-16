@@ -2,7 +2,7 @@
 
 import { contextGroupValue } from '@/lib/store/common';
 import { groupMessagesAtom } from '@/lib/store/feed';
-import { DetailedMessage } from '@/types/messages.types';
+import { DetailedMessage, Attachment } from '@/types/messages.types';
 import { useAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import MessageFeedCard from './MessageFeedCard';
@@ -88,7 +88,7 @@ export default function FeedGroup() {
       receiver_last_name: receiver?.last_name || '',
       receiver_role: receiver?.role || '',
       group_id: rawMessage.group_id || undefined,
-      message_attachments: rawMessage.attachments ? [rawMessage.attachments as string] : [],
+      message_attachments: Array.isArray(rawMessage.attachments) ? rawMessage.attachments as unknown as Attachment[] : null,
       is_read: rawMessage.is_read,
       read_at: rawMessage.read_at
     };

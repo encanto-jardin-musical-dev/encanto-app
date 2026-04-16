@@ -4,8 +4,9 @@ import useUserChildrenQuery from '@/hooks/UseGetUserChildrenQuery';
 import { USER_ROLES } from '@/lib/const';
 import { contextGroupValue } from '@/lib/store/common';
 import { receiverAtom } from '@/lib/store/messages';
+import type { Attachment } from '@/types/messages.types';
 import { DetailedMessage as MessageFeedResponse } from '@/types/messages.types';
-import { ClockIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, EnvelopeIcon, PhotoIcon, DocumentIcon } from '@heroicons/react/24/outline';
 import { Card, CardBody, CardHeader, Skeleton, Badge } from '@heroui/react';
 import { useAtom } from 'jotai';
 import { useFormatter, useNow, useTranslations } from 'next-intl';
@@ -45,8 +46,16 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
     sender_last_name,
     sender_role,
     message_content,
+    message_attachments,
     is_read,
   } = message;
+
+  const attachments: Attachment[] = Array.isArray(message_attachments)
+    ? (message_attachments as unknown as Attachment[])
+    : [];
+  const imageAttachments = attachments.filter(a => a.contentType.startsWith('image/'));
+  const fileAttachments = attachments.filter(a => !a.contentType.startsWith('image/'));
+  const hasAttachments = attachments.length > 0;
 
   const messageDate = new Date(message_created_at as string);
 
@@ -148,7 +157,32 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
         </div>
       </CardHeader>
       <CardBody>
-        <p className="text-small  pl-8">{message_content}</p>
+        {/* Message text content */}
+        {message_content ? (
+          <p className="text-small pl-8">{message_content}</p>
+        ) : null}
+
+        {/* Attachment summary */}
+        {hasAttachments && (
+          <div className="flex flex-wrap gap-2 pl-8 mt-1">
+            {imageAttachments.length > 0 && (
+              <span className="flex items-center gap-1 text-small text-white/70">
+                <PhotoIcon className="w-4 h-4 shrink-0" />
+                {imageAttachments.length === 1
+                  ? t('attachmentImage', { defaultValue: '1 image' })
+                  : t('attachmentImages', { count: imageAttachments.length, defaultValue: `${imageAttachments.length} images` })}
+              </span>
+            )}
+            {fileAttachments.length > 0 && (
+              <span className="flex items-center gap-1 text-small text-white/70">
+                <DocumentIcon className="w-4 h-4 shrink-0" />
+                {fileAttachments.length === 1
+                  ? t('attachmentFile', { defaultValue: '1 file' })
+                  : t('attachmentFiles', { count: fileAttachments.length, defaultValue: `${fileAttachments.length} files` })}
+              </span>
+            )}
+          </div>
+        )}
       </CardBody>
     </Card>
   );

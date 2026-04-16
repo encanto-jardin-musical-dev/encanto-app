@@ -48,7 +48,11 @@
   "MessageCard": {
     "title": "Nuevo mensaje",
     "senderInfo": "de {senderName}",
-    "childInfo": ", {relationship, select, mother {mamá} father {papá} other {acudiente}} de {childName}"
+    "childInfo": ", {relationship, select, mother {mamá} father {papá} other {acudiente}} de {childName}",
+    "attachmentImage": "1 imagen",
+    "attachmentImages": "{count} imágenes",
+    "attachmentFile": "1 archivo",
+    "attachmentFiles": "{count} archivos"
   },
   "NavigationBar": {
     "back": "Atrás"

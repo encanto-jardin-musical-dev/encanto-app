@@ -6,7 +6,10 @@ import { useFormatter } from "next-intl";
 import { useEffect, useState } from "react";
 
 import type { Message } from "@/types/messages.types";
+import type { Attachment } from "@/types/messages.types";
 import useMarkMessageRead from "@/hooks/UseMarkMessageReadedMutation";
+import { useAttachmentUrlsQuery } from "@/hooks/UseAttachmentUrlsQuery";
+import MessageAttachments from "@/components/messages/MessageAttachments";
 
 type MessageCardProps = {
   message: Message;
@@ -22,12 +25,33 @@ export default function MessageCard({
     message_content,
     message_created_at,
     is_read,
+    message_attachments,
   } = message;
   const format = useFormatter();
   const [isRead, setIsRead] = useState(is_read);
   const createdDate = new Date(message_created_at as string);
 
   const { mutate: markMessageAsRead } = useMarkMessageRead();
+
+  // 9.6 Parse attachments from jsonb — messages with null attachments render unchanged
+  const attachments: Attachment[] = Array.isArray(message_attachments)
+    ? (message_attachments as unknown as Attachment[])
+    : [];
+
+  // Fetch signed GET URLs for this message's attachments (read path always active)
+  const attachmentRequests = attachments.map(att => ({
+    messageId: message_id!,
+    attachment: att,
+  }));
+
+  const {
+    signedUrlMap,
+    isLoading: isSigningUrls,
+    isError: isSigningError,
+  } = useAttachmentUrlsQuery({
+    requests: attachmentRequests,
+    enabled: attachments.length > 0,
+  });
 
   // Auto-mark incoming messages as read
   useEffect(() => {
@@ -62,7 +86,16 @@ export default function MessageCard({
         shadow="none"
       >
         <CardBody>
-          <p>{message_content}</p>
+          {/* Text content (may be empty for attachment-only messages) */}
+          {message_content ? <p>{message_content}</p> : null}
+
+          {/* 9.5 Attachment links below the text content */}
+          <MessageAttachments
+            attachments={attachments}
+            signedUrls={signedUrlMap}
+            isLoading={isSigningUrls}
+            isError={isSigningError}
+          />
         </CardBody>
       </Card>
       <div className="flex">

@@ -113,10 +113,25 @@ export const getNotificationPermission =
       return 'denied';
     }
 
-    // Step 3: get FCM token and store it
+    // Step 3: clear any stale push subscription before requesting a new token.
+    // Chrome caches the PushManager subscription keyed by VAPID key — if the
+    // stored subscription was created with a different key (e.g. after a key
+    // rotation or environment change) FCM rejects getToken with "invalid argument".
+    try {
+      const existingSub = await registration.pushManager.getSubscription();
+      if (existingSub) {
+        await existingSub.unsubscribe();
+        console.log('[pushNotifications] Cleared stale push subscription before re-subscribing');
+      }
+    } catch (subError) {
+      // Non-fatal — proceed even if we can't clear the old subscription
+      console.warn('[pushNotifications] Could not clear existing push subscription:', subError);
+    }
+
+    // Step 4: get FCM token and store it
     try {
       const token = await getToken(messaging, {
-        vapidKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+        vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_PUBLIC_KEY,
         serviceWorkerRegistration: registration,
       });
 

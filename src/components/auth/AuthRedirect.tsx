@@ -14,13 +14,13 @@ export default function AuthRedirect() {
   useEffect(() => {
     const checkSession = async () => {
       const supabase = createClient();
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-
-      if (error) {
-        console.error('Error checking session:', error);
+      let user;
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (error || !data.user) return;
+        user = data.user;
+      } catch {
+        // No active session — user is not logged in, stay on login page
         return;
       }
 

@@ -4,7 +4,7 @@
 - [x] 1.2 Configure CORS on the bucket to allow `PUT`, `GET`, `HEAD` from the app origins (localhost, staging, prod)
 - [x] 1.3 Add lifecycle rules (abort incomplete multipart uploads after 1 day; transition to IA after 90 days)
 - [x] 1.4 Create a dedicated IAM user with a policy scoped to `s3:PutObject` and `s3:GetObject` on that bucket; capture access key/secret
-- [ ] 1.5 Repeat 1.1–1.4 for the production bucket `encanto-message-attachments-prod`
+- [x] 1.5 Repeat 1.1–1.4 for the production bucket `encanto-message-attachments-prod`
 
 ## 2. Shared Edge Function Utilities
 
@@ -82,4 +82,4 @@
 - [x] 11.4 Smoke test: verify a parent cannot see the attachment picker in `MessageInput`
 - [x] 11.5 Verify backward compatibility: existing messages with `attachments = null` render normally
 - [x] 11.6 Verify realtime: a new message with attachments received via the Supabase realtime subscription renders the attachment links correctly
-- [ ] 11.7 Verify that presigned GET URLs expire after 24 hours and return 403 after expiry
+- [x] 11.7 Verify that presigned GET URLs expire after 24 hours and return 403 after expiry

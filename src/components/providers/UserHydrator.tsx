@@ -36,11 +36,15 @@ export function UserHydrator() {
   useEffect(() => {
     const hydrate = async () => {
       const client = createClient();
-      const {
-        data: { user },
-        error,
-      } = await client.auth.getUser();
-      if (!user || error) return;
+      let user;
+      try {
+        const { data, error } = await client.auth.getUser();
+        if (error || !data.user) return;
+        user = data.user;
+      } catch {
+        // No active session — user is not logged in, nothing to hydrate
+        return;
+      }
 
       const profile = await getProfileById(client, user.id);
       if (!profile) return;

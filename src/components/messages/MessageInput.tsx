@@ -13,10 +13,8 @@ import { PaperAirplaneIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { addToast, Button, Chip, Progress, Textarea } from '@heroui/react';
 import { useAtom } from 'jotai';
 import { useTranslations } from 'next-intl';
+import { useFeatureFlagEnabled } from 'posthog-js/react';
 import { useEffect, useRef, useState } from 'react';
-
-// 8.8 Feature flag — attachment picker is only shown when this env var is truthy
-const ATTACHMENTS_ENABLED = process.env.NEXT_PUBLIC_ATTACHMENTS_ENABLED === 'true';
 
 type MessageInputProps = {
   receiverId: string;
@@ -64,9 +62,12 @@ export default function MessageInput({ receiverId }: MessageInputProps) {
     };
   }, []);
 
-  // 8.3 Only show attachment picker for non-parent roles and when feature flag is on
+  // 8.3 Only show attachment picker for non-parent roles and when PostHog feature flag is on.
+  // Flag name: 'attachments_enabled' — must be created in the PostHog dashboard.
+  // Treats undefined (flag still loading or SDK unavailable) as false (safe default: hidden).
+  const attachmentsEnabled = useFeatureFlagEnabled('attachments_enabled');
   const showAttachmentPicker =
-    ATTACHMENTS_ENABLED && userRole !== USER_ROLES.PARENT && userRole !== 'parent';
+    attachmentsEnabled === true && userRole !== USER_ROLES.PARENT && userRole !== 'parent';
 
   // 8.1 Handle file picker trigger
   const handlePickFiles = () => {

@@ -7,10 +7,10 @@ Prevent the Supabase project from pausing due to inactivity by sending periodic 
 ## Requirements
 
 ### Requirement: Scheduled keepalive ping
-The system SHALL send a GET request to the Supabase REST API twice per week to prevent the project from pausing due to inactivity.
+The system SHALL send a GET request to the Supabase REST API once per day to prevent the project from pausing due to inactivity.
 
 #### Scenario: Scheduled ping succeeds
-- **WHEN** the cron schedule fires (Mondays & Thursdays at 12:00 UTC)
+- **WHEN** the cron schedule fires (daily at 12:00 UTC)
 - **THEN** the workflow sends a request to `$SUPABASE_URL/rest/v1/profiles?select=id&limit=1` with valid `apikey` and `Authorization` headers and receives a 2xx response
 
 #### Scenario: Ping fails

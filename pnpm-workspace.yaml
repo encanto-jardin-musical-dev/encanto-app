@@ -1,0 +1,30 @@
+# pnpm workspace configuration (pnpm v11+)
+# Settings previously in package.json["pnpm"] now live here.
+
+overrides:
+  "@types/react": "19.2.17"
+  "@types/react-dom": "19.2.3"
+
+# Disable minimum release age to allow importing from existing lockfile.
+# Set to 0 (off). pnpm 11 defaults to 1440 min which blocks pnpm import.
+minimumReleaseAge: 0
+
+# Approved build scripts for packages that require native compilation.
+# These are all legitimate packages needed by the project's dependencies:
+#   @firebase/util    - Firebase SDK utility build
+#   @heroui/shared-utils - HeroUI component utilities build
+#   @parcel/watcher   - Native file-system watcher (used by Next.js dev)
+#   @sentry/cli       - Sentry CLI binary download/build
+#   @swc/core         - SWC Rust-based JS compiler (used by Next.js)
+#   core-js           - Polyfill library build step
+#   protobufjs        - Protocol Buffers JS library build
+#   sharp             - High-performance image processing (used by Next.js)
+allowBuilds:
+  "@firebase/util": true
+  "@heroui/shared-utils": true
+  "@parcel/watcher": true
+  "@sentry/cli": true
+  "@swc/core": true
+  "core-js": true
+  "protobufjs": true
+  "sharp": true

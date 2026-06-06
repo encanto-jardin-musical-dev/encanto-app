@@ -1,10 +1,10 @@
 # AGENTS.md - Development Guidelines
 
 ## Build & Development Commands
-- `npm run dev` - Start development server (http://localhost:3000)
-- `npm run build` - Build for production
-- `npm run lint` - Run ESLint
-- `npm run start` - Start production server
+- `pnpm dev` - Start development server (http://localhost:3000)
+- `pnpm build` - Build for production
+- `pnpm lint` - Run ESLint
+- `pnpm start` - Start production server
 - **Note**: No test framework configured - check with user before adding tests
 
 ## Code Style Guidelines

@@ -28,7 +28,7 @@ NEXT_PUBLIC_VAPID_PUBLIC_KEY=your_vapid_public_key_here
 You can generate VAPID keys using the web-push library:
 
 ```bash
-npm install web-push -g
+pnpm add -g web-push
 web-push generate-vapid-keys
 ```
 
@@ -39,8 +39,8 @@ To test push notifications, you can use the browser's developer tools or send a 
 ## Development
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 ## Environment Variables

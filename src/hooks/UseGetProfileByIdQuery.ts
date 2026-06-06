@@ -1,8 +1,9 @@
 import { getProfileById } from '@/queries/users/get-profile-by-id';
+import type { ProfileByIdResult } from '@/queries/users/get-profile-by-id';
 import { createClient } from '@/utils/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
-type ProfileById = Awaited<ReturnType<typeof getProfileById>>;
+export type ProfileById = ProfileByIdResult;
 
 type UseGetProfileByIdQueryOptions = {
   initialData?: ProfileById;

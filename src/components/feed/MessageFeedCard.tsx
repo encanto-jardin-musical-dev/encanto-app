@@ -91,16 +91,17 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
     if (!groupContextId) return;
 
     try {
-      const foundChild =
-        Array.isArray(senderUserChildren) &&
-        senderUserChildren.find(
-          child =>
-            Array.isArray(child.children?.child_groups) &&
-            child.children.child_groups.some(
-              group => group.group_id === groupContextId
-            )
-        );
-      setParentSenderChild((foundChild as FilteredParentChild | null) || null);
+      const children = Array.isArray(senderUserChildren)
+        ? (senderUserChildren as unknown as FilteredParentChild[])
+        : [];
+      const foundChild = children.find(
+        child =>
+          Array.isArray(child.children?.child_groups) &&
+          child.children.child_groups!.some(
+            group => group.group_id === groupContextId
+          )
+      ) ?? null;
+      setParentSenderChild(foundChild);
     } catch {
       // Failed to fetch parent sender children
     }

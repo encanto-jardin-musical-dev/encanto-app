@@ -6,7 +6,10 @@ export default {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
+    // pnpm nests transitive deps under .pnpm, so @heroui/theme isn't at the
+    // top level of node_modules — use the .pnpm glob so HeroUI's classes are
+    // picked up by Tailwind's content scan.
+    "./node_modules/.pnpm/**/node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {

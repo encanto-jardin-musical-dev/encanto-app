@@ -4,6 +4,12 @@ import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
+  // Pin the workspace root to this directory. Without it, Next/Turbopack
+  // walks up the tree, finds a stray lockfile in $HOME plus pnpm-workspace.yaml,
+  // and may infer the wrong root — breaking CSS/module resolution.
+  turbopack: {
+    root: import.meta.dirname,
+  },
   // Ensure the Firebase service worker is generated before build
   experimental: {
     // This ensures our prebuild script runs before Next.js build
@@ -44,11 +50,6 @@ const sentryOptions = {
   // Upload a larger set of source maps for prettier stack traces (increases build time)
   widenClientFileUpload: true,
 
-  // Automatically annotate React components to show their full name in breadcrumbs and session replay
-  reactComponentAnnotation: {
-    enabled: true,
-  },
-
   // Uncomment to route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
   // This can increase your server load as well as your hosting bill.
   // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
@@ -58,19 +59,28 @@ const sentryOptions = {
   // Hides source maps from generated client bundles
   hideSourceMaps: true,
 
-  // Automatically tree-shake Sentry logger statements to reduce bundle size
-  disableLogger: true,
-
-  // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
-  // See the following for more information:
-  // https://docs.sentry.io/product/crons/
-  // https://vercel.com/docs/cron-jobs
-  automaticVercelMonitors: true,
+  // Options that previously lived at the top level now live under `webpack`
+  // (the top-level keys were deprecated in @sentry/nextjs v10).
+  webpack: {
+    // Automatically tree-shake Sentry logger statements to reduce bundle size
+    treeshake: {
+      removeDebugLogging: true,
+    },
+    // Automatically instrument Vercel Cron Monitors.
+    automaticVercelMonitors: true,
+    // Annotate React components with their full name in breadcrumbs / session replay
+    reactComponentAnnotation: {
+      enabled: true,
+    },
+  },
 };
 const withNextIntl = createNextIntlPlugin();
 const withSerwist = withSerwistInit({
   swSrc: 'src/app/sw.ts',
   swDest: './public/sw.js',
+  // Serwist doesn't support `next dev --turbopack`; the SW isn't used in dev
+  // anyway, so disable it outside production to avoid the Turbopack warning.
+  disable: process.env.NODE_ENV !== 'production',
 });
 
 export default withSentryConfig(

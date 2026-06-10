@@ -1,5 +1,6 @@
 {
-  "installCommand": "corepack enable && pnpm install --frozen-lockfile",
+  "installCommand": "corepack pnpm install --frozen-lockfile",
+  "buildCommand": "corepack pnpm run build",
   "rewrites": [
     {
       "source": "/d4t4-3nc4nt0/static/(.*)",

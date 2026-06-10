@@ -2,6 +2,12 @@
 
 # dependencies
 /node_modules
+
+# pnpm
+.pnpm-store/
+.pnpm-debug.log*
+
+# Yarn (legacy - not used)
 /.pnp
 .pnp.*
 .yarn/*
@@ -28,7 +34,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
 .env*

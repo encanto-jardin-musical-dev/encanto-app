@@ -29,7 +29,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 The Firebase service worker is automatically generated when you run:
 
 ```bash
-npm run build
+pnpm build
 ```
 
 This runs the `prebuild` script which executes `scripts/generate-firebase-sw.js` to create the service worker with your environment variables.
@@ -45,7 +45,7 @@ node scripts/generate-firebase-sw.js
 ## How It Works
 
 1. **Template**: The service worker template is stored in `scripts/generate-firebase-sw.js`
-2. **Build Time**: During `npm run build`, the `prebuild` script runs first
+2. **Build Time**: During `pnpm build`, the `prebuild` script runs first
 3. **Generation**: Environment variables are injected into the template
 4. **Output**: The final `firebase-messaging-sw.js` is created in the `public/` directory
 
@@ -106,5 +106,5 @@ When deploying to platforms like Vercel:
 
 - The generated service worker is automatically added to `.gitignore`
 - Never commit your `.env.local` file with real Firebase credentials
-- The `prebuild` script runs automatically before `npm run build`
+- The `prebuild` script runs automatically before `pnpm build`
 - You can manually regenerate the service worker anytime by running the script directly

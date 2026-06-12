@@ -1,29 +1,119 @@
 "use client";
+import { USER_ROLES } from "@/lib/const";
+import { userRoleAtom } from "@/lib/store/user";
+import {
+  ChatBubbleLeftIcon,
+  ClipboardDocumentListIcon,
+  ClockIcon,
+  Cog6ToothIcon,
+  DocumentCheckIcon,
+} from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/24/solid";
-import { Button } from "@heroui/react";
+import {
+  Button,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@heroui/react";
+import { useAtom } from "jotai";
 import { useRouter } from "next/navigation";
+import { useFeatureFlagEnabled } from "posthog-js/react";
+import { useState } from "react";
+
+type ActionItem = {
+  key: string;
+  label: string;
+  route: string;
+  icon: React.ComponentType<{ className?: string }>;
+  adminOnly?: boolean;
+};
+
+const STAFF_ACTIONS: ActionItem[] = [
+  { key: "attendance", label: "Attendance", route: "/attendance", icon: ClockIcon },
+  {
+    key: "daily-report",
+    label: "Daily Report",
+    route: "/daily-report",
+    icon: ClipboardDocumentListIcon,
+  },
+  { key: "tasks", label: "Tasks", route: "/tasks", icon: DocumentCheckIcon },
+  { key: "messages", label: "Messages", route: "/messages", icon: ChatBubbleLeftIcon },
+  {
+    key: "admin-options",
+    label: "Admin Options",
+    route: "/admin-options",
+    icon: Cog6ToothIcon,
+    adminOnly: true,
+  },
+];
 
 export function ActionButton() {
-  // TODO:
-  // * add role validation
-  // * add each role actions
-  // * define component props
-
   const router = useRouter();
-  const handleClick = () => {
-    router.push("/messages");
+  const [userRole] = useAtom(userRoleAtom);
+  const suboptionsEnabled =
+    useFeatureFlagEnabled("action_button_options") === true;
+  const [isOpen, setIsOpen] = useState(false);
+
+  const isStaff =
+    userRole === USER_ROLES.TEACHER || userRole === USER_ROLES.ADMIN;
+  const showSuboptions = suboptionsEnabled && isStaff;
+
+  const actions = STAFF_ACTIONS.filter(
+    (action) => !action.adminOnly || userRole === USER_ROLES.ADMIN,
+  );
+
+  const navigate = (route: string) => {
+    setIsOpen(false);
+    router.push(route);
   };
+
+  // Fallback path: flag off/undefined for everyone, and parents always
+  // navigate directly to create a new message.
+  if (!showSuboptions) {
+    return (
+      <div className="fixed bottom-8 right-8">
+        <Button
+          isIconOnly
+          aria-label="actions"
+          size="lg"
+          color="primary"
+          onPress={() => router.push("/messages")}
+        >
+          <PlusIcon className="w-6 h-6" />
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed bottom-8 right-8">
-      <Button
-        isIconOnly
-        aria-label="actions"
-        size="lg"
-        color="primary"
-        onPress={handleClick}
+      <Popover
+        placement="top-end"
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
       >
-        <PlusIcon className="w-6 h-6" />
-      </Button>
+        <PopoverTrigger>
+          <Button isIconOnly aria-label="actions" size="lg" color="primary">
+            <PlusIcon className="w-6 h-6" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-56">
+          <div className="flex flex-col gap-1 px-1 py-2 w-full">
+            {actions.map(({ key, label, route, icon: Icon }) => (
+              <Button
+                key={key}
+                variant="light"
+                aria-label={label}
+                className="justify-start text-foreground"
+                startContent={<Icon className="w-5 h-5" />}
+                onPress={() => navigate(route)}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }

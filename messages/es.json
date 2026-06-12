@@ -76,5 +76,15 @@
     "defaultTitle": "Nuevo mensaje",
     "defaultBody": "Tienes un nuevo mensaje",
     "openAction": "Abrir"
+  },
+  "ActionButton": {
+    "triggerLabel": "Acciones",
+    "actions": {
+      "attendance": "Asistencia",
+      "daily-report": "Reporte diario",
+      "tasks": "Tareas",
+      "messages": "Mensajes",
+      "admin-options": "Opciones de administrador"
+    }
   }
 }

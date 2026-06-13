@@ -86,5 +86,24 @@
       "messages": "Mensajes",
       "admin-options": "Administrar"
     }
+  },
+  "AdminOptionsPage": {
+    "sections": {
+      "shortcuts": "Crear o editar nuevos items:"
+    },
+    "tiles": {
+      "groups": "Grupos",
+      "children": "Niños",
+      "teachers": "Maestros",
+      "parents": "Padres"
+    },
+    "summary": {
+      "totalKids": "Total de Niños"
+    },
+    "assistance": {
+      "title": "Asistencia de hoy",
+      "childCare": "Jardín",
+      "workshops": "Talleres"
+    }
   }
 }

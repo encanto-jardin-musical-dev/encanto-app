@@ -47,6 +47,7 @@ const STAFF_ACTIONS: ActionItem[] = [
 
 export function ActionButton() {
   const t = useTranslations("ActionButton");
+  const tActions = useTranslations("ActionButton.actions");
   const router = useRouter();
   const [userRole] = useAtom(userRoleAtom);
   const suboptionsEnabled =
@@ -99,7 +100,7 @@ export function ActionButton() {
         <PopoverContent className="w-56">
           <div className="flex flex-col gap-1 px-1 py-2 w-full">
             {actions.map(({ key, route, icon: Icon }) => {
-              const label = t(`actions.${key}`);
+              const label = tActions(key);
               return (
                 <Button
                   key={key}

@@ -97,7 +97,7 @@ export function ActionButton() {
             <PlusIcon className="w-6 h-6" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-56">
+        <PopoverContent className="w-64">
           <div className="flex flex-col gap-1 px-1 py-2 w-full">
             {actions.map(({ key, route, icon: Icon }) => {
               const label = tActions(key);
@@ -107,7 +107,7 @@ export function ActionButton() {
                   variant="light"
                   aria-label={label}
                   className="justify-start text-foreground"
-                  startContent={<Icon className="w-5 h-5" />}
+                  startContent={<Icon className="w-5 h-5 shrink-0" />}
                   onPress={() => navigate(route)}
                 >
                   {label}

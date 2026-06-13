@@ -39,7 +39,7 @@ const STAFF_ACTIONS: ActionItem[] = [
   { key: "messages", route: "/messages", icon: ChatBubbleLeftIcon },
   {
     key: "admin-options",
-    route: "/admin-options",
+    route: "/admin",
     icon: Cog6ToothIcon,
     adminOnly: true,
   },

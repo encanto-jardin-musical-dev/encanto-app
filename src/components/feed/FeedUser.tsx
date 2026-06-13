@@ -98,7 +98,7 @@ export default function FeedUser({ user }: FeedUserProps) {
           onSelectionChange={setGroupContextSelection}
           isDisabled={user.role === USER_ROLES.TEACHER}
         >
-          {option => <SelectItem key={option.key}>{option.label}</SelectItem>}
+          {option => <SelectItem key={option.key} textValue={option.label}>{option.label}</SelectItem>}
         </Select>
       </div>
     </div>

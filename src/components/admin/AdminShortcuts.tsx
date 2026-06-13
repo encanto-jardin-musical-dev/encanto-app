@@ -9,10 +9,10 @@ import { useTranslations } from "next-intl";
 import { AdminShortcutTile } from "./AdminShortcutTile";
 
 const SHORTCUT_TILES = [
-  { key: "groups", icon: UserGroupIcon, route: "/admin-options/groups" },
-  { key: "children", icon: FaceSmileIcon, route: "/admin-options/children" },
-  { key: "teachers", icon: AcademicCapIcon, route: "/admin-options/teachers" },
-  { key: "parents", icon: UsersIcon, route: "/admin-options/parents" },
+  { key: "groups", icon: UserGroupIcon, route: "/admin/groups" },
+  { key: "children", icon: FaceSmileIcon, route: "/admin/children" },
+  { key: "teachers", icon: AcademicCapIcon, route: "/admin/teachers" },
+  { key: "parents", icon: UsersIcon, route: "/admin/parents" },
 ] as const;
 
 export function AdminShortcuts() {

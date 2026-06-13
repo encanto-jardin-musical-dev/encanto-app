@@ -16,31 +16,29 @@ import {
   PopoverTrigger,
 } from "@heroui/react";
 import { useAtom } from "jotai";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useFeatureFlagEnabled } from "posthog-js/react";
 import { useState } from "react";
 
 type ActionItem = {
   key: string;
-  label: string;
   route: string;
   icon: React.ComponentType<{ className?: string }>;
   adminOnly?: boolean;
 };
 
 const STAFF_ACTIONS: ActionItem[] = [
-  { key: "attendance", label: "Attendance", route: "/attendance", icon: ClockIcon },
+  { key: "attendance", route: "/attendance", icon: ClockIcon },
   {
     key: "daily-report",
-    label: "Daily Report",
     route: "/daily-report",
     icon: ClipboardDocumentListIcon,
   },
-  { key: "tasks", label: "Tasks", route: "/tasks", icon: DocumentCheckIcon },
-  { key: "messages", label: "Messages", route: "/messages", icon: ChatBubbleLeftIcon },
+  { key: "tasks", route: "/tasks", icon: DocumentCheckIcon },
+  { key: "messages", route: "/messages", icon: ChatBubbleLeftIcon },
   {
     key: "admin-options",
-    label: "Admin Options",
     route: "/admin-options",
     icon: Cog6ToothIcon,
     adminOnly: true,
@@ -48,6 +46,8 @@ const STAFF_ACTIONS: ActionItem[] = [
 ];
 
 export function ActionButton() {
+  const t = useTranslations("ActionButton");
+  const tActions = useTranslations("ActionButton.actions");
   const router = useRouter();
   const [userRole] = useAtom(userRoleAtom);
   const suboptionsEnabled =
@@ -74,7 +74,7 @@ export function ActionButton() {
       <div className="fixed bottom-8 right-8">
         <Button
           isIconOnly
-          aria-label="actions"
+          aria-label={t("triggerLabel")}
           size="lg"
           color="primary"
           onPress={() => router.push("/messages")}
@@ -93,24 +93,27 @@ export function ActionButton() {
         onOpenChange={setIsOpen}
       >
         <PopoverTrigger>
-          <Button isIconOnly aria-label="actions" size="lg" color="primary">
+          <Button isIconOnly aria-label={t("triggerLabel")} size="lg" color="primary">
             <PlusIcon className="w-6 h-6" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-56">
+        <PopoverContent className="w-64">
           <div className="flex flex-col gap-1 px-1 py-2 w-full">
-            {actions.map(({ key, label, route, icon: Icon }) => (
-              <Button
-                key={key}
-                variant="light"
-                aria-label={label}
-                className="justify-start text-foreground"
-                startContent={<Icon className="w-5 h-5" />}
-                onPress={() => navigate(route)}
-              >
-                {label}
-              </Button>
-            ))}
+            {actions.map(({ key, route, icon: Icon }) => {
+              const label = tActions(key);
+              return (
+                <Button
+                  key={key}
+                  variant="light"
+                  aria-label={label}
+                  className="justify-start text-foreground"
+                  startContent={<Icon className="w-5 h-5 shrink-0" />}
+                  onPress={() => navigate(route)}
+                >
+                  {label}
+                </Button>
+              );
+            })}
           </div>
         </PopoverContent>
       </Popover>

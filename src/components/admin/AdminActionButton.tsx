@@ -9,6 +9,7 @@ type AdminActionButtonProps = {
   variant: AdminActionButtonVariant;
   onPress: () => void;
   isLoading?: boolean;
+  namespace?: string;
 };
 
 const ICONS: Record<AdminActionButtonVariant, React.ComponentType<{ className?: string }>> = {
@@ -23,8 +24,13 @@ const LABEL_KEYS: Record<AdminActionButtonVariant, string> = {
   edit: "actions.edit",
 };
 
-export function AdminActionButton({ variant, onPress, isLoading = false }: AdminActionButtonProps) {
-  const t = useTranslations("AdminChildren");
+export function AdminActionButton({
+  variant,
+  onPress,
+  isLoading = false,
+  namespace = "AdminChildren",
+}: AdminActionButtonProps) {
+  const t = useTranslations(namespace);
   const Icon = ICONS[variant];
   const label = t(LABEL_KEYS[variant]);
 

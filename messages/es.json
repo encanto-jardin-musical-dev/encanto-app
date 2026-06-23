@@ -211,5 +211,58 @@
       "deleteSuccess": "Niño eliminado exitosamente",
       "deleteError": "Error al eliminar el niño"
     }
+  },
+  "AdminGroups": {
+    "list": {
+      "title": "Grupos",
+      "searchPlaceholder": "Buscar grupo",
+      "empty": "No hay grupos registrados"
+    },
+    "form": {
+      "newTitle": "Agregar Grupo",
+      "editTitle": "Editar Grupo",
+      "save": "Guardar",
+      "name": {
+        "label": "Nombre",
+        "placeholder": "Nombre del grupo"
+      },
+      "image": {
+        "label": "Imagen del grupo",
+        "change": "Cambiar imagen",
+        "add": "Agregar imagen",
+        "remove": "Quitar imagen",
+        "validationError": "Solo se permiten imágenes JPEG, PNG o WebP de máximo 5 MB."
+      },
+      "teacher": {
+        "label": "Maestro",
+        "placeholder": "Seleccionar maestro"
+      }
+    },
+    "detail": {
+      "teacherTitle": "Maestro",
+      "childrenTitle": "Niños",
+      "noTeacher": "Sin maestro asignado",
+      "noChildren": "Sin niños asignados"
+    },
+    "actions": {
+      "add": "Agregar grupo",
+      "save": "Guardar grupo",
+      "edit": "Editar grupo",
+      "delete": "Eliminar grupo"
+    },
+    "deleteModal": {
+      "title": "Eliminar grupo",
+      "message": "¿Estás seguro que deseas eliminar el grupo {name}? Esta acción no se puede deshacer.",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar"
+    },
+    "toasts": {
+      "createSuccess": "Grupo creado exitosamente",
+      "createError": "Error al crear el grupo",
+      "updateSuccess": "Grupo actualizado exitosamente",
+      "updateError": "Error al actualizar el grupo",
+      "deleteSuccess": "Grupo eliminado exitosamente",
+      "deleteError": "Error al eliminar el grupo"
+    }
   }
 }

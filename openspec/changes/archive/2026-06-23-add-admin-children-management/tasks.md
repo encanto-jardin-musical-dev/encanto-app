@@ -53,7 +53,7 @@
 - [x] 9.1 Run `pnpm lint` and resolve issues in new files.
 - [x] 9.2 Run `pnpm build` to confirm type-check, build, and that `/admin`, `/admin/children`, `/admin/children/new`, `/admin/children/[childID]`, `/admin/children/[childID]/edit` are present.
 - [x] 9.3 Confirm RLS: an admin session can read the children list, create, and update; verify `child_groups` writes are permitted (add a policy if missing).
-- [ ] 9.4 Manually verify: list loads 20/page with infinite scroll and alphabetical order; search filters; Add creates a child with **only required fields** (no avatar, no groups) → success toast; Add also works with optional groups selected; detail shows identity, groups (possibly empty), parents (possibly empty); Edit updates and can remove all groups (success toast); the action button changes per screen (Add → Save → Edit); all copy is in Spanish from the catalog.
+- [x] 9.4 Manually verify: list loads 20/page with infinite scroll and alphabetical order; search filters; Add creates a child with **only required fields** (no avatar, no groups) → success toast; Add also works with optional groups selected; detail shows identity, groups (possibly empty), parents (possibly empty); Edit updates and can remove all groups (success toast); the action button changes per screen (Add → Save → Edit); all copy is in Spanish from the catalog.
 
 ## 10. Guardian management in the form (post-v1 addition)
 
@@ -62,4 +62,4 @@
 - [x] 10.3 Add a remove affordance for already-linked guardians in edit mode (initially read-only-list-with-remove-button).
 - [x] 10.4 Consolidate `ChildForm` so create and edit modes share a single interactive guardians UI (picker + relationship selector + add/remove), instead of edit mode using a separate read-only-with-remove list. Drop the `linkedParents` prop/`LinkedParent` type once unified.
 - [x] 10.5 In edit mode, load `getAvailableParents` the same as create mode (already-linked guardians appear pre-selected in their row) so admins can add new guardians during edit, not just remove existing ones.
-- [ ] 10.6 Manually verify: edit screen lets an admin add a guardian, remove a guardian, and change a guardian's relationship in the same UI as create; Save persists the reconciled set via `updateChild`.
+- [x] 10.6 Manually verify: edit screen lets an admin add a guardian, remove a guardian, and change a guardian's relationship in the same UI as create; Save persists the reconciled set via `updateChild`.

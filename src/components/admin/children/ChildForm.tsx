@@ -4,10 +4,10 @@ import { GuardianEntry } from "@/queries/children/create-child";
 import { getAllGroups } from "@/queries/users/get-all-groups";
 import { getAvailableParents, ParentOption } from "@/queries/children/get-available-parents";
 import { createClient } from "@/utils/supabase/client";
-import { Button, Input, Select, SelectItem } from "@heroui/react";
-import { XCircleIcon } from "@heroicons/react/24/solid";
+import { Button, Input, Radio, RadioGroup, Select, SelectItem } from "@heroui/react";
+import { XCircleIcon, UserCircleIcon, CameraIcon } from "@heroicons/react/24/solid";
 import { useTranslations } from "next-intl";
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 
 export type ChildFormValues = {
   first_name: string;
@@ -19,6 +19,13 @@ export type ChildFormValues = {
   address: string;
   groupIds: string[];
   guardians: GuardianEntry[];
+  /**
+   * Avatar state:
+   * - `undefined`  → no change (keep existing avatar_url)
+   * - `File`       → new image to upload
+   * - `null`       → remove existing avatar
+   */
+  avatarFile: File | null | undefined;
 };
 
 type GroupOption = { id: string; name: string };
@@ -36,7 +43,7 @@ export type ChildFormRef = {
 };
 
 type ChildFormProps = {
-  defaultValues?: Partial<ChildFormValues>;
+  defaultValues?: Partial<ChildFormValues> & { existingAvatarUrl?: string | null };
   onSubmit: (values: ChildFormValues) => void;
   /** Edit mode: pass already-linked guardians. Read-only display, no picker. */
   linkedParents?: LinkedParent[];
@@ -77,6 +84,15 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
       defaultValues?.guardians ?? []
     );
 
+    // Avatar: track a new File, a preview URL, or removal state
+    const [avatarFile, setAvatarFile] = useState<File | null | undefined>(
+      defaultValues?.avatarFile
+    );
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(
+      defaultValues?.existingAvatarUrl ?? null
+    );
+    const avatarInputRef = useRef<HTMLInputElement>(null);
+
     const [errors, setErrors] = useState<Partial<Record<keyof ChildFormValues, string>>>({});
 
     useEffect(() => {
@@ -89,6 +105,37 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
         getAvailableParents(client).then((data) => setParents(data));
       }
     }, [linkedParents]);
+
+    // Revoke object URLs when avatar changes or component unmounts
+    useEffect(() => {
+      return () => {
+        if (avatarPreview && avatarPreview.startsWith("blob:")) {
+          URL.revokeObjectURL(avatarPreview);
+        }
+      };
+    }, [avatarPreview]);
+
+    const handleAvatarPick = () => avatarInputRef.current?.click();
+
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      // Revoke previous blob URL if any
+      if (avatarPreview?.startsWith("blob:")) URL.revokeObjectURL(avatarPreview);
+
+      const preview = URL.createObjectURL(file);
+      setAvatarFile(file);
+      setAvatarPreview(preview);
+      // Reset input so the same file can be re-selected
+      e.target.value = "";
+    };
+
+    const handleAvatarRemove = () => {
+      if (avatarPreview?.startsWith("blob:")) URL.revokeObjectURL(avatarPreview);
+      setAvatarFile(null);   // null = explicit removal
+      setAvatarPreview(null);
+    };
 
     useImperativeHandle(ref, () => ({
       submit: () => {
@@ -110,6 +157,7 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
           address,
           groupIds: selectedGroupIds,
           guardians: selectedGuardians,
+          avatarFile,
         });
         return true;
       },
@@ -123,18 +171,21 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
         address,
         groupIds: selectedGroupIds,
         guardians: selectedGuardians,
+        avatarFile,
       }),
     }));
 
     // Helpers for the guardian list in create mode
+    // Only one guardian per relationship kind (father/mother/other) is allowed
     const addGuardianRow = () => {
-      // Pick the first parent not already selected, default relationship "other"
       const usedIds = new Set(selectedGuardians.map((g) => g.guardian_id));
+      const usedRelationships = new Set(selectedGuardians.map((g) => g.relationship));
+      const nextRelationship = RELATIONSHIPS.find((r) => !usedRelationships.has(r));
       const next = parents.find((p) => !usedIds.has(p.id));
-      if (!next) return;
+      if (!next || !nextRelationship) return;
       setSelectedGuardians((prev) => [
         ...prev,
-        { guardian_id: next.id, relationship: "other" },
+        { guardian_id: next.id, relationship: nextRelationship },
       ]);
     };
 
@@ -161,8 +212,60 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
     const usedGuardianIds = (excludeIndex: number) =>
       new Set(selectedGuardians.filter((_, i) => i !== excludeIndex).map((g) => g.guardian_id));
 
+    // Relationship kinds already used in other rows — only one of each (father/mother/other) allowed
+    const usedRelationships = (excludeIndex: number) =>
+      new Set(selectedGuardians.filter((_, i) => i !== excludeIndex).map((g) => g.relationship));
+
+    const hasAvatar = avatarPreview !== null;
+
     return (
       <div className="flex flex-col gap-4">
+        {/* Avatar picker */}
+        <div className="flex flex-col items-center gap-2 py-2">
+          <button
+            type="button"
+            aria-label={hasAvatar ? t("avatar.change") : t("avatar.add")}
+            onClick={handleAvatarPick}
+            className="relative w-24 h-24 active:opacity-70 focus-visible:outline-none"
+          >
+            <span className="w-full h-full rounded-full overflow-hidden bg-default-100 flex items-center justify-center ring-2 ring-offset-2 ring-default-200 focus-visible:ring-primary">
+              {hasAvatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={avatarPreview}
+                  alt={t("avatar.label")}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <UserCircleIcon className="w-16 h-16 text-default-300" />
+              )}
+            </span>
+            {/* Camera overlay */}
+            <span className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-md">
+              <CameraIcon className="w-3.5 h-3.5 text-white" />
+            </span>
+          </button>
+
+          {hasAvatar && (
+            <button
+              type="button"
+              onClick={handleAvatarRemove}
+              className="text-xs text-danger hover:underline"
+            >
+              {t("avatar.remove")}
+            </button>
+          )}
+
+          {/* Hidden file input */}
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={handleAvatarChange}
+          />
+        </div>
+
         {/* ID */}
         <div className="flex gap-2">
           <Select
@@ -280,6 +383,8 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
                 const excluded = usedGuardianIds(index);
                 const available = parents.filter((p) => !excluded.has(p.id));
 
+                const excludedRelationships = usedRelationships(index);
+
                 return (
                   <div key={index} className="relative flex flex-col gap-1 pt-4 px-2 pb-2 rounded-lg border border-divider">
                     {/* Remove button — top-right corner */}
@@ -312,31 +417,35 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
                       ))}
                     </Select>
 
-                    {/* Relationship selector — full width */}
-                    <Select
+                    {/* Relationship selector — inline radios (avoids popover overlay) */}
+                    <RadioGroup
                       label={t("parents.relationship.label")}
                       aria-label={t("parents.relationship.label")}
-                      placeholder={t("parents.relationship.placeholder")}
-                      selectedKeys={new Set([entry.relationship])}
-                      onSelectionChange={(keys) =>
+                      orientation="horizontal"
+                      value={entry.relationship}
+                      onValueChange={(value) =>
                         updateGuardianRelationship(
                           index,
-                          [...keys][0] as Database["public"]["Enums"]["guardian_relationship"]
+                          value as Database["public"]["Enums"]["guardian_relationship"]
                         )
                       }
                     >
                       {RELATIONSHIPS.map((r) => (
-                        <SelectItem key={r} textValue={t(`parents.relationship.${r}`)}>
+                        <Radio
+                          key={r}
+                          value={r}
+                          isDisabled={excludedRelationships.has(r)}
+                        >
                           {t(`parents.relationship.${r}`)}
-                        </SelectItem>
+                        </Radio>
                       ))}
-                    </Select>
+                    </RadioGroup>
                   </div>
                 );
               })}
 
-              {/* Add parent button — only when there are still unselected parents */}
-              {selectedGuardians.length < parents.length && (
+              {/* Add parent button — only when there are still unselected parents and relationship kinds */}
+              {selectedGuardians.length < Math.min(parents.length, RELATIONSHIPS.length) && (
                 <Button
                   variant="flat"
                   size="sm"

@@ -1,5 +1,6 @@
 import { TypedSupabaseClient } from '@/utils/supabase/client';
 import { Database } from '@/types/database.types';
+import { getChildAvatarSignedUrl } from '@/utils/uploadChildAvatar';
 
 export type ChildDetail = {
   id: string;
@@ -66,6 +67,8 @@ export async function getChildById(
   const row = data?.[0];
   if (!row) return null;
 
+  const avatarUrl = await getChildAvatarSignedUrl(client, row.avatar_url);
+
   return {
     id: row.id,
     first_name: row.first_name,
@@ -75,7 +78,7 @@ export async function getChildById(
     gender: row.gender,
     birth_date: row.birth_date,
     address: row.address,
-    avatar_url: row.avatar_url,
+    avatar_url: avatarUrl,
     groups: (row.child_groups ?? [])
       .map((cg) => cg.groups)
       .filter((g): g is { id: string; name: string; image_url: string | null } => g !== null),

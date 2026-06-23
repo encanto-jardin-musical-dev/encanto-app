@@ -6,11 +6,12 @@ import NavigationBar from "@/components/common/NavigationBar";
 import useChildByIdQuery from "@/hooks/UseChildByIdQuery";
 import useDeleteChildMutation from "@/hooks/UseDeleteChildMutation";
 import useUpdateChildMutation from "@/hooks/UseUpdateChildMutation";
+import { AvatarValidationError, uploadChildAvatar } from "@/utils/uploadChildAvatar";
 import { TrashIcon } from "@heroicons/react/24/outline";
 import { addToast, Button, useDisclosure } from "@heroui/react";
 import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 export default function EditChildPage() {
   const t = useTranslations("AdminChildren");
@@ -21,15 +22,47 @@ export default function EditChildPage() {
   const { mutate: updateChild, isPending: isUpdating } = useUpdateChildMutation();
   const { mutate: deleteChild, isPending: isDeleting } = useDeleteChildMutation();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const valid = formRef.current?.submit();
     if (!valid) return;
     const values = formRef.current?.getValues();
     if (!values) return;
 
+    // Determine the avatar_url to persist:
+    // - new File  → upload and use new URL
+    // - null      → explicit removal, set to null
+    // - undefined → no change, keep existing
+    let avatar_url: string | null | undefined = undefined;
+
+    if (values.avatarFile instanceof File) {
+      setIsUploading(true);
+      try {
+        avatar_url = await uploadChildAvatar(childID, values.avatarFile);
+      } catch (err) {
+        setIsUploading(false);
+        if (err instanceof AvatarValidationError) {
+          addToast({ title: err.message, color: "danger" });
+        } else {
+          addToast({ title: t("toasts.updateError"), color: "danger" });
+        }
+        return;
+      }
+      setIsUploading(false);
+    } else if (values.avatarFile === null) {
+      avatar_url = null; // explicit removal
+    }
+    // else undefined → omit from update (keep existing)
+
+    const { avatarFile, ...childValues } = values;
+
     updateChild(
-      { id: childID, ...values },
+      {
+        id: childID,
+        ...childValues,
+        ...(avatar_url !== undefined ? { avatar_url } : {}),
+      },
       {
         onSuccess: () => {
           addToast({ title: t("toasts.updateSuccess"), color: "success" });
@@ -58,7 +91,7 @@ export default function EditChildPage() {
     ? `${child.first_name} ${child.last_name}`
     : "";
 
-  const defaultValues: Partial<ChildFormValues> | undefined = child
+  const defaultValues: (Partial<ChildFormValues> & { existingAvatarUrl?: string | null }) | undefined = child
     ? {
         first_name: child.first_name,
         last_name: child.last_name,
@@ -72,6 +105,7 @@ export default function EditChildPage() {
           guardian_id: g.id,
           relationship: g.relationship,
         })),
+        existingAvatarUrl: child.avatar_url,
       }
     : undefined;
 
@@ -83,6 +117,8 @@ export default function EditChildPage() {
         relationship: g.relationship,
       }))
     : undefined;
+
+  const isBusy = isUpdating || isUploading;
 
   return (
     <section className="grid grid-rows-[auto_1fr] h-full gap-4 p-4">
@@ -105,14 +141,14 @@ export default function EditChildPage() {
           </div>
         }
       />
-      <div className="overflow-auto pb-20">
+      <div className="px-1 pb-20">
         {defaultValues ? (
           <ChildForm ref={formRef} defaultValues={defaultValues} onSubmit={() => {}} linkedParents={linkedParents} />
         ) : (
           <p className="text-center text-default-400 py-8">…</p>
         )}
       </div>
-      <AdminActionButton variant="save" onPress={handleSave} isLoading={isUpdating} />
+      <AdminActionButton variant="save" onPress={handleSave} isLoading={isBusy} />
 
       <ConfirmDeleteChildModal
         childName={childName}

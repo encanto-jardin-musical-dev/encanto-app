@@ -157,6 +157,13 @@
         "label": "Grupos",
         "placeholder": "Grupos"
       },
+      "avatar": {
+        "label": "Foto del niño",
+        "change": "Cambiar foto",
+        "add": "Agregar foto",
+        "remove": "Quitar foto",
+        "validationError": "Solo se permiten imágenes JPEG, PNG o WebP de máximo 5 MB."
+      },
       "parents": {
         "label": "Acudientes",
         "placeholder": "Seleccionar acudientes",

@@ -1,6 +1,5 @@
 "use client";
-import { PencilIcon, PlusIcon } from "@heroicons/react/24/solid";
-import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import { CheckIcon, PencilIcon, PlusIcon } from "@heroicons/react/24/solid";
 import { Button } from "@heroui/react";
 import { useTranslations } from "next-intl";
 
@@ -14,7 +13,7 @@ type AdminActionButtonProps = {
 
 const ICONS: Record<AdminActionButtonVariant, React.ComponentType<{ className?: string }>> = {
   add: PlusIcon,
-  save: ArrowDownTrayIcon,
+  save: CheckIcon,
   edit: PencilIcon,
 };
 

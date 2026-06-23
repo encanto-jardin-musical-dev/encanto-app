@@ -1,4 +1,5 @@
 import { TypedSupabaseClient } from '@/utils/supabase/client';
+import { getChildAvatarSignedUrls } from '@/utils/uploadChildAvatar';
 
 export type ChildrenPageParams = {
   search?: string;
@@ -48,7 +49,13 @@ export async function getChildrenPage(
     throw new Error(`Failed to fetch children page: ${error.message}`);
   }
 
-  return (data ?? []).map((child) => {
+  const rows = data ?? [];
+  const avatarPaths = rows
+    .map((child) => child.avatar_url)
+    .filter((path): path is string => !!path);
+  const signedUrls = await getChildAvatarSignedUrls(client, avatarPaths);
+
+  return rows.map((child) => {
     const guardian = child.child_guardians?.[0]?.profiles;
     const parentName = guardian
       ? `${guardian.first_name} ${guardian.last_name}`
@@ -57,7 +64,7 @@ export async function getChildrenPage(
       id: child.id,
       first_name: child.first_name,
       last_name: child.last_name,
-      avatar_url: child.avatar_url,
+      avatar_url: child.avatar_url ? signedUrls.get(child.avatar_url) ?? null : null,
       parentName,
     };
   });

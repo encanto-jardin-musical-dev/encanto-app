@@ -3,15 +3,13 @@
 ## Purpose
 
 Defines the Admin Options dashboard screen — a role-appropriate landing page for admins with entity creation/editing shortcuts (Groups, Children, Teachers, Parents) and a summary panel (Total of Kids from real data; Today assistance split into Child care and Workshops, initially mocked), with all copy localized via i18n.
-
 ## Requirements
-
 ### Requirement: Admin Options dashboard layout
 
-The Admin Options screen (`/admin-options`) SHALL render a dashboard composed of a back navigation bar, a localized page title, an entity-shortcut section, and a summary panel, matching the approved wireframe. The screen SHALL retain a back action that returns the user to the feed.
+The Admin Options screen (`/admin`) SHALL render a dashboard composed of a back navigation bar, a localized page title, an entity-shortcut section, and a summary panel, matching the approved wireframe. The screen SHALL retain a back action that returns the user to the feed.
 
 #### Scenario: Admin opens the Admin Options screen
-- **WHEN** a user navigates to `/admin-options`
+- **WHEN** a user navigates to `/admin`
 - **THEN** the system displays a navigation bar with a back action to the feed, the localized page title, an entity-shortcut section, and a summary panel
 
 #### Scenario: Navigating back from Admin Options
@@ -20,7 +18,7 @@ The Admin Options screen (`/admin-options`) SHALL render a dashboard composed of
 
 ### Requirement: Entity creation shortcuts
 
-The Admin Options screen SHALL present a "Create or edit new items" section containing four shortcut tiles — Groups, Children, Teachers, and Parents — each rendered with an icon and a localized label. Selecting a tile SHALL navigate the user to that entity's destination.
+The Admin Options screen SHALL present a "Create or edit new items" section containing four shortcut tiles — Groups, Children, Teachers, and Parents — each rendered with an icon and a localized label. Selecting a tile SHALL navigate the user to that entity's destination under the `/admin` route namespace (e.g., `/admin/children`).
 
 #### Scenario: Shortcut tiles are displayed
 - **WHEN** the Admin Options screen is rendered
@@ -28,7 +26,7 @@ The Admin Options screen SHALL present a "Create or edit new items" section cont
 
 #### Scenario: Selecting a shortcut tile navigates
 - **WHEN** the user selects one of the shortcut tiles
-- **THEN** the system navigates to the destination associated with that tile's stable key
+- **THEN** the system navigates to that entity's destination under `/admin` (e.g., the Children tile navigates to `/admin/children`)
 
 ### Requirement: Total of Kids from real data
 
@@ -74,3 +72,4 @@ The Admin Options screen and its components SHALL be built with the app's existi
 #### Scenario: Components use design-system primitives
 - **WHEN** the Admin Options screen is rendered
 - **THEN** its shortcut tiles and summary panel use HeroUI components and Heroicons consistent with the rest of the app, and each interactive control exposes an accessible label sourced from the i18n catalog
+

@@ -3,9 +3,7 @@
 ## Purpose
 
 Defines the role-aware, feature-flagged behavior of the plus button, including expandable sub-options for staff users, direct message creation for parents, placeholder destinations for new staff actions, and alignment with the app's design system.
-
 ## Requirements
-
 ### Requirement: Feature-flagged plus button behavior
 
 The plus button SHALL gate its sub-options behavior behind a PostHog feature flag. When the flag is disabled or its value is still loading (`undefined`), the plus button SHALL fall back to its current behavior of navigating directly to the messages screen for all roles.
@@ -49,7 +47,7 @@ When the feature flag is enabled, a user whose role is parent SHALL NOT see a su
 
 ### Requirement: Placeholder screens for new staff actions
 
-The system SHALL provide a navigable screen for each new staff action that has no existing destination — Attendance, Daily Report, Tasks, and Admin Options. Each placeholder screen SHALL display only its screen name, sourced from the i18n message catalog so it matches the corresponding menu label. The Messages action SHALL reuse the existing messages screen.
+The system SHALL provide a navigable screen for each new staff action that has no existing destination — Attendance, Daily Report, Tasks, and Admin Options. Each placeholder screen SHALL display only its screen name, sourced from the i18n message catalog so it matches the corresponding menu label, except the Admin Options destination which is a full dashboard at `/admin`. The Messages action SHALL reuse the existing messages screen.
 
 #### Scenario: Navigating to the Attendance screen
 - **WHEN** a staff user selects the Attendance action
@@ -64,8 +62,8 @@ The system SHALL provide a navigable screen for each new staff action that has n
 - **THEN** the system displays a screen showing the localized Tasks name from the catalog
 
 #### Scenario: Navigating to the Admin Options screen
-- **WHEN** a staff user selects the Admin Options action
-- **THEN** the system displays a screen showing the localized Admin Options name from the catalog
+- **WHEN** a staff user (admin) selects the Admin Options action
+- **THEN** the system navigates to the admin dashboard at `/admin`
 
 #### Scenario: Navigating to Messages reuses the existing screen
 - **WHEN** a staff user selects the Messages action
@@ -95,3 +93,4 @@ All user-facing text rendered by the plus button — the trigger's accessible la
 #### Scenario: Locale determines displayed text
 - **WHEN** the active locale resolves to Spanish
 - **THEN** the menu labels and trigger label display their Spanish translations from the catalog
+

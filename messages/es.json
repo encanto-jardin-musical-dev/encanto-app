@@ -105,5 +105,111 @@
       "childCare": "Jardín",
       "workshops": "Talleres"
     }
+  },
+  "AdminChildren": {
+    "list": {
+      "title": "Niños",
+      "searchPlaceholder": "Buscar niño",
+      "empty": "No hay niños registrados",
+      "parentLabel": "Acudiente"
+    },
+    "form": {
+      "newTitle": "Agregar Niño",
+      "editTitle": "Editar Niño",
+      "save": "Guardar",
+      "idType": {
+      "label": "Tipo de documento",
+      "placeholder": "Tipo de ID",
+      "cc": "Cédula de ciudadanía",
+      "rc": "Reg. Civil",
+      "ti": "T. Identidad",
+      "passport": "Pasaporte",
+      "international_id": "ID Internacional",
+      "other": "Otro"
+    },
+      "idNumber": {
+        "label": "Número de documento",
+        "placeholder": "Número de ID"
+      },
+      "names": {
+        "label": "Nombres",
+        "placeholder": "Nombres del niño"
+      },
+      "lastNames": {
+        "label": "Apellidos",
+        "placeholder": "Apellidos del niño"
+      },
+      "gender": {
+        "label": "Género",
+        "placeholder": "Género",
+        "male": "Masculino",
+        "female": "Femenino"
+      },
+      "birthDay": {
+        "label": "Fecha de nacimiento",
+        "placeholder": "AAAA/MM/DD"
+      },
+      "address": {
+        "label": "Dirección",
+        "placeholder": "Dirección del niño"
+      },
+      "groups": {
+        "label": "Grupos",
+        "placeholder": "Grupos"
+      },
+      "avatar": {
+        "label": "Foto del niño",
+        "change": "Cambiar foto",
+        "add": "Agregar foto",
+        "remove": "Quitar foto",
+        "validationError": "Solo se permiten imágenes JPEG, PNG o WebP de máximo 5 MB."
+      },
+      "parents": {
+        "label": "Acudientes",
+        "placeholder": "Seleccionar acudientes",
+        "noParents": "No hay acudientes vinculados. Crea un nuevo acudiente primero.",
+        "nameLabel": "Acudiente",
+        "addParent": "Agregar acudiente",
+        "remove": "Quitar",
+        "relationship": {
+          "label": "Relación",
+          "placeholder": "Seleccionar relación",
+          "mother": "Madre",
+          "father": "Padre",
+          "other": "Otro"
+        }
+      }
+    },
+    "detail": {
+      "groupsTitle": "Grupos",
+      "parentsTitle": "Padres",
+      "gender": "Género",
+      "birthDay": "Fecha de nacimiento",
+      "address": "Dirección",
+      "idType": "Tipo de documento",
+      "idNumber": "Número de documento",
+      "noGroups": "Sin grupos asignados",
+      "noParents": "Sin acudientes asignados"
+    },
+    "actions": {
+      "add": "Agregar niño",
+      "save": "Guardar niño",
+      "edit": "Editar niño",
+      "delete": "Eliminar niño"
+    },
+    "deleteModal": {
+      "title": "Eliminar niño",
+      "message": "¿Estás seguro que deseas eliminar a {name}? Esta acción no se puede deshacer.",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar"
+    },
+    "toasts": {
+      "createSuccess": "Niño creado exitosamente",
+      "createError": "Error al crear el niño",
+      "updateSuccess": "Niño actualizado exitosamente",
+      "updateError": "Error al actualizar el niño",
+      "deleteSuccess": "Niño eliminado exitosamente",
+      "deleteError": "Error al eliminar el niño"
+    }
   }
 }

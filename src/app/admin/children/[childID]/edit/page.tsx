@@ -1,7 +1,7 @@
 "use client";
 import { AdminActionButton } from "@/components/admin/AdminActionButton";
 import ConfirmDeleteChildModal from "@/components/admin/children/ConfirmDeleteChildModal";
-import { ChildForm, ChildFormRef, ChildFormValues, LinkedParent } from "@/components/admin/children/ChildForm";
+import { ChildForm, ChildFormRef, ChildFormValues } from "@/components/admin/children/ChildForm";
 import NavigationBar from "@/components/common/NavigationBar";
 import useChildByIdQuery from "@/hooks/UseChildByIdQuery";
 import useDeleteChildMutation from "@/hooks/UseDeleteChildMutation";
@@ -109,15 +109,6 @@ export default function EditChildPage() {
       }
     : undefined;
 
-  const linkedParents: LinkedParent[] | undefined = child
-    ? child.guardians.map((g) => ({
-        id: g.id,
-        first_name: g.first_name,
-        last_name: g.last_name,
-        relationship: g.relationship,
-      }))
-    : undefined;
-
   const isBusy = isUpdating || isUploading;
 
   return (
@@ -143,7 +134,7 @@ export default function EditChildPage() {
       />
       <div className="px-1 pb-20">
         {defaultValues ? (
-          <ChildForm ref={formRef} defaultValues={defaultValues} onSubmit={() => {}} linkedParents={linkedParents} />
+          <ChildForm ref={formRef} defaultValues={defaultValues} onSubmit={() => {}} />
         ) : (
           <p className="text-center text-default-400 py-8">…</p>
         )}

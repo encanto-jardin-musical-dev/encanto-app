@@ -30,13 +30,6 @@ export type ChildFormValues = {
 
 type GroupOption = { id: string; name: string };
 
-export type LinkedParent = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  relationship: Database["public"]["Enums"]["guardian_relationship"];
-};
-
 export type ChildFormRef = {
   submit: () => boolean;
   getValues: () => ChildFormValues;
@@ -45,8 +38,6 @@ export type ChildFormRef = {
 type ChildFormProps = {
   defaultValues?: Partial<ChildFormValues> & { existingAvatarUrl?: string | null };
   onSubmit: (values: ChildFormValues) => void;
-  /** Edit mode: pass already-linked guardians. Read-only display, no picker. */
-  linkedParents?: LinkedParent[];
 };
 
 const DOC_TYPES: Database["public"]["Enums"]["document_type"][] = [
@@ -60,10 +51,9 @@ const RELATIONSHIPS: Database["public"]["Enums"]["guardian_relationship"][] = [
 ];
 
 const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
-  ({ defaultValues, onSubmit, linkedParents }, ref) => {
+  ({ defaultValues, onSubmit }, ref) => {
     const t = useTranslations("AdminChildren.form");
     const [groups, setGroups] = useState<GroupOption[]>([]);
-    // Only loaded in create mode (linkedParents absent)
     const [parents, setParents] = useState<ParentOption[]>([]);
 
     const [firstName, setFirstName] = useState(defaultValues?.first_name ?? "");
@@ -100,11 +90,8 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
       getAllGroups(client).then(({ data }) => {
         if (data) setGroups(data.map((g) => ({ id: g.id, name: g.name })));
       });
-      // In edit mode linkedParents is provided — skip loading all parents
-      if (linkedParents === undefined) {
-        getAvailableParents(client).then((data) => setParents(data));
-      }
-    }, [linkedParents]);
+      getAvailableParents(client).then((data) => setParents(data));
+    }, []);
 
     // Revoke object URLs when avatar changes or component unmounts
     useEffect(() => {
@@ -357,29 +344,12 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
         <div className="flex flex-col gap-2">
           <span className="text-small font-medium text-foreground">{t("parents.label")}</span>
 
-          {linkedParents !== undefined ? (
-            // Edit mode: show already-linked guardians (read-only)
-            linkedParents.length === 0 ? (
+          {/* List of (parent picker + relationship selector) rows — shared by create and edit */}
+          <div className="flex flex-col gap-5 w-[96%]">
+            {selectedGuardians.length === 0 && (
               <p className="text-small text-default-500 py-1">{t("parents.noParents")}</p>
-            ) : (
-              <div className="flex flex-col gap-1">
-                {linkedParents.map((p) => (
-                  <span
-                    key={p.id}
-                    className="text-small text-foreground py-1 border-b border-divider last:border-0"
-                  >
-                    {p.first_name} {p.last_name}
-                    <span className="text-default-400 ml-1">
-                      ({t(`parents.relationship.${p.relationship}`)})
-                    </span>
-                  </span>
-                ))}
-              </div>
-            )
-          ) : (
-            // Create mode: list of (parent picker + relationship selector) rows
-            <div className="flex flex-col gap-5 w-[96%]">
-              {selectedGuardians.map((entry, index) => {
+            )}
+            {selectedGuardians.map((entry, index) => {
                 const excluded = usedGuardianIds(index);
                 const available = parents.filter((p) => !excluded.has(p.id));
 
@@ -454,9 +424,8 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
                 >
                   + {t("parents.addParent")}
                 </Button>
-              )}
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     );

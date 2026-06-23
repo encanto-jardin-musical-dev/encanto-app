@@ -88,7 +88,12 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
     useEffect(() => {
       const client = createClient();
       getAllGroups(client).then(({ data }) => {
-        if (data) setGroups(data.map((g) => ({ id: g.id, name: g.name })));
+        if (!data) return;
+        const options = data.map((g) => ({ id: g.id, name: g.name }));
+        setGroups(options);
+        // Drop any previously-assigned group ids that no longer exist (e.g. deleted group)
+        // so they don't get passed to Select's selectedKeys as orphaned keys.
+        setSelectedGroupIds((prev) => prev.filter((id) => options.some((g) => g.id === id)));
       });
       getAvailableParents(client).then((data) => setParents(data));
     }, []);
@@ -349,7 +354,10 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
             {selectedGuardians.length === 0 && (
               <p className="text-small text-default-500 py-1">{t("parents.noParents")}</p>
             )}
-            {selectedGuardians.map((entry, index) => {
+            {/* Wait for parents to load before rendering pickers, so pre-filled
+                guardian ids always have a matching SelectItem (avoids HeroUI's
+                orphaned selectedKeys warning). */}
+            {parents.length > 0 && selectedGuardians.map((entry, index) => {
                 const excluded = usedGuardianIds(index);
                 const available = parents.filter((p) => !excluded.has(p.id));
 

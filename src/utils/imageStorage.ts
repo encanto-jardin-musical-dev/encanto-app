@@ -106,3 +106,13 @@ export const teacherAvatarStorage = createImageStorage({
   bucket: 'teacher-avatars',
   fileLabel: 'avatar',
 });
+
+export const parentAvatarStorage = createImageStorage({
+  bucket: 'parent-avatars',
+  fileLabel: 'avatar',
+});
+
+export const adminAvatarStorage = createImageStorage({
+  bucket: 'admin-avatars',
+  fileLabel: 'avatar',
+});

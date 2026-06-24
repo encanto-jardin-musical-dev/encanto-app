@@ -357,5 +357,92 @@
       "resendInviteAlreadyActive": "El maestro ya tiene su cuenta activa",
       "resendInviteError": "Error al reenviar la invitación"
     }
+  },
+  "AdminParents": {
+    "list": {
+      "title": "Padres",
+      "searchPlaceholder": "Buscar padre/madre",
+      "empty": "No hay padres registrados",
+      "noChildren": "Sin hijos vinculados"
+    },
+    "form": {
+      "newTitle": "Agregar Padre/Madre",
+      "editTitle": "Editar Padre/Madre",
+      "save": "Guardar",
+      "email": {
+        "label": "Correo electrónico",
+        "placeholder": "correo@ejemplo.com"
+      },
+      "idType": {
+        "label": "Tipo de documento",
+        "placeholder": "Tipo de ID",
+        "cc": "Cédula de ciudadanía",
+        "passport": "Pasaporte",
+        "international_id": "ID Internacional",
+        "other": "Otro"
+      },
+      "idTypeAbbr": {
+        "cc": "CC",
+        "passport": "Pasaporte",
+        "international_id": "ID Int.",
+        "other": "Otro"
+      },
+      "idNumber": { "label": "Número de documento", "placeholder": "Número de ID" },
+      "names": { "label": "Nombres", "placeholder": "Nombres del padre/madre" },
+      "lastNames": { "label": "Apellidos", "placeholder": "Apellidos del padre/madre" },
+      "phone": { "label": "Teléfono", "placeholder": "Número de teléfono (opcional)" },
+      "avatar": {
+        "label": "Foto del padre/madre",
+        "change": "Cambiar foto",
+        "add": "Agregar foto",
+        "remove": "Quitar foto",
+        "validationError": "Solo se permiten imágenes JPEG, PNG o WebP de máximo 5 MB."
+      },
+      "children": {
+        "label": "Hijos vinculados",
+        "placeholder": "Seleccionar hijo",
+        "noChildren": "No hay hijos vinculados.",
+        "nameLabel": "Hijo/a",
+        "addChild": "Agregar hijo/a",
+        "remove": "Quitar",
+        "validationError": "Cada fila debe tener un hijo y una relación seleccionados.",
+        "relationship": {
+          "label": "Relación",
+          "placeholder": "Seleccionar relación",
+          "mother": "Madre",
+          "father": "Padre",
+          "other": "Otro"
+        }
+      }
+    },
+    "detail": {
+      "childrenTitle": "Hijos",
+      "noChildren": "Sin hijos vinculados",
+      "resendInvitation": "Reenviar invitación"
+    },
+    "actions": {
+      "add": "Agregar padre/madre",
+      "save": "Guardar padre/madre",
+      "edit": "Editar padre/madre",
+      "delete": "Eliminar padre/madre"
+    },
+    "deleteModal": {
+      "title": "Eliminar padre/madre",
+      "message": "¿Estás seguro que deseas eliminar a {name}? Esta acción eliminará también sus vínculos con los hijos, pero no eliminará a los niños. Esta acción no se puede deshacer.",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar"
+    },
+    "toasts": {
+      "createSuccess": "Padre/madre creado exitosamente. Se envió una invitación al correo.",
+      "createError": "Error al crear el padre/madre",
+      "createErrorDuplicate": "Ya existe un usuario con ese correo electrónico",
+      "updateSuccess": "Padre/madre actualizado exitosamente",
+      "updateError": "Error al actualizar el padre/madre",
+      "deleteSuccess": "Padre/madre eliminado exitosamente",
+      "deleteError": "Error al eliminar el padre/madre",
+      "resendInviteSuccess": "Invitación reenviada exitosamente",
+      "resendInviteAlreadyActive": "El padre/madre ya tiene su cuenta activa",
+      "resendInviteError": "Error al reenviar la invitación"
+    }
   }
 }

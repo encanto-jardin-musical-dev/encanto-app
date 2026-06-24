@@ -118,15 +118,15 @@
       "editTitle": "Editar Niño",
       "save": "Guardar",
       "idType": {
-      "label": "Tipo de documento",
-      "placeholder": "Tipo de ID",
-      "cc": "Cédula de ciudadanía",
-      "rc": "Reg. Civil",
-      "ti": "T. Identidad",
-      "passport": "Pasaporte",
-      "international_id": "ID Internacional",
-      "other": "Otro"
-    },
+        "label": "Tipo de documento",
+        "placeholder": "Tipo de ID",
+        "cc": "Cédula de ciudadanía",
+        "rc": "Reg. Civil",
+        "ti": "T. Identidad",
+        "passport": "Pasaporte",
+        "international_id": "ID Internacional",
+        "other": "Otro"
+      },
       "idNumber": {
         "label": "Número de documento",
         "placeholder": "Número de ID"
@@ -263,6 +263,99 @@
       "updateError": "Error al actualizar el grupo",
       "deleteSuccess": "Grupo eliminado exitosamente",
       "deleteError": "Error al eliminar el grupo"
+    }
+  },
+  "AdminTeachers": {
+    "list": {
+      "title": "Maestros",
+      "searchPlaceholder": "Buscar maestro",
+      "empty": "No hay maestros registrados"
+    },
+    "form": {
+      "newTitle": "Agregar Maestro",
+      "editTitle": "Editar Maestro",
+      "save": "Guardar",
+      "email": {
+        "label": "Correo electrónico",
+        "placeholder": "correo@ejemplo.com"
+      },
+      "idType": {
+        "label": "Tipo de documento",
+        "placeholder": "Tipo de ID",
+        "cc": "Cédula de ciudadanía",
+        "passport": "Pasaporte",
+        "international_id": "ID Internacional",
+        "other": "Otro"
+      },
+      "idTypeAbbr": {
+        "cc": "CC",
+        "passport": "Pasaporte",
+        "international_id": "ID Int.",
+        "other": "Otro"
+      },
+      "idNumber": {
+        "label": "Número de documento",
+        "placeholder": "Número de ID"
+      },
+      "names": {
+        "label": "Nombres",
+        "placeholder": "Nombres del maestro"
+      },
+      "lastNames": {
+        "label": "Apellidos",
+        "placeholder": "Apellidos del maestro"
+      },
+      "role": {
+        "label": "Rol",
+        "placeholder": "Rol",
+        "teacher": "Maestro",
+        "admin": "Administrador",
+        "parent": "Acudiente"
+      },
+      "phone": {
+        "label": "Teléfono",
+        "placeholder": "Número de teléfono (opcional)"
+      },
+      "groups": {
+        "label": "Grupos",
+        "placeholder": "Grupos"
+      },
+      "avatar": {
+        "label": "Foto del maestro",
+        "change": "Cambiar foto",
+        "add": "Agregar foto",
+        "remove": "Quitar foto",
+        "validationError": "Solo se permiten imágenes JPEG, PNG o WebP de máximo 5 MB."
+      }
+    },
+    "detail": {
+      "groupsTitle": "Grupos",
+      "noGroups": "Sin grupos asignados",
+      "resendInvitation": "Reenviar invitación"
+    },
+    "actions": {
+      "add": "Agregar maestro",
+      "save": "Guardar maestro",
+      "edit": "Editar maestro",
+      "delete": "Eliminar maestro"
+    },
+    "deleteModal": {
+      "title": "Eliminar maestro",
+      "message": "¿Estás seguro que deseas eliminar a {name}? Esta acción no se puede deshacer.",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar"
+    },
+    "toasts": {
+      "createSuccess": "Maestro creado exitosamente. Se envió una invitación al correo.",
+      "createError": "Error al crear el maestro",
+      "createErrorDuplicate": "Ya existe un usuario con ese correo electrónico",
+      "updateSuccess": "Maestro actualizado exitosamente",
+      "updateError": "Error al actualizar el maestro",
+      "deleteSuccess": "Maestro eliminado exitosamente",
+      "deleteError": "Error al eliminar el maestro",
+      "resendInviteSuccess": "Invitación reenviada exitosamente",
+      "resendInviteAlreadyActive": "El maestro ya tiene su cuenta activa",
+      "resendInviteError": "Error al reenviar la invitación"
     }
   }
 }

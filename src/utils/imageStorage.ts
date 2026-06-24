@@ -101,3 +101,8 @@ export const groupImageStorage = createImageStorage({
   bucket: 'group-images',
   fileLabel: 'image',
 });
+
+export const teacherAvatarStorage = createImageStorage({
+  bucket: 'teacher-avatars',
+  fileLabel: 'avatar',
+});

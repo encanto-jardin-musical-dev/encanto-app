@@ -49,4 +49,4 @@ export type Data = {
 
 export type UserProfile = Database['public']['Tables']['profiles']['Row'];
 
-export type OtpTypes = 'email';
+export type OtpTypes = 'email' | 'invite';

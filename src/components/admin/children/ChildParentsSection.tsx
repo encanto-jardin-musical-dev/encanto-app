@@ -30,6 +30,7 @@ export function ChildParentsSection({ guardians }: ChildParentsSectionProps) {
           size="w-14 h-14"
           chipWidth="w-24"
           label={`${guardian.first_name} ${guardian.last_name}`}
+          href={`/admin/parents/${guardian.id}`}
         />
       )}
     />

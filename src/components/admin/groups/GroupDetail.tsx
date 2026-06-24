@@ -51,6 +51,7 @@ export function GroupDetail({ groupID }: GroupDetailProps) {
             size="w-16 h-16"
             chipWidth="w-20"
             label={`${teacher.first_name} ${teacher.last_name}`}
+            href={`/admin/teachers/${teacher.id}`}
           />
         )}
       />
@@ -71,6 +72,7 @@ export function GroupDetail({ groupID }: GroupDetailProps) {
             size="w-16 h-16"
             chipWidth="w-20"
             label={`${child.first_name} ${child.last_name}`}
+            href={`/admin/children/${child.id}`}
           />
         )}
       />

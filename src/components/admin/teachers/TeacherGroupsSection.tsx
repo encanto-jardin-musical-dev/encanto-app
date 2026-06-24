@@ -27,6 +27,7 @@ export function TeacherGroupsSection({ groups }: TeacherGroupsSectionProps) {
           size="w-16 h-16"
           chipWidth="w-20"
           label={group.name}
+          href={`/admin/groups/${group.id}`}
         />
       )}
     />

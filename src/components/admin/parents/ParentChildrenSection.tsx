@@ -32,6 +32,7 @@ export function ParentChildrenSection({ linkedChildren }: ParentChildrenSectionP
           size="w-14 h-14"
           chipWidth="w-24"
           label={`${child.first_name} ${child.last_name}`}
+          href={`/admin/children/${child.id}`}
         />
       )}
     />

@@ -1,6 +1,7 @@
 import { TypedSupabaseClient } from '@/utils/supabase/client';
 import { Database } from '@/types/database.types';
 import { getChildAvatarSignedUrl } from '@/utils/uploadChildAvatar';
+import { getGroupImageSignedUrls } from '@/utils/uploadGroupImage';
 
 export type ChildDetail = {
   id: string;
@@ -69,6 +70,18 @@ export async function getChildById(
 
   const avatarUrl = await getChildAvatarSignedUrl(client, row.avatar_url);
 
+  const rawGroups = (row.child_groups ?? [])
+    .map((cg) => cg.groups)
+    .filter((g): g is { id: string; name: string; image_url: string | null } => g !== null);
+
+  const groupImagePaths = rawGroups
+    .map((g) => g.image_url)
+    .filter((p): p is string => p !== null);
+
+  const groupImageUrls = groupImagePaths.length > 0
+    ? await getGroupImageSignedUrls(client, groupImagePaths)
+    : new Map<string, string>();
+
   return {
     id: row.id,
     first_name: row.first_name,
@@ -79,9 +92,10 @@ export async function getChildById(
     birth_date: row.birth_date,
     address: row.address,
     avatar_url: avatarUrl,
-    groups: (row.child_groups ?? [])
-      .map((cg) => cg.groups)
-      .filter((g): g is { id: string; name: string; image_url: string | null } => g !== null),
+    groups: rawGroups.map((g) => ({
+      ...g,
+      image_url: g.image_url ? (groupImageUrls.get(g.image_url) ?? null) : null,
+    })),
     guardians: (row.child_guardians ?? [])
       .filter((cg) => cg.profiles !== null && cg.guardian_id !== null)
       .map((cg) => {

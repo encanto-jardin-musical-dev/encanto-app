@@ -23,6 +23,19 @@
         "parent": "{count, plural, =0 {No hay hij@s asignados} =1 {Selecciona tu Hij@} other {Selecciona uno de tus Hij@s}}",
         "other": "{count, plural, =0 {No hay grupos asignados} =1 {Selecciona tu Grupo} other {Selecciona uno de tus Grupos}}"
       },
+      "avatarModal": {
+        "title": "Foto de perfil",
+        "openAriaLabel": "Editar foto de perfil",
+        "label": "Tu foto",
+        "add": "Agregar foto",
+        "change": "Cambiar foto",
+        "remove": "Quitar foto",
+        "hint": "Toca la imagen para cambiarla.",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "saveSuccess": "Foto de perfil actualizada",
+        "saveError": "Error al guardar la foto de perfil"
+      },
       "settings": {
         "title": "Opciones de usuario",
         "enable": "Activar notificaciones",

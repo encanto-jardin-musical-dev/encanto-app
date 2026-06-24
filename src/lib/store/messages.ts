@@ -6,6 +6,8 @@ type MessageUser = {
   first_name: string | undefined;
   last_name: string | undefined;
   role: string | undefined;
+  /** Already-resolved signed URL — set when navigating from the contacts list. */
+  avatar_url?: string | null;
 };
 
 // Receiver

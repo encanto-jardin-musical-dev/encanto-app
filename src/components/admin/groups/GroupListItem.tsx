@@ -15,6 +15,7 @@ export function GroupListItem({ group }: GroupListItemProps) {
       fallbackIcon={PhotoIcon}
       fallbackIconClassName="w-6 h-6 text-default-400"
       title={group.name}
+      variant="card"
     />
   );
 }

@@ -20,7 +20,7 @@ export function ChildrenList({ search }: ChildrenListProps) {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-3">
       {children.map((child) => (
         <ChildListItem key={child.id} child={child} />
       ))}

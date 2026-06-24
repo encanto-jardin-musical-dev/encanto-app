@@ -20,7 +20,7 @@ export function TeachersList({ search }: TeachersListProps) {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-3">
       {teachers.map((teacher) => (
         <TeacherListItem key={teacher.id} teacher={teacher} />
       ))}

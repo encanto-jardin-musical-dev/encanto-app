@@ -85,6 +85,15 @@
   "MessagesUserData": {
     "unavailable": "Usuario no disponible"
   },
+  "MessagesContacts": {
+    "searchPlaceholder": "Buscar contacto",
+    "empty": "No se encontraron contactos",
+    "role": {
+      "teacher": "Maestro",
+      "admin": "Administrador",
+      "parent": "Acudiente"
+    }
+  },
   "PushNotifications": {
     "defaultTitle": "Nuevo mensaje",
     "defaultBody": "Tienes un nuevo mensaje",

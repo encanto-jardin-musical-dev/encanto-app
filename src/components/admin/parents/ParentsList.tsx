@@ -20,7 +20,7 @@ export function ParentsList({ search }: ParentsListProps) {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-3">
       {parents.map((parent) => (
         <ParentListItem key={parent.id} parent={parent} />
       ))}

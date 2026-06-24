@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@heroui/react";
+import { ConfirmDeleteModal } from "@/components/common/ConfirmDeleteModal";
 import { useTranslations } from "next-intl";
 
 interface ConfirmDeleteGroupModalProps {
@@ -28,27 +21,17 @@ export default function ConfirmDeleteGroupModal({
   const t = useTranslations("AdminGroups");
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="center">
-      <ModalContent>
-        {(onClose) => (
-          <>
-            <ModalHeader className="text-danger">{t("deleteModal.title")}</ModalHeader>
-            <ModalBody>
-              <p className="text-default-700">
-                {t("deleteModal.message", { name: groupName })}
-              </p>
-            </ModalBody>
-            <ModalFooter>
-              <Button variant="flat" onPress={onClose} isDisabled={isPending}>
-                {t("deleteModal.cancel")}
-              </Button>
-              <Button color="danger" onPress={onConfirm} isLoading={isPending}>
-                {t("deleteModal.confirm")}
-              </Button>
-            </ModalFooter>
-          </>
-        )}
-      </ModalContent>
-    </Modal>
+    <ConfirmDeleteModal
+      isOpen={isOpen}
+      isPending={isPending}
+      onOpenChange={onOpenChange}
+      onConfirm={onConfirm}
+      labels={{
+        title: t("deleteModal.title"),
+        message: t("deleteModal.message", { name: groupName }),
+        cancel: t("deleteModal.cancel"),
+        confirm: t("deleteModal.confirm"),
+      }}
+    />
   );
 }

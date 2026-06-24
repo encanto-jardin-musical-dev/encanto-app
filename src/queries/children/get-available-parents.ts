@@ -1,25 +1,11 @@
 import { TypedSupabaseClient } from '@/utils/supabase/client';
+import { getProfilesByRole, ProfileOption } from '@/queries/shared/get-profiles-by-role';
 
-export type ParentOption = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  avatar_url: string | null;
-};
+export type ParentOption = ProfileOption & { avatar_url: string | null };
 
 export async function getAvailableParents(
   client: TypedSupabaseClient
 ): Promise<ParentOption[]> {
-  const { data, error } = await client
-    .from('profiles')
-    .select('id, first_name, last_name, avatar_url')
-    .eq('role', 'parent')
-    .order('last_name', { ascending: true })
-    .order('first_name', { ascending: true });
-
-  if (error) {
-    throw new Error(`Failed to fetch available parents: ${error.message}`);
-  }
-
-  return data ?? [];
+  const data = await getProfilesByRole(client, 'parent', { withAvatar: true });
+  return data as ParentOption[];
 }

@@ -26,6 +26,7 @@ export function TeacherListItem({ teacher }: TeacherListItemProps) {
       fallbackIcon={UserCircleIcon}
       title={`${teacher.first_name} ${teacher.last_name}`}
       subtitle={subtitle}
+      variant="card"
     />
   );
 }

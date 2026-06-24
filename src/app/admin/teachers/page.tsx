@@ -15,9 +15,11 @@ export default function AdminTeachersPage() {
   return (
     <section className="grid grid-rows-[auto_1fr] h-full gap-4 p-4">
       <NavigationBar backRoute="/admin" pageTitle={t("title")} />
-      <div className="flex flex-col gap-3 overflow-auto">
+      <div className="grid grid-rows-[auto_1fr] gap-3 min-h-0 overflow-hidden">
         <TeachersSearchBar onSearch={setSearch} />
-        <TeachersList search={search} />
+        <div className="overflow-y-auto min-h-0">
+          <TeachersList search={search} />
+        </div>
       </div>
       <AdminActionButton
         variant="add"

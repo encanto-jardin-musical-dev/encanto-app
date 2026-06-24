@@ -24,6 +24,7 @@ export function ChildListItem({ child }: ChildListItemProps) {
       fallbackIcon={UserCircleIcon}
       title={`${child.first_name} ${child.last_name}`}
       subtitle={subtitle}
+      variant="card"
     />
   );
 }

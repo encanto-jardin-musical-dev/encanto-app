@@ -29,6 +29,7 @@ export function ParentListItem({ parent }: ParentListItemProps) {
       fallbackIcon={UserCircleIcon}
       title={`${parent.first_name} ${parent.last_name}`}
       subtitle={subtitle}
+      variant="card"
     />
   );
 }

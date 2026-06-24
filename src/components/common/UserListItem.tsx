@@ -21,7 +21,7 @@ export default function UserListItem({
     [first_name, last_name],
   );
   const handleContactClick = () => {
-    setReceiver({ id, last_name, first_name, role });
+    setReceiver({ id, last_name, first_name, role, avatar_url });
   };
   return (
     <Link

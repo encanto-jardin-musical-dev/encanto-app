@@ -1,39 +1,30 @@
 'use client';
 
-import { userContactsAtom } from '@/lib/store/messages';
-import { useAtom } from 'jotai';
-import { useEffect } from 'react';
-import UserListItem from '../common/UserListItem';
 import { userAtom } from '@/lib/store/user';
 import useUserContactsQuery from '@/hooks/UseGetUserContactsQuery';
+import UserListItem from '../common/UserListItem';
 import SearchBar from '../common/SearchBar';
+import { useAtomValue } from 'jotai';
 import { useFeatureFlagEnabled } from 'posthog-js/react';
 
 export default function MessagesContactsList() {
-  const [userContacts, setUserContacts] = useAtom(userContactsAtom);
-  const [user] = useAtom(userAtom);
+  const user = useAtomValue(userAtom);
   const flagSearchBar = useFeatureFlagEnabled('messages_search_bar');
 
-  const { data: contacts } = useUserContactsQuery({
+  const { data: contacts, isPending } = useUserContactsQuery({
     params: { userID: user.id, userRole: user.role },
     options: { enabled: !!user.id && !!user.role },
   });
 
-  useEffect(() => {
-    if (contacts) {
-      setUserContacts(contacts);
-    }
-  }, [contacts, setUserContacts]);
-
-  if (!userContacts.length) {
+  if (isPending || !contacts?.length) {
     return <div className="text-center p-4">No contacts found</div>;
   }
 
   return (
     <section className="flex flex-col gap-3 overflow-y-auto">
       {flagSearchBar && <SearchBar />}
-      {userContacts.map(user => (
-        <UserListItem user={user} key={user?.id} />
+      {contacts.map(contact => (
+        <UserListItem user={contact} key={contact?.id} />
       ))}
     </section>
   );

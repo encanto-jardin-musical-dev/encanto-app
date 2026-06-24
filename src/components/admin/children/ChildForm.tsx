@@ -5,9 +5,12 @@ import { getAllGroups } from "@/queries/users/get-all-groups";
 import { getAvailableParents, ParentOption } from "@/queries/children/get-available-parents";
 import { createClient } from "@/utils/supabase/client";
 import { Button, Input, Radio, RadioGroup, Select, SelectItem } from "@heroui/react";
-import { XCircleIcon, UserCircleIcon, CameraIcon } from "@heroicons/react/24/solid";
+import { XCircleIcon, UserCircleIcon } from "@heroicons/react/24/solid";
 import { useTranslations } from "next-intl";
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { useImagePicker } from "@/hooks/UseImagePicker";
+import { ImagePicker } from "@/components/common/ImagePicker";
+import { EntityMultiSelect } from "@/components/common/EntityMultiSelect";
 
 export type ChildFormValues = {
   first_name: string;
@@ -74,14 +77,9 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
       defaultValues?.guardians ?? []
     );
 
-    // Avatar: track a new File, a preview URL, or removal state
-    const [avatarFile, setAvatarFile] = useState<File | null | undefined>(
-      defaultValues?.avatarFile
-    );
-    const [avatarPreview, setAvatarPreview] = useState<string | null>(
-      defaultValues?.existingAvatarUrl ?? null
-    );
-    const avatarInputRef = useRef<HTMLInputElement>(null);
+    // Avatar: managed by useImagePicker
+    const { file: avatarFile, preview: avatarPreview, pick: pickAvatar, remove: removeAvatar, inputProps: avatarInputProps } =
+      useImagePicker(defaultValues?.existingAvatarUrl ?? null);
 
     const [errors, setErrors] = useState<Partial<Record<keyof ChildFormValues, string>>>({});
 
@@ -89,45 +87,10 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
       const client = createClient();
       getAllGroups(client).then(({ data }) => {
         if (!data) return;
-        const options = data.map((g) => ({ id: g.id, name: g.name }));
-        setGroups(options);
-        // Drop any previously-assigned group ids that no longer exist (e.g. deleted group)
-        // so they don't get passed to Select's selectedKeys as orphaned keys.
-        setSelectedGroupIds((prev) => prev.filter((id) => options.some((g) => g.id === id)));
+        setGroups(data.map((g) => ({ id: g.id, name: g.name })));
       });
       getAvailableParents(client).then((data) => setParents(data));
     }, []);
-
-    // Revoke object URLs when avatar changes or component unmounts
-    useEffect(() => {
-      return () => {
-        if (avatarPreview && avatarPreview.startsWith("blob:")) {
-          URL.revokeObjectURL(avatarPreview);
-        }
-      };
-    }, [avatarPreview]);
-
-    const handleAvatarPick = () => avatarInputRef.current?.click();
-
-    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
-      // Revoke previous blob URL if any
-      if (avatarPreview?.startsWith("blob:")) URL.revokeObjectURL(avatarPreview);
-
-      const preview = URL.createObjectURL(file);
-      setAvatarFile(file);
-      setAvatarPreview(preview);
-      // Reset input so the same file can be re-selected
-      e.target.value = "";
-    };
-
-    const handleAvatarRemove = () => {
-      if (avatarPreview?.startsWith("blob:")) URL.revokeObjectURL(avatarPreview);
-      setAvatarFile(null);   // null = explicit removal
-      setAvatarPreview(null);
-    };
 
     useImperativeHandle(ref, () => ({
       submit: () => {
@@ -208,55 +171,24 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
     const usedRelationships = (excludeIndex: number) =>
       new Set(selectedGuardians.filter((_, i) => i !== excludeIndex).map((g) => g.relationship));
 
-    const hasAvatar = avatarPreview !== null;
-
     return (
       <div className="flex flex-col gap-4">
         {/* Avatar picker */}
-        <div className="flex flex-col items-center gap-2 py-2">
-          <button
-            type="button"
-            aria-label={hasAvatar ? t("avatar.change") : t("avatar.add")}
-            onClick={handleAvatarPick}
-            className="relative w-24 h-24 active:opacity-70 focus-visible:outline-none"
-          >
-            <span className="w-full h-full rounded-full overflow-hidden bg-default-100 flex items-center justify-center ring-2 ring-offset-2 ring-default-200 focus-visible:ring-primary">
-              {hasAvatar ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={avatarPreview}
-                  alt={t("avatar.label")}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <UserCircleIcon className="w-16 h-16 text-default-300" />
-              )}
-            </span>
-            {/* Camera overlay */}
-            <span className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-md">
-              <CameraIcon className="w-3.5 h-3.5 text-white" />
-            </span>
-          </button>
-
-          {hasAvatar && (
-            <button
-              type="button"
-              onClick={handleAvatarRemove}
-              className="text-xs text-danger hover:underline"
-            >
-              {t("avatar.remove")}
-            </button>
-          )}
-
-          {/* Hidden file input */}
-          <input
-            ref={avatarInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            className="hidden"
-            onChange={handleAvatarChange}
-          />
-        </div>
+        <ImagePicker
+          preview={avatarPreview}
+          fallbackIcon={UserCircleIcon}
+          fallbackIconClassName="w-16 h-16 text-default-300"
+          shape="circle"
+          labels={{
+            add: t("avatar.add"),
+            change: t("avatar.change"),
+            remove: t("avatar.remove"),
+            label: t("avatar.label"),
+          }}
+          onPick={pickAvatar}
+          onRemove={removeAvatar}
+          inputProps={avatarInputProps}
+        />
 
         {/* ID */}
         <div className="flex gap-2">
@@ -332,17 +264,15 @@ const ChildForm = forwardRef<ChildFormRef, ChildFormProps>(
 
         {/* Groups (optional) */}
         {groups.length > 0 && (
-          <Select
+          <EntityMultiSelect
+            items={groups}
+            selectedIds={selectedGroupIds}
+            onChange={setSelectedGroupIds}
+            getId={(g) => g.id}
+            getLabel={(g) => g.name}
             label={t("groups.label")}
             placeholder={t("groups.placeholder")}
-            selectionMode="multiple"
-            selectedKeys={new Set(selectedGroupIds)}
-            onSelectionChange={(keys) => setSelectedGroupIds([...keys] as string[])}
-          >
-            {groups.map((g) => (
-              <SelectItem key={g.id} textValue={g.name}>{g.name}</SelectItem>
-            ))}
-          </Select>
+          />
         )}
 
         {/* Parents / guardians */}

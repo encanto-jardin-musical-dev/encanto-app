@@ -1,4 +1,5 @@
 import { TypedSupabaseClient } from '@/utils/supabase/client';
+import { reconcileLinks } from '@/queries/shared/reconcile-links';
 
 export type CreateGroupParams = {
   name: string;
@@ -26,11 +27,15 @@ export async function createGroup(
   const groupId = data.id;
 
   if (params.teacherIds && params.teacherIds.length > 0) {
-    const links = params.teacherIds.map((teacher_id) => ({ group_id: groupId, teacher_id }));
-    const { error: teacherError } = await client.from('group_teachers').insert(links);
-    if (teacherError) {
-      throw new Error(`Failed to link teachers: ${teacherError.message}`);
-    }
+    await reconcileLinks(client, {
+      table: 'group_teachers',
+      parentColumn: 'group_id',
+      childColumn: 'teacher_id',
+      parentId: groupId,
+      desired: params.teacherIds,
+      getKey: (t) => t,
+      buildRow: (teacher_id) => ({ group_id: groupId, teacher_id }),
+    });
   }
 
   return groupId;

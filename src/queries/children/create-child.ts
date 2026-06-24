@@ -1,5 +1,6 @@
 import { Database } from '@/types/database.types';
 import { TypedSupabaseClient } from '@/utils/supabase/client';
+import { reconcileLinks } from '@/queries/shared/reconcile-links';
 
 export type GuardianEntry = {
   guardian_id: string;
@@ -38,23 +39,27 @@ export async function createChild(
   const childId = data.id;
 
   if (groupIds && groupIds.length > 0) {
-    const links = groupIds.map((group_id) => ({ child_id: childId, group_id }));
-    const { error: groupError } = await client.from('child_groups').insert(links);
-    if (groupError) {
-      throw new Error(`Failed to link groups: ${groupError.message}`);
-    }
+    await reconcileLinks(client, {
+      table: 'child_groups',
+      parentColumn: 'child_id',
+      childColumn: 'group_id',
+      parentId: childId,
+      desired: groupIds,
+      getKey: (g) => g,
+      buildRow: (group_id) => ({ child_id: childId, group_id }),
+    });
   }
 
   if (guardians && guardians.length > 0) {
-    const links = guardians.map(({ guardian_id, relationship }) => ({
-      child_id: childId,
-      guardian_id,
-      relationship,
-    }));
-    const { error: guardianError } = await client.from('child_guardians').insert(links);
-    if (guardianError) {
-      throw new Error(`Failed to link guardians: ${guardianError.message}`);
-    }
+    await reconcileLinks(client, {
+      table: 'child_guardians',
+      parentColumn: 'child_id',
+      childColumn: 'guardian_id',
+      parentId: childId,
+      desired: guardians,
+      getKey: (g) => g.guardian_id,
+      buildRow: ({ guardian_id, relationship }) => ({ child_id: childId, guardian_id, relationship }),
+    });
   }
 
   return childId;

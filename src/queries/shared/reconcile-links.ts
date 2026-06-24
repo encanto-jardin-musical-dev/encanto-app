@@ -26,6 +26,9 @@ export type ReconcileLinksConfig<T> = {
   mutableFields?: (keyof T)[];
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyTable = ReturnType<TypedSupabaseClient['from']> & any;
+
 /**
  * Reconciles a join table so it matches exactly the `desired` set for a given parent.
  *
@@ -42,18 +45,25 @@ export async function reconcileLinks<T>(
   const { table, parentColumn, childColumn, parentId, desired, getKey, buildRow, mutableFields } =
     cfg;
 
+  // Cast to AnyTable to avoid the structural incompatibility when calling
+  // generic CRUD methods with a runtime-resolved table name.
+  const tbl = client.from(table) as unknown as AnyTable;
+
   // 1. Fetch existing links
-  const { data: existing, error: fetchError } = await (client.from(table) as ReturnType<typeof client.from>)
-    .select(mutableFields ? `${childColumn}, ${mutableFields.join(', ')}` : childColumn)
+  const selectCols = mutableFields
+    ? `${childColumn}, ${(mutableFields as string[]).join(', ')}`
+    : childColumn;
+
+  const { data: existing, error: fetchError } = await tbl
+    .select(selectCols)
     .eq(parentColumn, parentId);
 
   if (fetchError) {
     throw new Error(`reconcileLinks: failed to fetch from ${table}: ${fetchError.message}`);
   }
 
-  const existingRows = (existing ?? []) as unknown as Record<string, unknown>[];
+  const existingRows = (existing ?? []) as Record<string, unknown>[];
   const existingKeys = existingRows.map((r) => r[childColumn] as string).filter(Boolean);
-
   const desiredKeys = desired.map(getKey);
 
   const toAdd = desired.filter((item) => !existingKeys.includes(getKey(item)));
@@ -70,7 +80,8 @@ export async function reconcileLinks<T>(
       const existingRow = existingRows.find((r) => r[childColumn] === key);
       if (!existingRow) continue;
       const changed = mutableFields.some(
-        (field) => existingRow[field as string] !== (item as Record<string, unknown>)[field as string]
+        (field) =>
+          existingRow[field as string] !== (item as Record<string, unknown>)[field as string]
       );
       if (changed) {
         toReplace.push(item);
@@ -79,27 +90,31 @@ export async function reconcileLinks<T>(
     }
 
     if (toReplaceKeys.length > 0) {
-      // Delete the stale rows first
-      const { error: delErr } = await (client.from(table) as ReturnType<typeof client.from>)
+      const delTbl = client.from(table) as unknown as AnyTable;
+      const { error: delErr } = await delTbl
         .delete()
         .eq(parentColumn, parentId)
         .in(childColumn, toReplaceKeys);
       if (delErr) {
-        throw new Error(`reconcileLinks: failed to delete stale rows in ${table}: ${delErr.message}`);
+        throw new Error(
+          `reconcileLinks: failed to delete stale rows in ${table}: ${delErr.message}`
+        );
       }
-      // Re-insert with updated payload
-      const { error: insErr } = await (client.from(table) as ReturnType<typeof client.from>)
-        .insert(toReplace.map(buildRow) as Parameters<ReturnType<typeof client.from>['insert']>[0]);
+
+      const insTbl = client.from(table) as unknown as AnyTable;
+      const { error: insErr } = await insTbl.insert(toReplace.map(buildRow));
       if (insErr) {
-        throw new Error(`reconcileLinks: failed to re-insert updated rows in ${table}: ${insErr.message}`);
+        throw new Error(
+          `reconcileLinks: failed to re-insert updated rows in ${table}: ${insErr.message}`
+        );
       }
     }
   }
 
   // 3. Insert added links
   if (toAdd.length > 0) {
-    const { error: addError } = await (client.from(table) as ReturnType<typeof client.from>)
-      .insert(toAdd.map(buildRow) as Parameters<ReturnType<typeof client.from>['insert']>[0]);
+    const addTbl = client.from(table) as unknown as AnyTable;
+    const { error: addError } = await addTbl.insert(toAdd.map(buildRow));
     if (addError) {
       throw new Error(`reconcileLinks: failed to insert into ${table}: ${addError.message}`);
     }
@@ -107,7 +122,8 @@ export async function reconcileLinks<T>(
 
   // 4. Delete removed links
   if (toRemoveKeys.length > 0) {
-    const { error: removeError } = await (client.from(table) as ReturnType<typeof client.from>)
+    const delTbl = client.from(table) as unknown as AnyTable;
+    const { error: removeError } = await delTbl
       .delete()
       .eq(parentColumn, parentId)
       .in(childColumn, toRemoveKeys);

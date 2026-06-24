@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       attendance: {
@@ -241,13 +266,48 @@ export type Database = {
         }
         Relationships: []
       }
+      group_teachers: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          teacher_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          teacher_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_teachers_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_teachers_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       groups: {
         Row: {
           created_at: string | null
           id: string
           image_url: string | null
           name: string
-          teacher_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -255,7 +315,6 @@ export type Database = {
           id?: string
           image_url?: string | null
           name: string
-          teacher_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -263,18 +322,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           name?: string
-          teacher_id?: string | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "groups_teacher_id_fkey"
-            columns: ["teacher_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       messages: {
         Row: {
@@ -497,6 +547,7 @@ export type Database = {
           user_groups: Json
         }[]
       }
+      is_admin: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
       attendance_status: "present" | "absent" | "late"
@@ -635,6 +686,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       attendance_status: ["present", "absent", "late"],

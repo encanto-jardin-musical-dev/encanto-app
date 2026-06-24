@@ -43,7 +43,7 @@ export default function AddGroupPage() {
     }
 
     createGroup(
-      { name: values.name, teacher_id: values.teacher_id, image_url: imageUrl },
+      { name: values.name, teacherIds: values.teacherIds, image_url: imageUrl },
       {
         onSuccess: (groupId) => {
           addToast({ title: t("toasts.createSuccess"), color: "success" });
@@ -59,9 +59,9 @@ export default function AddGroupPage() {
   const isBusy = isPending || isUploading;
 
   return (
-    <section className="grid grid-rows-[auto_1fr] h-full gap-4 p-4">
+    <section className="grid grid-rows-[auto_1fr] grid-cols-[minmax(0,1fr)] h-full gap-4 p-4">
       <NavigationBar backRoute="/admin/groups" pageTitle={t("form.newTitle")} />
-      <div className="px-1 pb-20">
+      <div className="px-1 pb-20 min-w-0">
         <GroupForm ref={formRef} onSubmit={() => {}} />
       </div>
       <AdminActionButton variant="save" namespace="AdminGroups" onPress={handleSave} isLoading={isBusy} />

@@ -8,28 +8,28 @@
 
 ## 2. Types
 
-- [ ] 2.1 Regenerate `src/types/database.types.ts` (`supabase gen types typescript --local`); confirm `group_teachers` present and `groups.teacher_id` removed
+- [x] 2.1 Regenerate `src/types/database.types.ts` (`supabase gen types typescript --local`); confirm `group_teachers` present and `groups.teacher_id` removed
 
 ## 3. Teacher-side group resolution
 
-- [ ] 3.1 Update `src/queries/users/get-user-groups.ts` to resolve groups via `group_teachers` filtered by `teacher_id`, returning flat group rows
-- [ ] 3.2 Verify `UseGetUserGroupsQuery` return shape is unchanged and `UserHydrator` (lines ~96–106) still maps correctly; adjust mapping only if necessary
+- [x] 3.1 Update `src/queries/users/get-user-groups.ts` to resolve groups via `group_teachers` filtered by `teacher_id`, returning flat group rows
+- [x] 3.2 Verify `UseGetUserGroupsQuery` return shape is unchanged and `UserHydrator` (lines ~96–106) still maps correctly; adjust mapping only if necessary
 
 ## 4. Admin groups flow (multi-teacher)
 
-- [ ] 4.1 `GroupForm`: replace single teacher `Select` with a multi-select returning `teacherIds: string[]`; pre-fill from existing links in edit mode
-- [ ] 4.2 `create-group`: after inserting the group, bulk-insert `group_teachers` links for selected teachers
-- [ ] 4.3 `update-group`: diff existing vs. selected teacher links and insert/delete the difference (mirror `child_groups` reconciliation in `update-child.ts`)
-- [ ] 4.4 `get-group-by-id`: select assigned teachers via `group_teachers(profiles(...))`
-- [ ] 4.5 `GroupDetail`: render the list of assigned teachers; show a no-teachers fallback
+- [x] 4.1 `GroupForm`: replace single teacher `Select` with a multi-select returning `teacherIds: string[]`; pre-fill from existing links in edit mode
+- [x] 4.2 `create-group`: after inserting the group, bulk-insert `group_teachers` links for selected teachers
+- [x] 4.3 `update-group`: diff existing vs. selected teacher links and insert/delete the difference (mirror `child_groups` reconciliation in `update-child.ts`)
+- [x] 4.4 `get-group-by-id`: select assigned teachers via `group_teachers(profiles(...))`
+- [x] 4.5 `GroupDetail`: render the list of assigned teachers; show a no-teachers fallback
 
 ## 5. i18n
 
-- [ ] 5.1 Update `AdminGroups` keys for plural teachers (form label/placeholder, detail `teachersTitle`, `noTeachers`)
+- [x] 5.1 Update `AdminGroups` keys for plural teachers (form label/placeholder, detail `teachersTitle`, `noTeachers`)
 
 ## 6. Verification
 
-- [ ] 6.1 Run `pnpm lint`
+- [x] 6.1 Run `pnpm lint`
 - [ ] 6.2 Manually verify: create group with 2 teachers → detail shows both → edit to add/remove → detail updates
 - [ ] 6.3 Verify a teacher assigned via `group_teachers` still sees the group in the feed (UserHydrator path)
 - [ ] 6.4 Confirm RLS: non-admin cannot write `group_teachers`

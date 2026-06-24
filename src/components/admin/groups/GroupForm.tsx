@@ -8,7 +8,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "re
 
 export type GroupFormValues = {
   name: string;
-  teacher_id: string | null;
+  teacherIds: string[];
   /**
    * Image state:
    * - `undefined`  → no change (keep existing image_url)
@@ -34,7 +34,7 @@ const GroupForm = forwardRef<GroupFormRef, GroupFormProps>(
     const [teachers, setTeachers] = useState<TeacherOption[]>([]);
 
     const [name, setName] = useState(defaultValues?.name ?? "");
-    const [teacherId, setTeacherId] = useState<string | null>(defaultValues?.teacher_id ?? null);
+    const [teacherIds, setTeacherIds] = useState<string[]>(defaultValues?.teacherIds ?? []);
 
     const [imageFile, setImageFile] = useState<File | null | undefined>(
       defaultValues?.imageFile
@@ -50,9 +50,9 @@ const GroupForm = forwardRef<GroupFormRef, GroupFormProps>(
       const client = createClient();
       getAvailableTeachers(client).then((data) => {
         setTeachers(data);
-        // Drop a previously-assigned teacher id that no longer exists, so it
-        // doesn't get passed to Select's selectedKeys as an orphaned key.
-        setTeacherId((prev) => (prev && !data.some((tch) => tch.id === prev) ? null : prev));
+        // Drop previously-assigned teacher ids that no longer exist, so they
+        // don't get passed to Select's selectedKeys as orphaned keys.
+        setTeacherIds((prev) => prev.filter((id) => data.some((tch) => tch.id === id)));
       });
     }, []);
 
@@ -90,16 +90,16 @@ const GroupForm = forwardRef<GroupFormRef, GroupFormProps>(
         if (!name.trim()) newErrors.name = "required";
         setErrors(newErrors);
         if (Object.keys(newErrors).length > 0) return false;
-        onSubmit({ name, teacher_id: teacherId, imageFile });
+        onSubmit({ name, teacherIds, imageFile });
         return true;
       },
-      getValues: () => ({ name, teacher_id: teacherId, imageFile }),
+      getValues: () => ({ name, teacherIds, imageFile }),
     }));
 
     const hasImage = imagePreview !== null;
 
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 w-full min-w-0">
         {/* Image picker */}
         <div className="flex flex-col items-center gap-2 py-2">
           <button
@@ -153,15 +153,15 @@ const GroupForm = forwardRef<GroupFormRef, GroupFormProps>(
           isInvalid={!!errors.name}
         />
 
-        {/* Teacher (optional) */}
+        {/* Teachers (optional, multiple) */}
         <Select
-          label={t("teacher.label")}
-          placeholder={t("teacher.placeholder")}
-          selectedKeys={teacherId ? [teacherId] : []}
-          onSelectionChange={(keys) => {
-            const [key] = [...keys];
-            setTeacherId((key as string) ?? null);
-          }}
+          label={t("teachers.label")}
+          placeholder={t("teachers.placeholder")}
+          selectionMode="multiple"
+          selectedKeys={teacherIds.filter((id) => teachers.some((tch) => tch.id === id))}
+          onSelectionChange={(keys) => setTeacherIds([...keys] as string[])}
+          className="w-full min-w-0"
+          classNames={{ trigger: "min-w-0", innerWrapper: "min-w-0", value: "truncate" }}
         >
           {teachers.map((teacher) => (
             <SelectItem

@@ -3,7 +3,7 @@ import { TypedSupabaseClient } from '@/utils/supabase/client';
 export type CreateGroupParams = {
   name: string;
   image_url?: string | null;
-  teacher_id?: string | null;
+  teacherIds?: string[];
 };
 
 export async function createGroup(
@@ -15,7 +15,6 @@ export async function createGroup(
     .insert({
       name: params.name,
       image_url: params.image_url ?? null,
-      teacher_id: params.teacher_id ?? null,
     })
     .select('id')
     .single();
@@ -24,5 +23,15 @@ export async function createGroup(
     throw new Error(`Failed to create group: ${error.message}`);
   }
 
-  return data.id;
+  const groupId = data.id;
+
+  if (params.teacherIds && params.teacherIds.length > 0) {
+    const links = params.teacherIds.map((teacher_id) => ({ group_id: groupId, teacher_id }));
+    const { error: teacherError } = await client.from('group_teachers').insert(links);
+    if (teacherError) {
+      throw new Error(`Failed to link teachers: ${teacherError.message}`);
+    }
+  }
+
+  return groupId;
 }

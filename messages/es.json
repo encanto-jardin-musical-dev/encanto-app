@@ -233,15 +233,15 @@
         "remove": "Quitar imagen",
         "validationError": "Solo se permiten imágenes JPEG, PNG o WebP de máximo 5 MB."
       },
-      "teacher": {
-        "label": "Maestro",
-        "placeholder": "Seleccionar maestro"
+      "teachers": {
+        "label": "Maestros",
+        "placeholder": "Seleccionar maestros"
       }
     },
     "detail": {
-      "teacherTitle": "Maestro",
+      "teachersTitle": "Maestros",
       "childrenTitle": "Niños",
-      "noTeacher": "Sin maestro asignado",
+      "noTeachers": "Sin maestros asignados",
       "noChildren": "Sin niños asignados"
     },
     "actions": {

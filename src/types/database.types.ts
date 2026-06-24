@@ -241,13 +241,48 @@ export type Database = {
         }
         Relationships: []
       }
+      group_teachers: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          teacher_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          teacher_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_teachers_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_teachers_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       groups: {
         Row: {
           created_at: string | null
           id: string
           image_url: string | null
           name: string
-          teacher_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -255,7 +290,6 @@ export type Database = {
           id?: string
           image_url?: string | null
           name: string
-          teacher_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -263,18 +297,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           name?: string
-          teacher_id?: string | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "groups_teacher_id_fkey"
-            columns: ["teacher_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       messages: {
         Row: {
@@ -491,12 +516,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
-      get_user_groups: {
-        Args: { user_id: string; user_role: string }
-        Returns: {
-          user_groups: Json
-        }[]
-      }
+      is_admin: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
       attendance_status: "present" | "absent" | "late"

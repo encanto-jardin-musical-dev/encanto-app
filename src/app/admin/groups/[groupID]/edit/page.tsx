@@ -59,7 +59,7 @@ export default function EditGroupPage() {
       {
         id: groupID,
         name: values.name,
-        teacher_id: values.teacher_id,
+        teacherIds: values.teacherIds,
         ...(image_url !== undefined ? { image_url } : {}),
       },
       {
@@ -91,7 +91,7 @@ export default function EditGroupPage() {
   const defaultValues: (Partial<GroupFormValues> & { existingImageUrl?: string | null }) | undefined = group
     ? {
         name: group.name,
-        teacher_id: group.teacher?.id ?? null,
+        teacherIds: group.teachers.map((teacher) => teacher.id),
         existingImageUrl: group.image_url,
       }
     : undefined;
@@ -99,7 +99,7 @@ export default function EditGroupPage() {
   const isBusy = isUpdating || isUploading;
 
   return (
-    <section className="grid grid-rows-[auto_1fr] h-full gap-4 p-4">
+    <section className="grid grid-rows-[auto_1fr] grid-cols-[minmax(0,1fr)] h-full gap-4 p-4">
       <NavigationBar
         backRoute={`/admin/groups/${groupID}`}
         pageTitle={t("form.editTitle")}
@@ -119,7 +119,7 @@ export default function EditGroupPage() {
           </div>
         }
       />
-      <div className="px-1 pb-20">
+      <div className="px-1 pb-20 min-w-0">
         {defaultValues ? (
           <GroupForm ref={formRef} defaultValues={defaultValues} onSubmit={() => {}} />
         ) : (

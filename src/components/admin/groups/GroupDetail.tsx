@@ -34,20 +34,24 @@ export function GroupDetail({ groupID }: GroupDetailProps) {
         <h2 className="text-xl font-bold">{group.name}</h2>
       </div>
 
-      {/* Teacher */}
+      {/* Teachers */}
       <div className="flex flex-col gap-3">
-        <h3 className="font-semibold text-foreground">{t("teacherTitle")}</h3>
-        {group.teacher ? (
-          <div className="flex flex-col items-center gap-1 w-20">
-            <div className="w-16 h-16 rounded-full bg-default-100 flex items-center justify-center">
-              <UserCircleIcon className="w-10 h-10 text-default-400" />
-            </div>
-            <span className="text-xs text-center text-default-600 leading-tight">
-              {group.teacher.first_name} {group.teacher.last_name}
-            </span>
-          </div>
+        <h3 className="font-semibold text-foreground">{t("teachersTitle")}</h3>
+        {group.teachers.length === 0 ? (
+          <p className="text-small text-default-500">{t("noTeachers")}</p>
         ) : (
-          <p className="text-small text-default-500">{t("noTeacher")}</p>
+          <div className="flex flex-wrap gap-3">
+            {group.teachers.map((teacher) => (
+              <div key={teacher.id} className="flex flex-col items-center gap-1 w-20">
+                <div className="w-16 h-16 rounded-full bg-default-100 flex items-center justify-center">
+                  <UserCircleIcon className="w-10 h-10 text-default-400" />
+                </div>
+                <span className="text-xs text-center text-default-600 leading-tight">
+                  {teacher.first_name} {teacher.last_name}
+                </span>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 

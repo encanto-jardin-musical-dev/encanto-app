@@ -6,7 +6,7 @@ export type GroupDetailRow = {
   id: string;
   name: string;
   image_url: string | null;
-  teacher: { id: string; first_name: string; last_name: string } | null;
+  teachers: Array<{ id: string; first_name: string; last_name: string }>;
   children: Array<{ id: string; first_name: string; last_name: string; avatar_url: string | null }>;
 };
 
@@ -23,10 +23,12 @@ export async function getGroupById(
       id,
       name,
       image_url,
-      profiles (
-        id,
-        first_name,
-        last_name
+      group_teachers (
+        profiles (
+          id,
+          first_name,
+          last_name
+        )
       ),
       child_groups (
         children (
@@ -58,15 +60,15 @@ export async function getGroupById(
     .filter((path): path is string => !!path);
   const avatarSignedUrls = await getChildAvatarSignedUrls(client, avatarPaths);
 
-  const teacher = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+  const teachers = (row.group_teachers ?? [])
+    .map((gt) => gt.profiles)
+    .filter((p): p is { id: string; first_name: string; last_name: string } => p !== null);
 
   return {
     id: row.id,
     name: row.name,
     image_url: imageUrl,
-    teacher: teacher
-      ? { id: teacher.id, first_name: teacher.first_name, last_name: teacher.last_name }
-      : null,
+    teachers,
     children: children.map((c) => ({
       id: c.id,
       first_name: c.first_name,

@@ -30,6 +30,6 @@
 ## 6. Verification
 
 - [x] 6.1 Run `pnpm lint`
-- [ ] 6.2 Manually verify: create group with 2 teachers → detail shows both → edit to add/remove → detail updates
-- [ ] 6.3 Verify a teacher assigned via `group_teachers` still sees the group in the feed (UserHydrator path)
-- [ ] 6.4 Confirm RLS: non-admin cannot write `group_teachers`
+- [x] 6.2 Manually verify: create group with 2 teachers → detail shows both → edit to add/remove → detail updates
+- [x] 6.3 Verify a teacher assigned via `group_teachers` still sees the group in the feed (UserHydrator path)
+- [x] 6.4 Confirm RLS: non-admin cannot write `group_teachers`

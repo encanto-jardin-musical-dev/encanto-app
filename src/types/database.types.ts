@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       attendance: {
@@ -541,12 +516,6 @@ export type Database = {
           isSetofReturn: true
         }
       }
-      get_user_groups: {
-        Args: { user_id: string; user_role: string }
-        Returns: {
-          user_groups: Json
-        }[]
-      }
       is_admin: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
@@ -686,9 +655,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       attendance_status: ["present", "absent", "late"],

@@ -66,11 +66,18 @@ async function resolveAvatarSignedUrls(
   }));
 }
 
+/**
+ * Fetches the contacts list for the current user.
+ * `params.roleFilter` narrows results by role at the query layer and is only
+ * applied for non-parent callers (parent users use an RPC that handles their
+ * own contact scope).
+ */
 function useUserContactsQuery(queryParams: QueryParams) {
   const client = createClient();
-  const queryKey = ["user-contacts"];
   const params = queryParams.params || {};
   const options = queryParams.options || {};
+  const roleFilter = params.roleFilter;
+  const queryKey = ["user-contacts", params.userID ?? "", roleFilter ?? "all"];
 
   const queryFn = async () => {
     let raw: RawContact[] | null | undefined;
@@ -78,7 +85,7 @@ function useUserContactsQuery(queryParams: QueryParams) {
     if (params?.userRole === USER_ROLES.PARENT) {
       raw = (await getParentUserContacts(client)).data as RawContact[] | null;
     } else {
-      raw = (await getUserContacts(client, params.userID!)).data as RawContact[] | null;
+      raw = (await getUserContacts(client, params.userID!, roleFilter)).data as RawContact[] | null;
     }
 
     if (!raw) return raw;

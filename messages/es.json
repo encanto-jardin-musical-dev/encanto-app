@@ -92,6 +92,11 @@
       "teacher": "Maestro",
       "admin": "Administrador",
       "parent": "Acudiente"
+    },
+    "filter": {
+      "admin": "Administrador",
+      "teacher": "Maestro",
+      "parent": "Acudiente"
     }
   },
   "PushNotifications": {

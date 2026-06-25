@@ -55,6 +55,7 @@ next-env.d.ts
 .opencode/*
 .mcp.*
 .kilo/*
+.pi/*
 
 # Serwist
 public/sw.js

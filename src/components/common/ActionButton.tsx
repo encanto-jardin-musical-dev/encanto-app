@@ -26,16 +26,28 @@ type ActionItem = {
   route: string;
   icon: React.ComponentType<{ className?: string }>;
   adminOnly?: boolean;
+  flag?: string;
 };
 
 const STAFF_ACTIONS: ActionItem[] = [
-  { key: "attendance", route: "/attendance", icon: ClockIcon },
+  {
+    key: "attendance",
+    route: "/attendance",
+    icon: ClockIcon,
+    flag: "admin_options_attendance",
+  },
   {
     key: "daily-report",
     route: "/daily-report",
     icon: ClipboardDocumentListIcon,
+    flag: "admin_options_reports",
   },
-  { key: "tasks", route: "/tasks", icon: DocumentCheckIcon },
+  {
+    key: "tasks",
+    route: "/tasks",
+    icon: DocumentCheckIcon,
+    flag: "admin_options_tasks",
+  },
   { key: "messages", route: "/messages", icon: ChatBubbleLeftIcon },
   {
     key: "admin-options",
@@ -52,15 +64,27 @@ export function ActionButton() {
   const [userRole] = useAtom(userRoleAtom);
   const suboptionsEnabled =
     useFeatureFlagEnabled("action_button_options") === true;
+  // Per-action feature flags. Hooks must run unconditionally and in a stable
+  // order, so each flag is read here regardless of role. Both `false` and
+  // `undefined` (still loading) are treated as off via the `=== true` check.
+  const flagState: Record<string, boolean> = {
+    admin_options_attendance:
+      useFeatureFlagEnabled("admin_options_attendance") === true,
+    admin_options_reports:
+      useFeatureFlagEnabled("admin_options_reports") === true,
+    admin_options_tasks: useFeatureFlagEnabled("admin_options_tasks") === true,
+  };
   const [isOpen, setIsOpen] = useState(false);
 
   const isStaff =
     userRole === USER_ROLES.TEACHER || userRole === USER_ROLES.ADMIN;
   const showSuboptions = suboptionsEnabled && isStaff;
 
-  const actions = STAFF_ACTIONS.filter(
-    (action) => !action.adminOnly || userRole === USER_ROLES.ADMIN,
-  );
+  const actions = STAFF_ACTIONS.filter((action) => {
+    const flagAllows = !action.flag || flagState[action.flag] === true;
+    const roleAllows = !action.adminOnly || userRole === USER_ROLES.ADMIN;
+    return flagAllows && roleAllows;
+  });
 
   const navigate = (route: string) => {
     setIsOpen(false);

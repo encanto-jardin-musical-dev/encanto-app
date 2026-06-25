@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 # Development server
 pnpm dev                    # Start development server (http://localhost:3000)
-pnpm dev:https              # Start with HTTPS support (for PWA testing)
+pnpm dev:https              # Start with HTTPS + Node inspector (for PWA testing)
 pnpm dev:node               # Start with Node.js inspector for debugging
 
 # Build and deployment
@@ -29,7 +29,7 @@ supabase gen types typescript --local > src/types/database.types.ts  # Generate 
 ## Architecture Overview
 
 **Tech Stack:**
-- Next.js 15 (App Router) with React 19 and TypeScript
+- Next.js 16 (App Router) with React 19 and TypeScript
 - Supabase for backend (PostgreSQL, Auth, Real-time subscriptions)
 - TanStack React Query for server state management
 - Jotai for client state management
@@ -62,7 +62,7 @@ supabase gen types typescript --local > src/types/database.types.ts  # Generate 
 - Server-side utilities in `src/utils/supabase/server.ts` and `src/utils/supabase/middleware.ts`
 
 **App Structure:**
-- **Auth routes**: Grouped under `src/app/(auth)/` (currently just `login/`). Magic-link based Supabase auth — see `src/components/auth/LoginForm.tsx` and `AuthRedirect.tsx`.
+- **Auth routes**: Login grouped under `src/app/(auth)/login/`. Supabase auth callbacks handled in `src/app/auth/` (`callback/`, `confirm/`). Magic-link based — see `src/components/auth/LoginForm.tsx` and `AuthRedirect.tsx`.
 - **Feed System** (`src/app/feed/`): Uses Next.js **parallel routes**. The layout renders three slots: `children`, `@user`, and `@group` (plus a `default.tsx` fallback). When touching the feed, keep the parallel-route contract in mind — missing `default.tsx` breaks navigation.
 - **Messaging** (`src/app/messages/`): Conversation list at `/messages`, individual thread at `/messages/[senderID]`.
 - **Role-based Access**: Parents, teachers, administrators — different group/contact permissions enforced at the DB level via RLS and `get_user_groups`.
@@ -217,7 +217,11 @@ Two service workers coexist on the same origin with non-overlapping scopes:
 | Firebase Messaging | `scripts/generate-firebase-sw.js` → `public/firebase-messaging-sw.js` | `/firebase-cloud-messaging-push-scope` | FCM background push handling |
 
 **Key locations:**
-- **Edge Function**: `supabase/functions/push/index.ts` — triggered by the `new_message` database webhook on `messages INSERT`; fans out to FCM HTTP v1 per recipient device
+- **Edge Functions** (`supabase/functions/`):
+  - `push/` — triggered by `new_message` DB webhook on `messages INSERT`; fans out to FCM HTTP v1 per recipient device
+  - `admin-create-user/`, `admin-delete-user/`, `admin-resend-invite/` — admin user management operations
+  - `sign-attachment-urls/`, `upload-attachment-url/` — signed URL generation for file attachments
+  - `_shared/` — shared utilities across functions
 - **Token registration**: `src/utils/pushNotifications/` — `index.ts` (register SW + get token), `storeDeviceToken.ts` (server action, upserts into `device_push_tokens`), `removeDeviceToken.ts` (server action, deletes on logout)
 - **Foreground handler**: `src/components/providers/PushNotificationProvider.tsx` — listens via `onMessage`, dispatches HeroUI toasts when user is not on the matching conversation route
 - **Token table**: `device_push_tokens` — multi-device per user; indexed on `user_id`; RLS enforced

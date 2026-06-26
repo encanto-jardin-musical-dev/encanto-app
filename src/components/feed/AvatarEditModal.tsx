@@ -1,13 +1,22 @@
-"use client";
+'use client';
 
-import { ImagePicker } from "@/components/common/ImagePicker";
-import { useImagePicker } from "@/hooks/UseImagePicker";
-import { userAvatarAtom } from "@/lib/store/user";
-import { updateProfileAvatar } from "@/queries/users/update-profile-avatar";
-import { createClient } from "@/utils/supabase/client";
-import { AvatarValidationError, uploadTeacherAvatar } from "@/utils/uploadTeacherAvatar";
-import { AvatarValidationError as ParentAvatarValidationError, uploadParentAvatar } from "@/utils/uploadParentAvatar";
-import { AvatarValidationError as AdminAvatarValidationError, uploadAdminAvatar } from "@/utils/uploadAdminAvatar";
+import { ImagePicker } from '@/components/common/ImagePicker';
+import { useImagePicker } from '@/hooks/UseImagePicker';
+import { userAvatarAtom } from '@/lib/store/user';
+import { updateProfileAvatar } from '@/queries/users/update-profile-avatar';
+import { createClient } from '@/utils/supabase/client';
+import {
+  AvatarValidationError,
+  uploadTeacherAvatar,
+} from '@/utils/uploadTeacherAvatar';
+import {
+  AvatarValidationError as ParentAvatarValidationError,
+  uploadParentAvatar,
+} from '@/utils/uploadParentAvatar';
+import {
+  AvatarValidationError as AdminAvatarValidationError,
+  uploadAdminAvatar,
+} from '@/utils/uploadAdminAvatar';
 import {
   addToast,
   Button,
@@ -16,11 +25,11 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-} from "@heroui/react";
-import { useSetAtom } from "jotai";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
-import { UserCircleIcon } from "@heroicons/react/24/solid";
+} from '@heroui/react';
+import { useSetAtom } from 'jotai';
+import { useTranslations } from 'next-intl';
+import { useState } from 'react';
+import { UserCircleIcon } from '@heroicons/react/24/solid';
 
 type AvatarEditModalProps = {
   isOpen: boolean;
@@ -35,18 +44,22 @@ type AvatarEditModalProps = {
 
 /** Maps a role to its storage bucket name. */
 function bucketForRole(role: string): string | null {
-  if (role === "teacher") return "teacher-avatars";
-  if (role === "parent") return "parent-avatars";
-  if (role === "admin") return "admin-avatars";
+  if (role === 'teacher') return 'teacher-avatars';
+  if (role === 'parent') return 'parent-avatars';
+  if (role === 'admin') return 'admin-avatars';
   return null;
 }
 
 /** Uploads the avatar file to the correct bucket for the given role. */
-async function uploadForRole(role: string, userId: string, file: File): Promise<string> {
-  if (role === "teacher") return uploadTeacherAvatar(userId, file);
-  if (role === "parent") return uploadParentAvatar(userId, file);
-  if (role === "admin") return uploadAdminAvatar(userId, file);
-  throw new Error("Avatar upload not supported for this role");
+async function uploadForRole(
+  role: string,
+  userId: string,
+  file: File
+): Promise<string> {
+  if (role === 'teacher') return uploadTeacherAvatar(userId, file);
+  if (role === 'parent') return uploadParentAvatar(userId, file);
+  if (role === 'admin') return uploadAdminAvatar(userId, file);
+  throw new Error('Avatar upload not supported for this role');
 }
 
 export function AvatarEditModal({
@@ -57,7 +70,7 @@ export function AvatarEditModal({
   currentAvatarUrl,
   onSaved,
 }: AvatarEditModalProps) {
-  const t = useTranslations("UserFeedPage.FeedUser.avatarModal");
+  const t = useTranslations('UserFeedPage.FeedUser.avatarModal');
   const setUserAvatar = useSetAtom(userAvatarAtom);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -92,7 +105,7 @@ export function AvatarEditModal({
       await updateProfileAvatar(client, userId, newPath);
 
       // Update Jotai store so the rest of the app reflects the change immediately
-      setUserAvatar(newPath ?? "");
+      setUserAvatar(newPath ?? '');
 
       // Resolve a fresh signed URL to pass back to the parent for immediate display
       let signedUrl: string | null = null;
@@ -107,7 +120,7 @@ export function AvatarEditModal({
       }
 
       onSaved(signedUrl);
-      addToast({ title: t("saveSuccess"), color: "success" });
+      addToast({ title: t('saveSuccess'), color: 'success' });
       onClose();
     } catch (err) {
       if (
@@ -115,9 +128,9 @@ export function AvatarEditModal({
         err instanceof ParentAvatarValidationError ||
         err instanceof AdminAvatarValidationError
       ) {
-        addToast({ title: err.message, color: "warning" });
+        addToast({ title: err.message, color: 'warning' });
       } else {
-        addToast({ title: t("saveError"), color: "danger" });
+        addToast({ title: t('saveError'), color: 'danger' });
       }
     } finally {
       setIsSaving(false);
@@ -127,9 +140,9 @@ export function AvatarEditModal({
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="center">
       <ModalContent>
-        {(onClose) => (
+        {onClose => (
           <>
-            <ModalHeader>{t("title")}</ModalHeader>
+            <ModalHeader>{t('title')}</ModalHeader>
             <ModalBody className="items-center pb-2">
               <ImagePicker
                 preview={avatarPreview}
@@ -137,26 +150,22 @@ export function AvatarEditModal({
                 fallbackIconClassName="w-16 h-16 text-default-300"
                 shape="circle"
                 labels={{
-                  add: t("add"),
-                  change: t("change"),
-                  remove: t("remove"),
-                  label: t("label"),
+                  add: t('add'),
+                  change: t('change'),
+                  remove: t('remove'),
+                  label: t('label'),
                 }}
                 onPick={pickAvatar}
                 onRemove={removeAvatar}
                 inputProps={avatarInputProps}
               />
               <p className="text-small text-default-500 text-center px-4">
-                {t("hint")}
+                {t('hint')}
               </p>
             </ModalBody>
-            <ModalFooter>
-              <Button
-                variant="flat"
-                onPress={onClose}
-                isDisabled={isSaving}
-              >
-                {t("cancel")}
+            <ModalFooter className="justify-center">
+              <Button variant="flat" onPress={onClose} isDisabled={isSaving}>
+                {t('cancel')}
               </Button>
               <Button
                 color="primary"
@@ -164,7 +173,7 @@ export function AvatarEditModal({
                 isLoading={isSaving}
                 isDisabled={!hasChange}
               >
-                {t("save")}
+                {t('save')}
               </Button>
             </ModalFooter>
           </>

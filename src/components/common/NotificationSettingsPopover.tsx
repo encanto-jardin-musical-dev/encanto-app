@@ -7,7 +7,7 @@ import {
   getCachedFcmToken,
 } from '@/utils/pushNotifications';
 import { removeDeviceToken } from '@/utils/pushNotifications/removeDeviceToken';
-import { UserIcon } from '@heroicons/react/24/solid';
+import { Cog6ToothIcon } from '@heroicons/react/24/solid';
 import {
   Button,
   Divider,
@@ -17,7 +17,7 @@ import {
 } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { usePostHog } from 'posthog-js/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 // Function to get current notification permission without requesting it
 const getCurrentNotificationPermission = ():
@@ -33,16 +33,10 @@ const getCurrentNotificationPermission = ():
 export default function NotificationSettingsPopover() {
   const [pushPermission, setPushPermission] = useState<
     'default' | 'granted' | 'denied'
-  >('default');
+  >(() => getCurrentNotificationPermission());
   const t = useTranslations('UserFeedPage.FeedUser.settings');
 
   const posthog = usePostHog();
-
-  // Check current permissions when component mounts
-  useEffect(() => {
-    const currentPermission = getCurrentNotificationPermission();
-    setPushPermission(currentPermission);
-  }, []);
 
   const handleSignOut = async () => {
     posthog?.capture('user_signed-out');
@@ -68,7 +62,7 @@ export default function NotificationSettingsPopover() {
           aria-label="User settings"
           className="text-foreground"
         >
-          <UserIcon className="w-5 h-5" />
+          <Cog6ToothIcon className="w-5 h-5" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">

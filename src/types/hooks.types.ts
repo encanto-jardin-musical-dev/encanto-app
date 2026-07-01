@@ -7,6 +7,7 @@ export type QueryParams = {
     userRole?: UserRoles;
     roleFilter?: UserRoles;
     userIds?: string[];
+    childFilter?: string;
   };
   options?: {
     enabled?: boolean;

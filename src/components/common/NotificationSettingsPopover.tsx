@@ -24,7 +24,7 @@ const getCurrentNotificationPermission = ():
   | 'default'
   | 'granted'
   | 'denied' => {
-  if (!('Notification' in window)) {
+  if (typeof window === 'undefined' || !('Notification' in window)) {
     return 'denied';
   }
   return Notification.permission;

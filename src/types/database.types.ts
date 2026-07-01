@@ -495,27 +495,49 @@ export type Database = {
       }
     }
     Functions: {
-      get_profiles_by_guardian: {
-        Args: never
-        Returns: {
-          avatar_url: string | null
-          created_at: string | null
-          document_number: string
-          document_type: Database["public"]["Enums"]["document_type"]
-          first_name: string
-          id: string
-          last_name: string
-          phone: string | null
-          role: Database["public"]["Enums"]["user_role"]
-          updated_at: string | null
-        }[]
-        SetofOptions: {
-          from: "*"
-          to: "profiles"
-          isOneToOne: false
-          isSetofReturn: true
-        }
-      }
+      get_profiles_by_guardian:
+        | {
+            Args: never
+            Returns: {
+              avatar_url: string | null
+              created_at: string | null
+              document_number: string
+              document_type: Database["public"]["Enums"]["document_type"]
+              first_name: string
+              id: string
+              last_name: string
+              phone: string | null
+              role: Database["public"]["Enums"]["user_role"]
+              updated_at: string | null
+            }[]
+            SetofOptions: {
+              from: "*"
+              to: "profiles"
+              isOneToOne: false
+              isSetofReturn: true
+            }
+          }
+        | {
+            Args: { p_child_id?: string }
+            Returns: {
+              avatar_url: string | null
+              created_at: string | null
+              document_number: string
+              document_type: Database["public"]["Enums"]["document_type"]
+              first_name: string
+              id: string
+              last_name: string
+              phone: string | null
+              role: Database["public"]["Enums"]["user_role"]
+              updated_at: string | null
+            }[]
+            SetofOptions: {
+              from: "*"
+              to: "profiles"
+              isOneToOne: false
+              isSetofReturn: true
+            }
+          }
       is_admin: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {

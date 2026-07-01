@@ -1,6 +1,7 @@
 'use client';
 
 import { AdminSearchBar } from '@/components/common/AdminSearchBar';
+import useUserChildrenQuery from '@/hooks/UseGetUserChildrenQuery';
 import useUserContactsQuery from '@/hooks/UseGetUserContactsQuery';
 import { USER_ROLES } from '@/lib/const';
 import { userAtom } from '@/lib/store/user';
@@ -49,18 +50,38 @@ export default function MessagesContactsList() {
   const t = useTranslations('MessagesContacts');
   const [search, setSearch] = useState('');
   const [activeRole, setActiveRole] = useState<UserRoles | null>(null);
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
 
   const isAdmin = user.role === USER_ROLES.ADMIN;
+  const isParent = user.role === USER_ROLES.PARENT;
 
   const handleRoleToggle = useCallback((role: UserRoles) => {
     setActiveRole(prev => (prev === role ? null : role));
   }, []);
+
+  const handleChildToggle = useCallback((childId: string) => {
+    setSelectedChildId(prev => (prev === childId ? null : childId));
+  }, []);
+
+  const { data: userChildren } = useUserChildrenQuery({
+    params: { userID: user.id },
+    options: { enabled: isParent && !!user.id },
+  });
+
+  const childOptions = useMemo(() => {
+    if (!Array.isArray(userChildren)) return [];
+    return userChildren
+      .map(guardian => guardian?.children)
+      .filter((child): child is NonNullable<typeof child> => !!child)
+      .map(child => ({ id: child.id, label: `${child.first_name} ${child.last_name}` }));
+  }, [userChildren]);
 
   const { data: contacts, isPending } = useUserContactsQuery({
     params: {
       userID: user.id,
       userRole: user.role,
       roleFilter: activeRole ?? undefined,
+      childFilter: selectedChildId ?? undefined,
     },
     options: { enabled: !!user.id && !!user.role },
   });
@@ -94,6 +115,27 @@ export default function MessagesContactsList() {
                 }
               >
                 {t(labelKey)}
+              </Chip>
+            ))}
+          </div>
+        )}
+        {isParent && childOptions.length > 1 && (
+          <div className="flex gap-2 flex-wrap">
+            {childOptions.map(({ id, label }) => (
+              <Chip
+                key={id}
+                radius="sm"
+                color={selectedChildId === id ? 'primary' : 'default'}
+                variant={selectedChildId === id ? 'solid' : 'flat'}
+                className="cursor-pointer"
+                onClick={() => handleChildToggle(id)}
+                endContent={
+                  selectedChildId === id ? (
+                    <XMarkIcon className="w-3.5 h-3.5" />
+                  ) : undefined
+                }
+              >
+                {label}
               </Chip>
             ))}
           </div>

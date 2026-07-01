@@ -8,7 +8,7 @@ function useUserChildrenQuery(queryParams: QueryParams = {}) {
   const params = queryParams.params || {};
   const options = queryParams.options || {};
   const queryKey = params?.userID
-    ? ['user-children']
+    ? ['user-children', params.userID, params.groupID ?? null]
     : ['parent-user-children'];
 
   const queryFn = async () => {

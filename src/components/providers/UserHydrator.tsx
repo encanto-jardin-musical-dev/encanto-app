@@ -70,7 +70,7 @@ export function UserHydrator() {
   ]);
 
   const { data: userChildren } = useUserChildrenQuery({
-    params: {},
+    params: { userID: localUserId },
     options: {
       enabled: !!localUserId && localUserRole === USER_ROLES.PARENT,
     },

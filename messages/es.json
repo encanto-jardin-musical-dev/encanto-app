@@ -4,6 +4,11 @@
     "description": "Nuestra app, nos permite estar más comunicados",
     "button": "Iniciar Sesión"
   },
+  "NotFound": {
+    "title": "Página no encontrada",
+    "description": "La página que buscas no existe o fue movida.",
+    "backToFeed": "Volver al inicio"
+  },
   "LoginPage": {
     "email": "Email",
     "password": "Contraseña",

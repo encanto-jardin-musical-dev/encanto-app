@@ -15,6 +15,7 @@ The app already has an established pattern for this kind of state (`src/componen
 - Not a replacement for `global-error.tsx` — that stays untouched; this only covers "route not found," not thrown runtime errors.
 - No attempt to distinguish *why* the route wasn't found (expired link vs. typo vs. deleted resource) — a single generic message is sufficient per the proposal.
 - No auth-awareness (e.g. showing a different message/route for logged-out users) — `/feed` is the correct target regardless of auth state, since unauthenticated users hitting `/feed` are already redirected to `/login` by that page's own server-side check (`src/app/feed/@user/page.tsx` pattern), so `not-found.tsx` doesn't need to duplicate that logic.
+- Not a blanket audit of every dynamic route — only `src/app/messages/[senderID]/page.tsx` is wired to call `notFound()` in this change, since it was the concrete case reported. Other dynamic routes (e.g. admin detail pages) may have the same class of bug but are out of scope here.
 
 ## Decisions
 
@@ -32,15 +33,28 @@ The app already has an established pattern for this kind of state (`src/componen
 
 4. **New `NotFound` i18n namespace in `messages/es.json`** with `title`, `description`, and `backToFeed` (or similar) keys, following the existing per-page-namespace convention (`ActionButton`, `UserFeedPage`, etc.).
 
+5. **`not-found.tsx`'s CTA is extracted into a client-component wrapper (`BackToFeedButton.tsx`) rather than rendering HeroUI's `Button`/`Link` inline.**
+   HeroUI's `Button` and `Link` are client components; importing them directly into `not-found.tsx` (an async Server Component) breaks the RSC boundary — it surfaced at runtime as `TypeError: createContext only works in Client Components`, not as a build-time or lint error. The fix mirrors an existing codebase pattern: `NavigationBar.tsx` is already a `'use client'` component that receives plain props from server-component pages and renders HeroUI's `Link` internally. `BackToFeedButton.tsx` follows the same shape — a small `'use client'` component taking a translated `label` string prop, keeping `not-found.tsx` itself a Server Component using `getTranslations`.
+   *Lesson for future server pages*: any HeroUI interactive component (`Button`, `Link`, etc.) used from a Server Component page must go through a `'use client'` wrapper — this isn't caught by `pnpm lint`, only at runtime.
+
+6. **`src/app/messages/[senderID]/page.tsx` validates `senderID` before rendering, using two checks in sequence:**
+   - A UUID-format regex (`/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i`), checked first and cheaply, before any DB round-trip. Postgres throws `invalid input syntax for type uuid` for malformed input against a `uuid` column — without this guard, `getProfileById` re-throws that as an uncaught `Error`, which Next.js surfaces as a raw 500, not a themed 404.
+   - If the format is valid, `getProfileById` (existing query in `src/queries/users/get-profile-by-id.ts`) is called with the server-side Supabase client (`@/utils/supabase/server`, not the browser client) and `.maybeSingle()` is used, so a well-formed but nonexistent id resolves to `null` rather than throwing.
+   - Either failure calls `notFound()` from `next/navigation`, which renders the `not-found.tsx` page built in this change (no nested `not-found.tsx` exists under `messages/`, so it bubbles to the root one).
+   *Alternative considered*: catch-and-rethrow the Postgres error as not-found instead of pre-validating format. Rejected — the regex avoids an unnecessary DB round-trip for obviously-invalid input and keeps the error path explicit rather than relying on parsing a Postgres error message.
+   *Note*: `MessagesUserData.tsx`'s existing client-side "unavailable" fallback (for `isError`/missing profile) is left in place — it still covers transient states (e.g. a profile deleted after the page already rendered) that the server-side check at initial load can't catch.
+
 ## Risks / Trade-offs
 
 - [Risk] If the icon/copy pick feels generic, it may need future design polish. → Mitigation: matches the existing `EmptyFeed` bar for visual quality in this codebase; not a regression, and easy to swap the icon/copy later since both are isolated to this one file + one i18n namespace.
 - [Trade-off] No differentiation between "you typo'd a URL" and "this resource used to exist but was deleted" — acceptable per Non-Goals; the single generic message is standard practice and keeps scope small.
+- [Risk] Other dynamic routes with a similar `[id]`-style param and a DB lookup (e.g. admin detail pages) likely share the same latent "malformed id → 500" bug, since it isn't caught by lint or types. → Mitigation: out of scope per Non-Goals above; flagged here for a future pass rather than silently left undocumented.
 
 ## Migration Plan
 
 1. Add `messages/es.json` `NotFound` keys.
-2. Add `src/app/not-found.tsx`.
+2. Add `src/app/not-found.tsx` and its `BackToFeedButton.tsx` client-component dependency.
 3. Delete `src/app/error/page.tsx`.
-4. No data/schema migration, no feature flag — this is a purely additive UI convention file plus one dead-file removal; safe to ship in one deploy.
-5. Rollback: revert the commit — deleting `not-found.tsx` simply reverts to Next's default 404, no other system depends on this file existing.
+4. Add the `senderID` validation + `notFound()` call to `src/app/messages/[senderID]/page.tsx`.
+5. No data/schema migration, no feature flag — this is a purely additive UI convention file plus one dead-file removal plus one route-guard addition; safe to ship in one deploy.
+6. Rollback: revert the commit — deleting `not-found.tsx` simply reverts to Next's default 404, and reverting the `messages/[senderID]/page.tsx` guard simply restores the prior (buggy) behavior; no other system depends on either change.

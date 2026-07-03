@@ -1,10 +1,7 @@
 import { getGroupAttendance } from '@/queries/attendance/get-group-attendance';
+import { todayDateString } from '@/utils/dates';
 import { createClient } from '@/utils/supabase/client';
 import { useQuery } from '@tanstack/react-query';
-
-function todayDateString(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 export function useGroupAttendanceQuery(groupId: string) {
   const client = createClient();

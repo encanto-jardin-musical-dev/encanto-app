@@ -5,6 +5,7 @@ import useAttendanceGroupsQuery from "@/hooks/UseAttendanceGroupsQuery";
 import useAvailableTeachersQuery from "@/hooks/UseAvailableTeachersQuery";
 import { USER_ROLES } from "@/lib/const";
 import { userAtom } from "@/lib/store/user";
+import { normalizeSearchText } from "@/utils/text";
 import { PhotoIcon } from "@heroicons/react/24/outline";
 import { Select, SelectItem, Skeleton } from "@heroui/react";
 import { useAtomValue } from "jotai";
@@ -40,9 +41,9 @@ export function AttendanceGroupList() {
   const { data: groups, isPending } = useAttendanceGroupsQuery(effectiveTeacherId);
 
   const filteredGroups = useMemo(() => {
-    const query = search.trim().toLowerCase();
+    const query = normalizeSearchText(search.trim());
     if (!query) return groups ?? [];
-    return (groups ?? []).filter((group) => group.name.toLowerCase().includes(query));
+    return (groups ?? []).filter((group) => normalizeSearchText(group.name).includes(query));
   }, [groups, search]);
 
   return (

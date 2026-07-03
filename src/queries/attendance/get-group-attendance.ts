@@ -1,4 +1,5 @@
 import { TypedSupabaseClient } from '@/utils/supabase/client';
+import { todayDateString } from '@/utils/dates';
 import { getChildAvatarSignedUrls } from '@/utils/uploadChildAvatar';
 
 export type AttendanceChildRow = {
@@ -10,31 +11,22 @@ export type AttendanceChildRow = {
   check_out: string | null;
 };
 
-export type GroupAttendanceResult = {
-  groupName: string;
-  children: AttendanceChildRow[];
-};
-
-function todayDateString(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
 /**
  * Group's children plus today's attendance rows, merged into a single list.
  * A child with no attendance row today has `check_in`/`check_out` as `null`
- * (the derived-absent state).
+ * (the derived-absent state). "Today" is the school's local calendar day —
+ * see `todayDateString`, which mirrors the date the RPCs write.
  */
 export async function getGroupAttendance(
   client: TypedSupabaseClient,
   groupId: string
-): Promise<GroupAttendanceResult | null> {
+): Promise<AttendanceChildRow[] | null> {
   // Use limit(1) + index instead of .single() so the embedded child_groups
   // join does not trigger a PGRST109 "multiple rows" error.
   const { data: groupRows, error: groupError } = await client
     .from('groups')
     .select(`
       id,
-      name,
       child_groups (
         children (
           id,
@@ -61,41 +53,41 @@ export async function getGroupAttendance(
   const avatarPaths = children
     .map((c) => c.avatar_url)
     .filter((path): path is string => !!path);
-  const avatarSignedUrls = await getChildAvatarSignedUrls(client, avatarPaths);
-
-  const attendanceByChild = new Map<string, { check_in: string | null; check_out: string | null }>();
   const childIds = children.map((c) => c.id);
 
-  if (childIds.length > 0) {
-    const { data: attendanceRows, error: attendanceError } = await client
-      .from('attendance')
-      .select('child_id, check_in, check_out')
-      .in('child_id', childIds)
-      .eq('attendance_date', todayDateString());
+  // Signed avatar URLs (storage) and today's attendance rows (DB) are
+  // independent — fetch them in parallel.
+  const [avatarSignedUrls, attendanceResult] = await Promise.all([
+    getChildAvatarSignedUrls(client, avatarPaths),
+    childIds.length > 0
+      ? client
+          .from('attendance')
+          .select('child_id, check_in, check_out')
+          .in('child_id', childIds)
+          .eq('attendance_date', todayDateString())
+      : Promise.resolve({ data: [], error: null }),
+  ]);
 
-    if (attendanceError) {
-      throw new Error(`Failed to fetch today's attendance: ${attendanceError.message}`);
-    }
+  if (attendanceResult.error) {
+    throw new Error(`Failed to fetch today's attendance: ${attendanceResult.error.message}`);
+  }
 
-    for (const a of attendanceRows ?? []) {
-      if (a.child_id) {
-        attendanceByChild.set(a.child_id, { check_in: a.check_in, check_out: a.check_out });
-      }
+  const attendanceByChild = new Map<string, { check_in: string | null; check_out: string | null }>();
+  for (const a of attendanceResult.data ?? []) {
+    if (a.child_id) {
+      attendanceByChild.set(a.child_id, { check_in: a.check_in, check_out: a.check_out });
     }
   }
 
-  return {
-    groupName: row.name,
-    children: children.map((c) => {
-      const attendance = attendanceByChild.get(c.id);
-      return {
-        id: c.id,
-        first_name: c.first_name,
-        last_name: c.last_name,
-        avatar_url: c.avatar_url ? avatarSignedUrls.get(c.avatar_url) ?? null : null,
-        check_in: attendance?.check_in ?? null,
-        check_out: attendance?.check_out ?? null,
-      };
-    }),
-  };
+  return children.map((c) => {
+    const attendance = attendanceByChild.get(c.id);
+    return {
+      id: c.id,
+      first_name: c.first_name,
+      last_name: c.last_name,
+      avatar_url: c.avatar_url ? avatarSignedUrls.get(c.avatar_url) ?? null : null,
+      check_in: attendance?.check_in ?? null,
+      check_out: attendance?.check_out ?? null,
+    };
+  });
 }

@@ -1,7 +1,7 @@
 import { AttendanceAccessGate } from '@/components/attendance/AttendanceAccessGate';
 import { AttendanceLog } from '@/components/attendance/AttendanceLog';
 import NavigationBar from '@/components/common/NavigationBar';
-import { getGroupById } from '@/queries/groups/get-group-by-id';
+import { getGroupName } from '@/queries/groups/get-group-name';
 import { createClient } from '@/utils/supabase/server';
 import { notFound } from 'next/navigation';
 
@@ -20,13 +20,15 @@ export default async function AttendanceGroupPage({ params }: AttendanceGroupPag
   if (!UUID_PATTERN.test(groupId)) notFound();
 
   const supabase = await createClient();
-  const group = await getGroupById(supabase, groupId);
-  if (!group) notFound();
+  const groupName = await getGroupName(supabase, groupId);
+  if (!groupName) notFound();
 
   return (
     <section className="grid grid-rows-[auto_1fr] h-full gap-4 p-4 overflow-hidden">
-      <NavigationBar backRoute="/attendance" pageTitle={group.name} />
+      {/* The gate wraps the nav bar too: gated users must see no attendance
+          content, including the group name in the title. */}
       <AttendanceAccessGate>
+        <NavigationBar backRoute="/attendance" pageTitle={groupName} />
         <AttendanceLog groupId={groupId} />
       </AttendanceAccessGate>
     </section>

@@ -3,6 +3,7 @@ import { AdminSearchBar } from '@/components/common/AdminSearchBar';
 import useClockInMutation from '@/hooks/UseClockInMutation';
 import useClockOutMutation from '@/hooks/UseClockOutMutation';
 import useGroupAttendanceQuery from '@/hooks/UseGroupAttendanceQuery';
+import { normalizeSearchText } from '@/utils/text';
 import { addToast, Button, Radio, RadioGroup, Skeleton } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
@@ -37,7 +38,7 @@ export function AttendanceLog({ groupId }: AttendanceLogProps) {
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  const children = useMemo(() => data?.children ?? [], [data]);
+  const children = useMemo(() => data ?? [], [data]);
   const presentCount = children.filter(c => c.check_in).length;
   const totalCount = children.length;
 
@@ -48,10 +49,10 @@ export function AttendanceLog({ groupId }: AttendanceLogProps) {
   }, [children, mode]);
 
   const filteredList = useMemo(() => {
-    const query = search.trim().toLowerCase();
+    const query = normalizeSearchText(search.trim());
     if (!query) return activeList;
     return activeList.filter(c =>
-      `${c.first_name} ${c.last_name}`.toLowerCase().includes(query)
+      normalizeSearchText(`${c.first_name} ${c.last_name}`).includes(query)
     );
   }, [activeList, search]);
 

@@ -1,4 +1,4 @@
-import type { ComponentType, SVGProps } from "react";
+import type { ComponentType, ReactNode, SVGProps } from "react";
 import Link from "next/link";
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { className?: string }>;
@@ -12,8 +12,17 @@ type EntityAvatarChipProps = {
   shape?: "circle" | "square";
   /** Width/height class for the avatar container (e.g. "w-16 h-16") */
   size?: string;
+  /** Extra classes for the avatar container (e.g. a different background) */
+  avatarClassName?: string;
+  /**
+   * Absolutely-positioned content anchored to the avatar (e.g. a selection
+   * badge). Rendered inside a `relative` wrapper around the avatar only.
+   */
+  avatarOverlay?: ReactNode;
   /** Display name shown below the avatar */
   label: string;
+  /** Extra classes for the label (e.g. "line-clamp-2") */
+  labelClassName?: string;
   /** Width class for the outer chip wrapper (e.g. "w-20") */
   chipWidth?: string;
   /**
@@ -25,7 +34,8 @@ type EntityAvatarChipProps = {
 
 /**
  * A small avatar-circle (or square) with a centered label underneath.
- * Used in detail-screen grids for teachers, children, guardians, and groups.
+ * Used in detail-screen grids for teachers, children, guardians, and groups,
+ * and composed by selectable tiles like the attendance child card.
  *
  * When `href` is provided the chip acts as a navigation link.
  */
@@ -35,25 +45,41 @@ export function EntityAvatarChip({
   fallbackIconClassName = "w-8 h-8 text-default-400",
   shape = "circle",
   size = "w-16 h-16",
+  avatarClassName = "bg-default-100",
+  avatarOverlay,
   label,
+  labelClassName = "",
   chipWidth = "w-20",
   href,
 }: EntityAvatarChipProps) {
   const shapeClass = shape === "circle" ? "rounded-full" : "rounded-xl";
 
+  const avatar = (
+    <div
+      className={`${size} ${shapeClass} ${avatarClassName} flex items-center justify-center overflow-hidden`}
+    >
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={imageUrl} alt={label} className="w-full h-full object-cover" />
+      ) : (
+        <FallbackIcon className={fallbackIconClassName} />
+      )}
+    </div>
+  );
+
   const content = (
     <>
-      <div
-        className={`${size} ${shapeClass} bg-default-100 flex items-center justify-center overflow-hidden`}
-      >
-        {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl} alt={label} className="w-full h-full object-cover" />
-        ) : (
-          <FallbackIcon className={fallbackIconClassName} />
-        )}
-      </div>
-      <span className="text-xs text-center text-default-600 leading-tight">{label}</span>
+      {avatarOverlay ? (
+        <div className={`relative ${size} shrink-0`}>
+          {avatar}
+          {avatarOverlay}
+        </div>
+      ) : (
+        avatar
+      )}
+      <span className={`text-xs text-center text-default-600 leading-tight ${labelClassName}`}>
+        {label}
+      </span>
     </>
   );
 

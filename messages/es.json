@@ -148,15 +148,15 @@
       "groups": "Grupos",
       "children": "Niños",
       "teachers": "Maestros",
-      "parents": "Padres"
+      "parents": "Padres",
+      "attendance": "Asistencia"
     },
     "summary": {
       "totalKids": "Total de Niños"
     },
     "assistance": {
       "title": "Asistencia de hoy",
-      "childCare": "Jardín",
-      "workshops": "Talleres"
+      "childCare": "Jardín"
     }
   },
   "AdminChildren": {
@@ -496,6 +496,21 @@
       "resendInviteSuccess": "Invitación reenviada exitosamente",
       "resendInviteAlreadyActive": "El padre/madre ya tiene su cuenta activa",
       "resendInviteError": "Error al reenviar la invitación"
+    }
+  },
+  "AdminAttendance": {
+    "title": "Asistencia",
+    "subtitle": "Niños presentes actualmente",
+    "loading": "Cargando asistencia...",
+    "error": "Error al cargar asistencia",
+    "noChildrenPresent": "No hay niños presentes en este momento",
+    "noChildrenInGroup": "No hay niños presentes en este grupo",
+    "clickToCheckout": "Registrar salida de",
+    "checkoutModal": {
+      "title": "Confirmar Salida",
+      "checkInTime": "Hora de entrada",
+      "checkout": "Registrar salida",
+      "cancel": "Cancelar"
     }
   }
 }

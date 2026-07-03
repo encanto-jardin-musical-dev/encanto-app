@@ -119,6 +119,27 @@
       "admin-options": "Administrar"
     }
   },
+  "Attendance": {
+    "picker": {
+      "searchPlaceholder": "Buscar grupo",
+      "teacherFilterLabel": "Filtrar por maestro",
+      "teacherFilterAll": "Todos los maestros",
+      "empty": "No se encontraron grupos"
+    },
+    "log": {
+      "searchPlaceholder": "Buscar niñ@",
+      "modeLabel": "Modo de asistencia",
+      "modes": {
+        "clockIn": "Entrada",
+        "clockOut": "Salida"
+      },
+      "counter": "{present}/{total} presentes",
+      "save": "Guardar",
+      "saveError": "Error al guardar la asistencia",
+      "emptyClockIn": "Todos los niños ya registraron su entrada hoy",
+      "emptyClockOut": "No hay niños pendientes de registrar salida"
+    }
+  },
   "AdminOptionsPage": {
     "sections": {
       "shortcuts": "Crear o editar nuevos items:"

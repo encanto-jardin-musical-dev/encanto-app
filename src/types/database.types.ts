@@ -22,6 +22,7 @@ export type Database = {
           child_id: string | null
           created_at: string | null
           id: string
+          recorded_by: string | null
           status: Database["public"]["Enums"]["attendance_status"]
         }
         Insert: {
@@ -31,6 +32,7 @@ export type Database = {
           child_id?: string | null
           created_at?: string | null
           id?: string
+          recorded_by?: string | null
           status?: Database["public"]["Enums"]["attendance_status"]
         }
         Update: {
@@ -40,6 +42,7 @@ export type Database = {
           child_id?: string | null
           created_at?: string | null
           id?: string
+          recorded_by?: string | null
           status?: Database["public"]["Enums"]["attendance_status"]
         }
         Relationships: [
@@ -495,6 +498,8 @@ export type Database = {
       }
     }
     Functions: {
+      clock_in_children: { Args: { child_ids: string[] }; Returns: undefined }
+      clock_out_children: { Args: { child_ids: string[] }; Returns: undefined }
       get_profiles_by_guardian:
         | {
             Args: never
@@ -539,6 +544,7 @@ export type Database = {
             }
           }
       is_admin: { Args: { user_id: string }; Returns: boolean }
+      is_staff: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
       attendance_status: "present" | "absent" | "late"

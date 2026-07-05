@@ -93,10 +93,17 @@ export async function getAdminAttendanceOverview(
     throw new Error(`Failed to fetch today's attendance: ${attendanceResult.error.message}`);
   }
 
-  // Build attendance map
+  // Build attendance map. A child may have multiple rows today (re-entry after
+  // checkout), so derive current status from the latest open row.
   const attendanceByChild = new Map<string, { check_in: string | null; check_out: string | null }>();
   for (const a of attendanceResult.data ?? []) {
-    if (a.child_id) {
+    if (!a.child_id || !a.check_in) continue;
+
+    const existing = attendanceByChild.get(a.child_id);
+    const isOpen = a.check_out === null;
+    const existingIsOpen = existing?.check_out === null;
+
+    if (!existing || (isOpen && !existingIsOpen) || (isOpen === existingIsOpen && a.check_in > (existing.check_in ?? ''))) {
       attendanceByChild.set(a.child_id, { check_in: a.check_in, check_out: a.check_out });
     }
   }

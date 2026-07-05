@@ -57,7 +57,9 @@ Returns `{ groupId: string; groupName: string; children: AttendanceChildRow[] }[
 
 ### D4 — Check-out interaction: modal confirmation, single child
 
-Tapping a present (checked-in, no check-out) child opens a modal: child name, formatted check-in time, and a "Registrar salida" button. Confirming calls the existing `clockOutChildren(client, [childId])` query function (already accepts an array; called here with one id) via a new `useAdminCheckOutMutation` hook that invalidates `['admin-attendance-overview', today]`. Already-checked-out children are not included in the results at all, since this screen only shows kids who are still here.
+Tapping a present (checked-in, no check-out) child opens a modal: child name, formatted check-in time, and a "Registrar salida" button. Confirming calls the existing `clockOutChildren(client, [childId])` query function (already accepts an array; called here with one id) via a new `useAdminCheckOutMutation` hook that invalidates `['admin-attendance-overview', today]`. Children who are not currently present are not included in the results at all, since this screen only shows kids who are still here.
+
+The attendance model supports multiple check-in/check-out cycles per child per day (building occupation control). A child who checked out and then re-entered appears again on this screen with their new check-in time.
 
 *Alternative considered*: instant tap-to-checkout with no modal, matching the log screen's tap-to-select-then-batch-save flow — rejected per the (unanswered, defaulted) interaction decision: a single, semantically destructive-ish action (closing out a child's day) on a review screen warrants a confirmation step, unlike the log screen's easily-reversible multi-select-then-save.
 
@@ -77,9 +79,19 @@ The overview grid reuses `EntityAvatarChip` directly (not `AttendanceChildCard`,
 - **[Stricter admin-only gate diverges from `/attendance`'s staff gate]** Intentional per D1; documented so a future reader doesn't "fix" it to match.
 - **[Gate refactor touches already-shipped routes]** `/attendance` and `/attendance/[groupId]` behavior must not change — task list includes an explicit regression check (existing spec scenarios for `admin_options_attendance` gating must still pass unchanged).
 
+## Multi-cycle attendance support
+
+To support building-occupation tracking, the attendance data model allows multiple `attendance` rows per child per day:
+
+1. Drop the `(child_id, attendance_date)` unique constraint.
+2. `clock_in_children` always inserts a new row.
+3. `clock_out_children` closes only the most recent open row (latest `check_in` with `check_out` null).
+4. Read queries derive a child's current status from their latest open row; if no open row exists, the child is currently out.
+5. The teacher `/attendance/[groupId]` log screen shows currently-out kids in clock-in mode and currently-in kids in clock-out mode, so re-entry is a normal operation.
+
 ## Migration Plan
 
-Single PR, additive except the gate rename (mechanical, same runtime behavior for existing routes). No DB changes. Rollback = revert; the flag already exists and controls this screen too.
+Single PR. Mechanical gate refactor plus additive UI, plus a database migration and RPC update to support multi-cycle attendance. Rollback = revert migrations + code.
 
 ## Open Questions
 

@@ -136,8 +136,9 @@
       "counter": "{present}/{total} presentes",
       "save": "Guardar",
       "saveError": "Error al guardar la asistencia",
-      "emptyClockIn": "Todos los niños ya registraron su entrada hoy",
-      "emptyClockOut": "No hay niños pendientes de registrar salida"
+      "emptyClockIn": "Todos los niños están adentro",
+      "emptyClockOut": "No hay niños adentro",
+      "checkedOutBadge": "Salió"
     }
   },
   "AdminOptionsPage": {

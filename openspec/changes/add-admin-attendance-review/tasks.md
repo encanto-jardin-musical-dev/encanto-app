@@ -29,8 +29,17 @@
 - [x] 5.1 Add the `AdminAttendance` namespace to `messages/es.json` (screen title, group section, confirmation modal title/body, "Registrar salida" action)
 - [x] 5.2 Add the Asistencia tile label key under the existing `AdminOptionsPage.tiles` namespace
 
-## 6. Verification
+## 6. Multi-cycle attendance support
 
-- [x] 6.1 Run `pnpm lint` and `npx tsc --noEmit`; confirm no leftover `AttendanceAccessGate` references and no hardcoded copy
-- [x] 6.2 As admin with the flag on: tapping the counter and the Asistencia tile both open `/admin/attendance`; groups with currently present children render grouped; recording a check-out updates the list (child disappears from view) without a full reload
-- [x] 6.3 As teacher: `/admin/attendance` is not accessible even with the flag on; `/attendance` still works
+- [x] 6.1 Add database migration to drop `(child_id, attendance_date)` unique constraint so multiple check-in/check-out records per child per day are allowed
+- [x] 6.2 Update `clock_in_children` RPC to always insert a new attendance row on check-in
+- [x] 6.3 Update `clock_out_children` RPC to close only the most recent open row (latest check-in without check_out) for each child
+- [x] 6.4 Update `src/queries/attendance/get-group-attendance.ts` to derive a child's current status from their most recent open row, showing them as currently present if any open row exists
+- [x] 6.5 Update `AttendanceLog.tsx` clock-in mode to show children who are currently out (no open row), including those who checked out earlier today and can re-enter
+- [x] 6.6 Update `AttendanceLog.tsx` clock-out mode to show children who are currently in (open row), and visually mark previously-departed children in re-entry cycles if needed
+
+## 7. Verification
+
+- [x] 7.1 Run `pnpm lint` and `npx tsc --noEmit` after multi-cycle changes; confirm no leftover `AttendanceAccessGate` references
+- [x] 7.2 Verify a child can check in, check out, and check in again on the same day; each state is reflected correctly in `/attendance/[groupId]` and `/admin/attendance`
+- [x] 7.3 Verify existing admin/teacher gating still works

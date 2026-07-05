@@ -35,22 +35,33 @@ The overview SHALL list every group that has at least one child who is currently
 
 ### Requirement: Single-child check-out with confirmation
 
-Tapping a child who has a check-in and no check-out today SHALL open a confirmation showing the child's name and check-in time with a "Registrar salida" action. Confirming SHALL record that child's check-out via the existing check-out mechanism, called for that single child. Children who already have a check-out today SHALL NOT be displayed on this screen.
+Tapping a child who is currently present (has an open check-in with no matching check-out) SHALL open a confirmation showing the child's name and check-in time with a "Registrar salida" action. Confirming SHALL record that child's check-out via the existing check-out mechanism, called for that single child. Children who are not currently present SHALL NOT be displayed on this screen.
 
 #### Scenario: Recording a check-out
 
-- **WHEN** an admin taps a checked-in child and confirms "Registrar salida"
+- **WHEN** an admin taps a present child and confirms "Registrar salida"
 - **THEN** that child's check-out is recorded and the child disappears from the overview (no longer present) without a full page reload
+
+#### Scenario: Re-entry is supported
+
+- **WHEN** a child checked out earlier today and then re-enters the building
+- **THEN** a new check-in record can be created for the same child on the same day
+- **AND** the child appears again on the overview as currently present
 
 #### Scenario: Cancelling leaves the record unchanged
 
 - **WHEN** an admin taps a checked-in child and dismisses the confirmation without confirming
 - **THEN** no check-out is recorded
 
-#### Scenario: Already checked-out children are not visible
+#### Scenario: Children not currently present are not visible
 
-- **WHEN** a child has already checked out today
+- **WHEN** a child has no open check-in record (never checked in or already checked out)
 - **THEN** that child does not appear on the screen at all
+
+#### Scenario: Re-entered children are visible again
+
+- **WHEN** a child checked out earlier today and then checked in again
+- **THEN** that child appears on the screen as currently present
 
 ### Requirement: Localized copy
 

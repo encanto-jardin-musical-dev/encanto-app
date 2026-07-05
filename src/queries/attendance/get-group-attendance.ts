@@ -72,9 +72,19 @@ export async function getGroupAttendance(
     throw new Error(`Failed to fetch today's attendance: ${attendanceResult.error.message}`);
   }
 
+  // Group today's attendance rows by child. A child may have multiple rows
+  // (re-entry after checkout), so derive current status from the latest row.
   const attendanceByChild = new Map<string, { check_in: string | null; check_out: string | null }>();
   for (const a of attendanceResult.data ?? []) {
-    if (a.child_id) {
+    if (!a.child_id || !a.check_in) continue;
+
+    const existing = attendanceByChild.get(a.child_id);
+    // Prefer the most recent open row (no check_out) because that determines
+    // current building occupation. If no open row exists, keep the latest closed row.
+    const isOpen = a.check_out === null;
+    const existingIsOpen = existing?.check_out === null;
+
+    if (!existing || (isOpen && !existingIsOpen) || (isOpen === existingIsOpen && a.check_in > (existing.check_in ?? ''))) {
       attendanceByChild.set(a.child_id, { check_in: a.check_in, check_out: a.check_out });
     }
   }

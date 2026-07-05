@@ -17,4 +17,4 @@
 ## 4. Verification
 
 - [x] 4.1 Run `pnpm lint` and `npx tsc --noEmit`; confirm no remaining references to `adminAssistance` or `assistance.workshops`
-- [ ] 4.2 Verify on `/admin` as admin: single Jardín metric shows live `present/total` consistent with the attendance log screen's counter for today
+- [x] 4.2 Verify on `/admin` as admin: single Jardín metric shows live `present/total` consistent with the attendance log screen's counter for today

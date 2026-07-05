@@ -8,7 +8,7 @@
 
 **Goals:**
 
-- Jardín metric shows `count of children checked in today / total children`, live.
+- Jardín metric shows `count of children currently present (checked-in and not checked-out) / total children`, live.
 - Talleres metric, its mock, and its i18n key are removed.
 - "Today" matches the attendance feature's day boundary (America/Bogota) exactly.
 
@@ -22,7 +22,7 @@
 
 ### D1 — Count query: HEAD count on `attendance`, not a fetch
 
-`src/queries/attendance/get-today-present-count.ts` runs `client.from('attendance').select('*', { count: 'exact', head: true }).eq('attendance_date', todayDateString()).not('check_in', 'is', null)` and returns the count. A HEAD request with `count: 'exact'` transfers no rows. `attendance_date`'s uniqueness per child means the row count *is* the distinct-children count — no dedup needed.
+`src/queries/attendance/get-today-present-count.ts` runs `client.from('attendance').select('*', { count: 'exact', head: true }).eq('attendance_date', todayDateString()).not('check_in', 'is', null).is('check_out', null)` and returns the count. A HEAD request with `count: 'exact'` transfers no rows. With multi-cycle attendance a child may have multiple rows; this counts open rows, which equals the number of children currently present.
 
 *Alternative considered*: an RPC — unnecessary; this is a single-table filtered count the client can express, and the read stays consistent with the log screen's `todayDateString()`.
 

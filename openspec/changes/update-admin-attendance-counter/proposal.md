@@ -9,7 +9,7 @@ The admin dashboard's "Asistencia de hoy" panel still shows two mocked metrics �
 ## What Changes
 
 - Remove the **Talleres** (workshops) metric from the admin summary panel, its `workshops` entry in the mock, and its `assistance.workshops` i18n key.
-- Wire the remaining **Jardín** metric to live data: `children with a check-in today / total children`, using the same Bogota-local "today" as the attendance feature (`todayDateString` in `src/utils/dates.ts`).
+- Wire the remaining **Jardín** metric to live data: `children currently present (checked-in and not checked-out) / total children`, using the same Bogota-local "today" as the attendance feature (`todayDateString` in `src/utils/dates.ts`).
 - Delete `src/lib/mock/adminAssistance.ts` entirely (nothing else consumes it).
 - New query + hook following the established pattern: `src/queries/attendance/get-today-present-count.ts` and a `UseTodayPresentCountQuery` hook; the `total` side reuses the panel's existing `useChildrenCountQuery`.
 

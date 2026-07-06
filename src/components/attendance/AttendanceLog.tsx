@@ -39,12 +39,12 @@ export function AttendanceLog({ groupId }: AttendanceLogProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const children = useMemo(() => data ?? [], [data]);
-  const presentCount = children.filter(c => c.check_in).length;
+  const presentCount = children.filter(c => c.check_in && !c.check_out).length;
   const totalCount = children.length;
 
   const activeList = useMemo(() => {
     return mode === 'clock-in'
-      ? children.filter(c => !c.check_in)
+      ? children.filter(c => !c.check_in || c.check_out)
       : children.filter(c => c.check_in && !c.check_out);
   }, [children, mode]);
 
@@ -130,6 +130,13 @@ export function AttendanceLog({ groupId }: AttendanceLogProps) {
                 name={`${child.first_name} ${child.last_name}`}
                 selected={selectedIds.has(child.id)}
                 onToggle={() => toggleChild(child.id)}
+                overlay={
+                  mode === 'clock-in' && child.check_out ? (
+                    <span className="absolute -bottom-1 -right-1 bg-success text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                      {t('checkedOutBadge')}
+                    </span>
+                  ) : undefined
+                }
               />
             ))}
           </div>

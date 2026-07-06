@@ -136,8 +136,9 @@
       "counter": "{present}/{total} presentes",
       "save": "Guardar",
       "saveError": "Error al guardar la asistencia",
-      "emptyClockIn": "Todos los niños ya registraron su entrada hoy",
-      "emptyClockOut": "No hay niños pendientes de registrar salida"
+      "emptyClockIn": "Todos los niños están adentro",
+      "emptyClockOut": "No hay niños adentro",
+      "checkedOutBadge": "Salió"
     }
   },
   "AdminOptionsPage": {
@@ -148,15 +149,15 @@
       "groups": "Grupos",
       "children": "Niños",
       "teachers": "Maestros",
-      "parents": "Padres"
+      "parents": "Padres",
+      "attendance": "Asistencia"
     },
     "summary": {
       "totalKids": "Total de Niños"
     },
     "assistance": {
       "title": "Asistencia de hoy",
-      "childCare": "Jardín",
-      "workshops": "Talleres"
+      "childCare": "Jardín"
     }
   },
   "AdminChildren": {
@@ -496,6 +497,21 @@
       "resendInviteSuccess": "Invitación reenviada exitosamente",
       "resendInviteAlreadyActive": "El padre/madre ya tiene su cuenta activa",
       "resendInviteError": "Error al reenviar la invitación"
+    }
+  },
+  "AdminAttendance": {
+    "title": "Asistencia",
+    "subtitle": "Niños presentes actualmente",
+    "loading": "Cargando asistencia...",
+    "error": "Error al cargar asistencia",
+    "noChildrenPresent": "No hay niños presentes en este momento",
+    "noChildrenInGroup": "No hay niños presentes en este grupo",
+    "clickToCheckout": "Registrar salida de",
+    "checkoutModal": {
+      "title": "Confirmar Salida",
+      "checkInTime": "Hora de entrada",
+      "checkout": "Registrar salida",
+      "cancel": "Cancelar"
     }
   }
 }

@@ -95,7 +95,7 @@ export function ActionButton() {
   // navigate directly to create a new message.
   if (!showSuboptions) {
     return (
-      <div className="fixed bottom-8 right-8">
+      <div className="fixed bottom-8 right-8 z-50">
         <Button
           isIconOnly
           aria-label={t("triggerLabel")}
@@ -110,7 +110,7 @@ export function ActionButton() {
   }
 
   return (
-    <div className="fixed bottom-8 right-8">
+    <div className="fixed bottom-8 right-8 z-50">
       <Popover
         placement="top-end"
         isOpen={isOpen}

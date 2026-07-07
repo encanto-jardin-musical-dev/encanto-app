@@ -61,6 +61,10 @@
     },
     "GroupFeed": {
       "emptyFeed": "No hay mensajes"
+    },
+    "TaskFeedCard": {
+      "dueDate": "Vence: {date}",
+      "seeMore": "Ver más"
     }
   },
   "MessageCard": {
@@ -441,10 +445,22 @@
         "international_id": "ID Int.",
         "other": "Otro"
       },
-      "idNumber": { "label": "Número de documento", "placeholder": "Número de ID" },
-      "names": { "label": "Nombres", "placeholder": "Nombres del padre/madre" },
-      "lastNames": { "label": "Apellidos", "placeholder": "Apellidos del padre/madre" },
-      "phone": { "label": "Teléfono", "placeholder": "Número de teléfono (opcional)" },
+      "idNumber": {
+        "label": "Número de documento",
+        "placeholder": "Número de ID"
+      },
+      "names": {
+        "label": "Nombres",
+        "placeholder": "Nombres del padre/madre"
+      },
+      "lastNames": {
+        "label": "Apellidos",
+        "placeholder": "Apellidos del padre/madre"
+      },
+      "phone": {
+        "label": "Teléfono",
+        "placeholder": "Número de teléfono (opcional)"
+      },
       "avatar": {
         "label": "Foto del padre/madre",
         "change": "Cambiar foto",
@@ -512,6 +528,72 @@
       "checkInTime": "Hora de entrada",
       "checkout": "Registrar salida",
       "cancel": "Cancelar"
+    }
+  },
+  "TasksPage": {
+    "list": {
+      "title": "Tareas",
+      "searchPlaceholder": "Buscar tarea",
+      "empty": "No hay tareas registradas",
+      "createdLabel": "Creada: {date}",
+      "dueLabel": "Vence: {date}"
+    },
+    "actions": {
+      "view": "Ver",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "add": "Agregar tarea",
+      "save": "Guardar tarea"
+    },
+    "form": {
+      "newTitle": "Nueva Tarea",
+      "editTitle": "Editar Tarea",
+      "save": "Guardar",
+      "title": {
+        "label": "Título",
+        "placeholder": "Título de la tarea",
+        "required": "El título es obligatorio"
+      },
+      "group": {
+        "label": "Grupo",
+        "placeholder": "Seleccionar grupo"
+      },
+      "dueDate": {
+        "label": "Fecha de vencimiento"
+      },
+      "description": {
+        "label": "Descripción",
+        "placeholder": "Describe la tarea",
+        "counter": "{count}/{max}"
+      },
+      "attachments": {
+        "label": "Archivos",
+        "add": "Agregar archivos",
+        "uploadErrorTitle": "Error al subir archivos",
+        "uploadErrorDescription": "Uno o más archivos no se pudieron subir. Intenta de nuevo."
+      }
+    },
+    "toasts": {
+      "createSuccess": "Tarea creada exitosamente",
+      "createError": "Error al crear la tarea",
+      "updateSuccess": "Tarea actualizada exitosamente",
+      "updateError": "Error al actualizar la tarea",
+      "deleteSuccess": "Tarea eliminada exitosamente",
+      "deleteError": "Error al eliminar la tarea"
+    },
+    "deleteModal": {
+      "title": "Eliminar tarea",
+      "message": "¿Estás seguro que deseas eliminar la tarea {title}? Esta acción no se puede deshacer.",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar"
+    },
+    "detail": {
+      "groupLabel": "Grupo",
+      "createdLabel": "Creada",
+      "dueLabel": "Vence",
+      "descriptionLabel": "Descripción",
+      "attachmentsLabel": "Archivos adjuntos",
+      "notFound": "Tarea no encontrada"
     }
   }
 }

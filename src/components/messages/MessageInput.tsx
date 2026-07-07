@@ -8,7 +8,7 @@ import { userIdAtom, userRoleAtom } from '@/lib/store/user';
 import { Database } from '@/types/database.types';
 import type { Attachment } from '@/types/messages.types';
 import { uploadAttachments, type UploadProgress } from '@/utils/uploadAttachment/index';
-import { validateAttachments } from '@/utils/uploadAttachment/validate';
+import { MAX_FILE_COUNT, validateAttachments } from '@/utils/uploadAttachment/validate';
 import { PaperAirplaneIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { addToast, Button, Chip, Progress, Textarea } from '@heroui/react';
 import { useAtom } from 'jotai';
@@ -341,7 +341,7 @@ export default function MessageInput({ receiverId }: MessageInputProps) {
             isIconOnly
             aria-label="add files"
             onPress={handlePickFiles}
-            isDisabled={isReceiverMissing || isUploading}
+            isDisabled={isReceiverMissing || isUploading || selectedFiles.length >= MAX_FILE_COUNT}
             variant="flat"
           >
             <PlusIcon className="w-4 h-4" />

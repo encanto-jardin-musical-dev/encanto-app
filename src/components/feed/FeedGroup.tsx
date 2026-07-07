@@ -1,27 +1,35 @@
 'use client';
 
 import { contextGroupValue } from '@/lib/store/common';
-import { groupMessagesAtom } from '@/lib/store/feed';
+import { feedFilterAtom, groupMessagesAtom, groupTasksAtom } from '@/lib/store/feed';
 import { DetailedMessage, Attachment } from '@/types/messages.types';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import MessageFeedCard from './MessageFeedCard';
+import TaskFeedCard from './TaskFeedCard';
 import { ActionButton } from '../common/ActionButton';
 import { userAtom } from '@/lib/store/user';
 import EmptyFeed from './EmptyFeed';
 import useGetUserFeedMessages from '@/hooks/UseGetUserFeedMessages';
+import useGroupTasksQuery from '@/hooks/UseGroupTasksQuery';
 import { Spinner } from '@heroui/react';
 import { UseSupabaseRealtime } from '@/hooks/UseSupabaseRealtime';
 import UseGetUserProfilesQuery from '@/hooks/UseGetUserProfilesQuery';
+import { useFeatureFlagEnabled } from 'posthog-js/react';
+import { mergeFeedItems } from '@/utils/mergeFeedItems';
 import type { Database } from '@/types/database.types';
 
 export default function FeedGroup() {
   const [user] = useAtom(userAtom);
   const [groupContextId] = useAtom(contextGroupValue);
   const [groupMessages, setGroupMessages] = useAtom(groupMessagesAtom);
+  const [groupTasks, setGroupTasks] = useAtom(groupTasksAtom);
+  const feedFilter = useAtomValue(feedFilterAtom);
   const [pendingUserIds, setPendingUserIds] = useState<string[]>([]);
 
   const { id } = user;
+
+  const tasksEnabled = useFeatureFlagEnabled('admin_options_tasks') === true;
 
   const {
     data: feedMeessages,
@@ -32,6 +40,11 @@ export default function FeedGroup() {
     params: { userID: id, groupID: groupContextId as string },
     options: { enabled: id !== '' && groupContextId !== '' },
   });
+
+  const { data: feedTasks } = useGroupTasksQuery(
+    groupContextId as string,
+    tasksEnabled && groupContextId !== ''
+  );
 
   const { data, status } = UseSupabaseRealtime({
     channelName: 'feed-messages-channel',
@@ -107,6 +120,16 @@ export default function FeedGroup() {
   }, [feedMeessages, setGroupMessages]);
 
   useEffect(() => {
+    if (!tasksEnabled) {
+      setGroupTasks([]);
+      return;
+    }
+    if (feedTasks) {
+      setGroupTasks(feedTasks);
+    }
+  }, [feedTasks, tasksEnabled, setGroupTasks]);
+
+  useEffect(() => {
     if (status === 'connected' && data) {
       // Check if message is relevant to current user/group context
       const isRelevant = data.receiver_id === id && 
@@ -155,16 +178,25 @@ export default function FeedGroup() {
     return filterMostRecentMessagesBySender(groupMessages);
   }, [filterMostRecentMessagesBySender, groupMessages]);
 
+  const feedItems = useMemo(
+    () => mergeFeedItems(filteredMessages, groupTasks, feedFilter),
+    [filteredMessages, groupTasks, feedFilter]
+  );
+
   return (
-    <div className="w-full flex flex-col gap-4 h-full">
+    <div className="w-full flex flex-col gap-4 h-full pb-24">
       {isLoading && <Spinner />}
-      {filteredMessages.length === 0 && !isLoading && !isPending ? (
+      {feedItems.length === 0 && !isLoading && !isPending ? (
         <EmptyFeed />
       ) : null}
-      {filteredMessages.length > 0 && !isLoading
-        ? filteredMessages.map(message => (
-            <MessageFeedCard key={message.message_id} message={message} />
-          ))
+      {feedItems.length > 0 && !isLoading
+        ? feedItems.map(item =>
+            item.type === 'message' ? (
+              <MessageFeedCard key={item.data.message_id} message={item.data} />
+            ) : (
+              <TaskFeedCard key={item.data.id} task={item.data} />
+            )
+          )
         : null}
       <ActionButton />
     </div>

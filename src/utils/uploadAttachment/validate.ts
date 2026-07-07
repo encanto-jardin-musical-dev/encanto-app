@@ -10,7 +10,7 @@ export const ALLOWED_MIME_TYPES = [
 export type AllowedMimeType = (typeof ALLOWED_MIME_TYPES)[number];
 
 export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
-export const MAX_FILE_COUNT = 4;
+export const MAX_FILE_COUNT = 5;
 
 export interface ValidationError {
   file: File;
@@ -28,14 +28,10 @@ export interface ValidationResult {
  *
  * Note: We accept a `t` function compatible with next-intl's `useTranslations` output
  * so that callers can pass their own translator. Falls back to English defaults.
- *
- * `existingCount` lets callers whose already-attached items aren't File objects
- * (e.g. previously uploaded attachments) fold them into the count check.
  */
 export function validateAttachments(
   files: File[],
-  t?: (key: string, options?: { defaultValue: string; [k: string]: unknown }) => string,
-  existingCount = 0
+  t?: (key: string, options?: { defaultValue: string; [k: string]: unknown }) => string
 ): ValidationResult {
   const errors: ValidationError[] = [];
 
@@ -43,7 +39,7 @@ export function validateAttachments(
     t ? t(key, { defaultValue, ...vars }) : defaultValue;
 
   // Count validation
-  if (existingCount + files.length > MAX_FILE_COUNT) {
+  if (files.length > MAX_FILE_COUNT) {
     // Return immediately — no point checking individual files
     return {
       valid: false,

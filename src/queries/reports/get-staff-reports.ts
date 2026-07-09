@@ -5,6 +5,7 @@ type ReportRow = Database['public']['Tables']['daily_reports']['Row'];
 
 export type StaffReportRow = ReportRow & {
   groups: { name: string } | null;
+  children: { first_name: string; last_name: string } | null;
 };
 
 export type GetStaffReportsParams = {
@@ -24,12 +25,12 @@ export async function getStaffReports(
   const query = teacherId
     ? client
         .from('daily_reports')
-        .select('*, groups!inner(name, group_teachers!inner(teacher_id))')
+        .select('*, groups!inner(name, group_teachers!inner(teacher_id)), children(first_name, last_name)')
         .eq('groups.group_teachers.teacher_id', teacherId)
         .order('created_at', { ascending: false })
     : client
         .from('daily_reports')
-        .select('*, groups(name)')
+        .select('*, groups(name), children(first_name, last_name)')
         .order('created_at', { ascending: false });
 
   const { data, error } = await query;

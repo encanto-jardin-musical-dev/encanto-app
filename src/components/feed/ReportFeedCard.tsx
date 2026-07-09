@@ -31,7 +31,7 @@ export default function ReportFeedCard({ report }: ReportFeedCardProps) {
     enabled: !!firstImage,
   });
 
-  const backgroundUrl = firstImage ? signedUrlMap[firstImage.key] : undefined;
+  const backgroundUrl = firstImage ? signedUrlMap[firstImage.key] : '/defaults/report-cover.jpg';
   const authorName = report.profiles
     ? `${report.profiles.first_name} ${report.profiles.last_name}`.trim()
     : '';

@@ -8,6 +8,16 @@ Main sections are `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, and `Sec
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-07-09
+
+### Added
+
+- Daily reports: staff can create group-wide or single-child reports (title, description, up to 4 attachments) at `/reports`, with single-child targeting restricted to attendance-verified children; the staff list is grouped by group for admins. Parents see report cards in the feed with an image background and clamped description, a dedicated "Reportes" filter, and a read-only report detail screen. Guardians are notified of new reports via push notification or an in-app toast.
+
+### Changed
+
+- The "+" button's Daily Report action now navigates to the real reports screen instead of a placeholder.
+
 ## [1.1.0] - 2026-07-07
 
 ### Added

@@ -10,6 +10,7 @@ export default function FeedFilters() {
   const t = useTranslations("UserFeedPage.FeedFilters");
   const [filter, setFilter] = useAtom(feedFilterAtom);
   const tasksEnabled = useFeatureFlagEnabled("admin_options_tasks") === true;
+  const reportsEnabled = useFeatureFlagEnabled("admin_options_reports") === true;
 
   const select = (value: FeedFilter) => {
     setFilter((current) => (current === value ? "all" : value));
@@ -33,7 +34,13 @@ export default function FeedFilters() {
       >
         {t("messages")}
       </Chip>
-      <Chip radius="sm" isDisabled>
+      <Chip
+        color={filter === "reports" ? "primary" : "default"}
+        radius="sm"
+        isDisabled={!reportsEnabled}
+        className={reportsEnabled ? "cursor-pointer" : undefined}
+        onClick={() => reportsEnabled && select("reports")}
+      >
         {t("reports")}
       </Chip>
       <Chip

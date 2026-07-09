@@ -1,17 +1,21 @@
 'use client';
 
 import { contextGroupValue } from '@/lib/store/common';
-import { feedFilterAtom, groupMessagesAtom, groupTasksAtom } from '@/lib/store/feed';
+import { feedFilterAtom, groupMessagesAtom, groupReportsAtom, groupTasksAtom } from '@/lib/store/feed';
 import { DetailedMessage, Attachment } from '@/types/messages.types';
 import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import MessageFeedCard from './MessageFeedCard';
 import TaskFeedCard from './TaskFeedCard';
+import ReportFeedCard from './ReportFeedCard';
 import { ActionButton } from '../common/ActionButton';
+import { USER_ROLES } from '@/lib/const';
 import { userAtom } from '@/lib/store/user';
 import EmptyFeed from './EmptyFeed';
 import useGetUserFeedMessages from '@/hooks/UseGetUserFeedMessages';
 import useGroupTasksQuery from '@/hooks/UseGroupTasksQuery';
+import useGroupReportsQuery from '@/hooks/UseGroupReportsQuery';
+import useUserChildrenQuery from '@/hooks/UseGetUserChildrenQuery';
 import { Spinner } from '@heroui/react';
 import { UseSupabaseRealtime } from '@/hooks/UseSupabaseRealtime';
 import UseGetUserProfilesQuery from '@/hooks/UseGetUserProfilesQuery';
@@ -24,12 +28,15 @@ export default function FeedGroup() {
   const [groupContextId] = useAtom(contextGroupValue);
   const [groupMessages, setGroupMessages] = useAtom(groupMessagesAtom);
   const [groupTasks, setGroupTasks] = useAtom(groupTasksAtom);
+  const [groupReports, setGroupReports] = useAtom(groupReportsAtom);
   const feedFilter = useAtomValue(feedFilterAtom);
   const [pendingUserIds, setPendingUserIds] = useState<string[]>([]);
 
   const { id } = user;
 
   const tasksEnabled = useFeatureFlagEnabled('admin_options_tasks') === true;
+  const reportsEnabled = useFeatureFlagEnabled('admin_options_reports') === true;
+  const isParent = user.role === USER_ROLES.PARENT;
 
   const {
     data: feedMeessages,
@@ -41,9 +48,29 @@ export default function FeedGroup() {
     options: { enabled: id !== '' && groupContextId !== '' },
   });
 
-  const { data: feedTasks } = useGroupTasksQuery(
+  const { data: feedTasks, refetch: refetchTasks } = useGroupTasksQuery(
     groupContextId as string,
     tasksEnabled && groupContextId !== ''
+  );
+
+  // Reports carry an optional single-child target; for a parent we need the
+  // selected child's id (the group-context atom only stores the group id).
+  const { data: contextChildren } = useUserChildrenQuery({
+    params: { userID: id, groupID: groupContextId as string },
+    options: { enabled: reportsEnabled && isParent && id !== '' && groupContextId !== '' },
+  });
+
+  const selectedChildId = useMemo(() => {
+    if (!isParent) return undefined;
+    const match = (contextChildren ?? []).find((row) => (row.children?.child_groups?.length ?? 0) > 0);
+    return match?.children?.id;
+  }, [contextChildren, isParent]);
+
+  const { data: feedReports, refetch: refetchReports } = useGroupReportsQuery(
+    groupContextId as string,
+    isParent ? selectedChildId : undefined,
+    reportsEnabled && groupContextId !== '' && (!isParent || !!selectedChildId),
+    !isParent
   );
 
   const { data, status } = UseSupabaseRealtime({
@@ -51,6 +78,37 @@ export default function FeedGroup() {
     schema: 'public',
     table: 'messages',
     event: 'INSERT',
+  });
+
+  const { data: newTaskRow, status: tasksRealtimeStatus } = UseSupabaseRealtime({
+    channelName: 'feed-tasks-channel',
+    schema: 'public',
+    table: 'tasks',
+    event: 'INSERT',
+  });
+
+  const { data: newReportRow, status: reportsRealtimeStatus } = UseSupabaseRealtime({
+    channelName: 'feed-reports-channel',
+    schema: 'public',
+    table: 'daily_reports',
+    event: 'INSERT',
+  });
+
+  // DELETE payloads only carry the primary key (tasks/daily_reports use the
+  // default REPLICA IDENTITY), so we just drop the id from local state
+  // rather than re-deriving group/child visibility from the payload.
+  const { data: deletedTaskRow, status: taskDeleteStatus } = UseSupabaseRealtime({
+    channelName: 'feed-tasks-delete-channel',
+    schema: 'public',
+    table: 'tasks',
+    event: 'DELETE',
+  });
+
+  const { data: deletedReportRow, status: reportDeleteStatus } = UseSupabaseRealtime({
+    channelName: 'feed-reports-delete-channel',
+    schema: 'public',
+    table: 'daily_reports',
+    event: 'DELETE',
   });
 
   const { data: userProfiles = [] } = UseGetUserProfilesQuery({
@@ -130,6 +188,53 @@ export default function FeedGroup() {
   }, [feedTasks, tasksEnabled, setGroupTasks]);
 
   useEffect(() => {
+    if (!reportsEnabled) {
+      setGroupReports([]);
+      return;
+    }
+    if (feedReports) {
+      setGroupReports(feedReports);
+    }
+  }, [feedReports, reportsEnabled, setGroupReports]);
+
+  useEffect(() => {
+    if (
+      tasksRealtimeStatus === 'connected' &&
+      newTaskRow &&
+      tasksEnabled &&
+      groupContextId !== '' &&
+      newTaskRow.group_id === groupContextId
+    ) {
+      refetchTasks();
+    }
+  }, [newTaskRow, tasksRealtimeStatus, tasksEnabled, groupContextId, refetchTasks]);
+
+  useEffect(() => {
+    if (
+      reportsRealtimeStatus === 'connected' &&
+      newReportRow &&
+      reportsEnabled &&
+      groupContextId !== '' &&
+      newReportRow.group_id === groupContextId
+    ) {
+      const isVisible = !isParent || !newReportRow.child_id || newReportRow.child_id === selectedChildId;
+      if (isVisible) refetchReports();
+    }
+  }, [newReportRow, reportsRealtimeStatus, reportsEnabled, groupContextId, isParent, selectedChildId, refetchReports]);
+
+  useEffect(() => {
+    if (taskDeleteStatus === 'connected' && deletedTaskRow?.id) {
+      setGroupTasks((prev) => prev.filter((task) => task.id !== deletedTaskRow.id));
+    }
+  }, [deletedTaskRow, taskDeleteStatus, setGroupTasks]);
+
+  useEffect(() => {
+    if (reportDeleteStatus === 'connected' && deletedReportRow?.id) {
+      setGroupReports((prev) => prev.filter((report) => report.id !== deletedReportRow.id));
+    }
+  }, [deletedReportRow, reportDeleteStatus, setGroupReports]);
+
+  useEffect(() => {
     if (status === 'connected' && data) {
       // Check if message is relevant to current user/group context
       const isRelevant = data.receiver_id === id && 
@@ -179,12 +284,12 @@ export default function FeedGroup() {
   }, [filterMostRecentMessagesBySender, groupMessages]);
 
   const feedItems = useMemo(
-    () => mergeFeedItems(filteredMessages, groupTasks, feedFilter),
-    [filteredMessages, groupTasks, feedFilter]
+    () => mergeFeedItems(filteredMessages, groupTasks, groupReports, feedFilter),
+    [filteredMessages, groupTasks, groupReports, feedFilter]
   );
 
   return (
-    <div className="w-full flex flex-col gap-4 h-full pb-24">
+    <div className="w-full flex flex-col gap-4 h-full pb-[calc(5rem+2vh)]">
       {isLoading && <Spinner />}
       {feedItems.length === 0 && !isLoading && !isPending ? (
         <EmptyFeed />
@@ -193,8 +298,10 @@ export default function FeedGroup() {
         ? feedItems.map(item =>
             item.type === 'message' ? (
               <MessageFeedCard key={item.data.message_id} message={item.data} />
-            ) : (
+            ) : item.type === 'task' ? (
               <TaskFeedCard key={item.data.id} task={item.data} />
+            ) : (
+              <ReportFeedCard key={item.data.id} report={item.data} />
             )
           )
         : null}

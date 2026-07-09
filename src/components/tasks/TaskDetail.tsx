@@ -36,6 +36,10 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
 
   const [isEditing, setIsEditing] = useState(() => isStaff && searchParams.get('edit') === '1');
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  // Suppresses the notFound() check below once deletion succeeds — the
+  // invalidated detail query would otherwise refetch to null and throw
+  // before router.push('/tasks') finishes navigating away.
+  const [isDeleted, setIsDeleted] = useState(false);
   const formRef = useRef<TaskFormRef>(null);
 
   const attachments: Attachment[] = Array.isArray(task?.attachments)
@@ -47,7 +51,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
     enabled: attachments.length > 0,
   });
 
-  if (isSuccess && !task) {
+  if (isSuccess && !task && !isDeleted) {
     notFound();
   }
 
@@ -94,6 +98,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
   const handleConfirmDelete = () => {
     deleteTask(task.id, {
       onSuccess: () => {
+        setIsDeleted(true);
         addToast({ title: t('toasts.deleteSuccess'), color: 'success' });
         router.push('/tasks');
       },

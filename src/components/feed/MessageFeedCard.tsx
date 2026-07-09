@@ -115,7 +115,7 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
 
   return (
     <Card
-      className={`text-white ${
+      className={`text-white shrink-0 h-auto ${
         sender_role === USER_ROLES.ADMIN ? 'bg-secondary-400' : 'bg-success-600'
       }`}
       isPressable
@@ -157,7 +157,7 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
           </div>
         </div>
       </CardHeader>
-      <CardBody>
+      <CardBody className="overflow-visible">
         {/* Message text content */}
         {message_content ? (
           <p className="text-small pl-8">{message_content}</p>

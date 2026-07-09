@@ -176,29 +176,35 @@ export type Database = {
         Row: {
           attachments: Json | null
           child_id: string | null
-          content: Json
           created_at: string | null
+          description: string | null
+          group_id: string | null
           id: string
           report_date: string
           teacher_id: string | null
+          title: string
         }
         Insert: {
           attachments?: Json | null
           child_id?: string | null
-          content: Json
           created_at?: string | null
+          description?: string | null
+          group_id?: string | null
           id?: string
           report_date?: string
           teacher_id?: string | null
+          title: string
         }
         Update: {
           attachments?: Json | null
           child_id?: string | null
-          content?: Json
           created_at?: string | null
+          description?: string | null
+          group_id?: string | null
           id?: string
           report_date?: string
           teacher_id?: string | null
+          title?: string
         }
         Relationships: [
           {
@@ -206,6 +212,13 @@ export type Database = {
             columns: ["child_id"]
             isOneToOne: false
             referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_reports_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
             referencedColumns: ["id"]
           },
           {
@@ -500,49 +513,27 @@ export type Database = {
     Functions: {
       clock_in_children: { Args: { child_ids: string[] }; Returns: undefined }
       clock_out_children: { Args: { child_ids: string[] }; Returns: undefined }
-      get_profiles_by_guardian:
-        | {
-            Args: never
-            Returns: {
-              avatar_url: string | null
-              created_at: string | null
-              document_number: string
-              document_type: Database["public"]["Enums"]["document_type"]
-              first_name: string
-              id: string
-              last_name: string
-              phone: string | null
-              role: Database["public"]["Enums"]["user_role"]
-              updated_at: string | null
-            }[]
-            SetofOptions: {
-              from: "*"
-              to: "profiles"
-              isOneToOne: false
-              isSetofReturn: true
-            }
-          }
-        | {
-            Args: { p_child_id?: string }
-            Returns: {
-              avatar_url: string | null
-              created_at: string | null
-              document_number: string
-              document_type: Database["public"]["Enums"]["document_type"]
-              first_name: string
-              id: string
-              last_name: string
-              phone: string | null
-              role: Database["public"]["Enums"]["user_role"]
-              updated_at: string | null
-            }[]
-            SetofOptions: {
-              from: "*"
-              to: "profiles"
-              isOneToOne: false
-              isSetofReturn: true
-            }
-          }
+      get_profiles_by_guardian: {
+        Args: { p_child_id?: string }
+        Returns: {
+          avatar_url: string | null
+          created_at: string | null
+          document_number: string
+          document_type: Database["public"]["Enums"]["document_type"]
+          first_name: string
+          id: string
+          last_name: string
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "profiles"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       is_admin: { Args: { user_id: string }; Returns: boolean }
       is_staff: { Args: { user_id: string }; Returns: boolean }
     }

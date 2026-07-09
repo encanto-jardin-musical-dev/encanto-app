@@ -32,7 +32,7 @@ export default function TaskFeedCard({ task }: TaskFeedCardProps) {
   };
 
   return (
-    <Card className="bg-primary-100">
+    <Card className="bg-primary-100 shrink-0 h-auto">
       <CardHeader className="gap-2 items-start">
         <div>
           <ClipboardDocumentListIcon className="w-6 h-6 text-primary-600" />
@@ -45,7 +45,7 @@ export default function TaskFeedCard({ task }: TaskFeedCardProps) {
           <span>{format.relativeTime(createdDate, now)}</span>
         </div>
       </CardHeader>
-      <CardBody className="gap-2">
+      <CardBody className="gap-2 overflow-visible">
         {snippet && <p className="text-small text-default-700">{snippet}</p>}
         {task.due_date && (
           <div className="flex items-center gap-1 text-small text-default-500">

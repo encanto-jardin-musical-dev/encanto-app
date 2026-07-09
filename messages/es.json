@@ -65,6 +65,10 @@
     "TaskFeedCard": {
       "dueDate": "Vence: {date}",
       "seeMore": "Ver más"
+    },
+    "ReportFeedCard": {
+      "seeMore": "Ver más",
+      "individualFor": "Para {name}"
     }
   },
   "MessageCard": {
@@ -594,6 +598,69 @@
       "descriptionLabel": "Descripción",
       "attachmentsLabel": "Archivos adjuntos",
       "notFound": "Tarea no encontrada"
+    }
+  },
+  "ReportsPage": {
+    "list": {
+      "title": "Reportes",
+      "searchPlaceholder": "Buscar reporte",
+      "empty": "No hay reportes registrados",
+      "createdLabel": "Creado: {date}",
+      "ungroupedLabel": "Sin grupo"
+    },
+    "actions": {
+      "add": "Agregar reporte",
+      "save": "Guardar reporte",
+      "view": "Ver",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "form": {
+      "newTitle": "Nuevo Reporte",
+      "group": {
+        "label": "Grupo",
+        "placeholder": "Seleccionar grupo",
+        "required": "El grupo es obligatorio"
+      },
+      "child": {
+        "label": "Enviar a",
+        "sendToAll": "Todo el grupo"
+      },
+      "title": {
+        "label": "Título",
+        "placeholder": "Título del reporte",
+        "required": "El título es obligatorio"
+      },
+      "description": {
+        "label": "Descripción",
+        "placeholder": "Describe el reporte",
+        "counter": "{count}/{max}"
+      },
+      "attachments": {
+        "label": "Archivos",
+        "add": "Agregar archivos",
+        "uploadErrorTitle": "Error al subir archivos",
+        "uploadErrorDescription": "Uno o más archivos no se pudieron subir. Intenta de nuevo."
+      },
+      "editTitle": "Editar Reporte"
+    },
+    "toasts": {
+      "createSuccess": "Reporte creado exitosamente",
+      "createError": "Error al crear el reporte",
+      "updateSuccess": "Reporte actualizado exitosamente",
+      "updateError": "Error al actualizar el reporte",
+      "deleteSuccess": "Reporte eliminado exitosamente",
+      "deleteError": "Error al eliminar el reporte"
+    },
+    "detail": {
+      "unknownAuthor": "Autor desconocido",
+      "notFound": "Reporte no encontrado"
+    },
+    "deleteModal": {
+      "title": "Eliminar reporte",
+      "message": "¿Estás seguro que deseas eliminar el reporte {title}? Esta acción no se puede deshacer.",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar"
     }
   }
 }

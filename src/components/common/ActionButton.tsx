@@ -38,7 +38,7 @@ const STAFF_ACTIONS: ActionItem[] = [
   },
   {
     key: "daily-report",
-    route: "/daily-report",
+    route: "/reports",
     icon: ClipboardDocumentListIcon,
     flag: "admin_options_reports",
   },

@@ -82,10 +82,10 @@ export default function MessageCard({
     >
       <Card
         key={message_id}
-        className={`w-11/12 ${isOwnMessage ? "bg-secondary-200 justify-self-end" : "bg-default-200"}`}
+        className={`w-11/12 shrink-0 h-auto ${isOwnMessage ? "bg-secondary-200 justify-self-end" : "bg-default-200"}`}
         shadow="none"
       >
-        <CardBody>
+        <CardBody className="overflow-visible">
           {/* Text content (may be empty for attachment-only messages) */}
           {message_content ? <p>{message_content}</p> : null}
 

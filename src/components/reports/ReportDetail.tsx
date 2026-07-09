@@ -10,7 +10,8 @@ import useUpdateReportMutation from '@/hooks/UseUpdateReportMutation';
 import { USER_ROLES } from '@/lib/const';
 import { userAtom } from '@/lib/store/user';
 import type { Attachment } from '@/types/messages.types';
-import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
+import { DocumentArrowDownIcon, EllipsisVerticalIcon } from '@heroicons/react/24/outline';
+import Image from 'next/image';
 import {
   addToast,
   Avatar,
@@ -55,6 +56,8 @@ export function ReportDetail({ reportId }: ReportDetailProps) {
   const attachments: Attachment[] = Array.isArray(report?.attachments)
     ? (report.attachments as unknown as Attachment[])
     : [];
+  const imageAttachments = attachments.filter((att) => att.contentType.startsWith('image/'));
+  const fileAttachments = attachments.filter((att) => !att.contentType.startsWith('image/'));
 
   const { signedUrlMap, isLoading: isSigningUrls, isError: isSigningError } = useAttachmentUrlsQuery({
     requests: attachments.map((attachment) => ({ messageId: reportId, attachment })),
@@ -145,9 +148,15 @@ export function ReportDetail({ reportId }: ReportDetailProps) {
 
   return (
     <div className="flex flex-col gap-4 pb-20">
-      {attachments.length > 0 && (
+      {imageAttachments.length === 0 && (
+        <div className="relative h-40 w-full rounded-lg overflow-hidden">
+          <Image src="/defaults/report-cover.jpg" alt="" fill className="object-cover" />
+        </div>
+      )}
+
+      {imageAttachments.length > 0 && (
         <MessageAttachments
-          attachments={attachments}
+          attachments={imageAttachments}
           signedUrls={signedUrlMap}
           isLoading={isSigningUrls}
           isError={isSigningError}
@@ -193,6 +202,34 @@ export function ReportDetail({ reportId }: ReportDetailProps) {
           <p className="text-default-700 whitespace-pre-wrap mt-1">{report.description}</p>
         )}
       </div>
+
+      {fileAttachments.length > 0 && (
+        <div className="flex flex-col gap-2">
+          {fileAttachments.map((att, i) => {
+            const url = signedUrlMap[att.key];
+            const hasError = isSigningError || (!isSigningUrls && !url);
+
+            return (
+              <a
+                key={`${att.key}-${i}`}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                download={att.name}
+                aria-label={t('detail.downloadFile', { name: att.name })}
+                className={`flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
+                  hasError
+                    ? 'bg-danger-50 text-danger pointer-events-none'
+                    : 'bg-primary text-white hover:bg-primary-600'
+                }`}
+              >
+                <DocumentArrowDownIcon className="w-5 h-5 shrink-0" />
+                <span className="truncate">{t('detail.downloadFile', { name: att.name })}</span>
+              </a>
+            );
+          })}
+        </div>
+      )}
 
       <ConfirmDeleteModal
         isOpen={isDeleteOpen}

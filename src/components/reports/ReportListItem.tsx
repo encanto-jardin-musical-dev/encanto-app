@@ -31,6 +31,10 @@ export function ReportListItem({ report }: ReportListItemProps) {
 
   const dateOptions = { year: 'numeric', month: 'short', day: 'numeric' } as const;
 
+  const childName = report.children
+    ? `${report.children.first_name} ${report.children.last_name}`.trim()
+    : null;
+
   const handleAction = (key: string) => {
     if (key === 'view') {
       router.push(detailRoute);
@@ -60,8 +64,11 @@ export function ReportListItem({ report }: ReportListItemProps) {
         onClick={() => router.push(detailRoute)}
         className="min-w-0 flex flex-col text-left flex-1"
       >
-        <span className="font-medium text-foreground truncate">{report.title}</span>
-        <span className="text-small text-default-500">
+        <span className="text-medium font-semibold text-foreground truncate">{report.title}</span>
+        {childName && (
+          <span className="text-tiny font-medium text-primary truncate">{childName}</span>
+        )}
+        <span className="text-tiny text-default-500">
           {t('list.createdLabel', {
             date: report.created_at ? format.dateTime(new Date(report.created_at), dateOptions) : '—',
           })}

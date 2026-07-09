@@ -654,7 +654,8 @@
     },
     "detail": {
       "unknownAuthor": "Autor desconocido",
-      "notFound": "Reporte no encontrado"
+      "notFound": "Reporte no encontrado",
+      "downloadFile": "Descargar {name}"
     },
     "deleteModal": {
       "title": "Eliminar reporte",

@@ -158,7 +158,8 @@
       "children": "Niños",
       "teachers": "Maestros",
       "parents": "Padres",
-      "attendance": "Asistencia"
+      "attendance": "Asistencia",
+      "cleanup": "Limpieza"
     },
     "summary": {
       "totalKids": "Total de Niños"
@@ -166,6 +167,45 @@
     "assistance": {
       "title": "Asistencia de hoy",
       "childCare": "Jardín"
+    }
+  },
+  "AdminCleanup": {
+    "title": "Limpieza de datos",
+    "description": "Esta herramienta elimina permanentemente los mensajes, tareas y reportes diarios con más de un año de antigüedad, junto con sus archivos adjuntos. Primero ejecuta una vista previa para revisar qué se eliminará; la eliminación requiere confirmación escrita.",
+    "entities": {
+      "messages": "Mensajes",
+      "tasks": "Tareas",
+      "reports": "Reportes diarios"
+    },
+    "preview": {
+      "action": "Ejecutar vista previa",
+      "error": "Error al ejecutar la vista previa"
+    },
+    "summary": {
+      "title": "Resumen de eliminación",
+      "cutoffLabel": "Se eliminarán únicamente los registros creados antes del {cutoff}.",
+      "columns": {
+        "entity": "Entidad",
+        "rows": "Filas a eliminar",
+        "objects": "Archivos a eliminar"
+      }
+    },
+    "confirm": {
+      "prompt": "Escribe {phrase} para habilitar la eliminación"
+    },
+    "execute": {
+      "action": "Eliminar permanentemente",
+      "error": "Error al ejecutar la limpieza"
+    },
+    "results": {
+      "title": "Resultados de la limpieza",
+      "columns": {
+        "entity": "Entidad",
+        "rowsDeleted": "Filas eliminadas",
+        "objectsDeleted": "Archivos eliminados",
+        "status": "Estado"
+      },
+      "ok": "Completado"
     }
   },
   "AdminChildren": {

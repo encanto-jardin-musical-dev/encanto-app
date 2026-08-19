@@ -5,8 +5,10 @@ import {
   UserGroupIcon,
   UsersIcon,
   ClockIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import { useTranslations } from "next-intl";
+import { useFeatureFlagEnabled } from "posthog-js/react";
 import { AdminShortcutTile } from "./AdminShortcutTile";
 
 const SHORTCUT_TILES = [
@@ -19,6 +21,8 @@ const SHORTCUT_TILES = [
 
 export function AdminShortcuts() {
   const t = useTranslations("AdminOptionsPage");
+  // Hooks run unconditionally; undefined (loading) is treated as off.
+  const cleanupEnabled = useFeatureFlagEnabled("admin_cleanup") === true;
 
   return (
     <div className="flex flex-col gap-3">
@@ -32,6 +36,13 @@ export function AdminShortcuts() {
             route={route}
           />
         ))}
+        {cleanupEnabled && (
+          <AdminShortcutTile
+            icon={TrashIcon}
+            label={t("tiles.cleanup")}
+            route="/admin/cleanup"
+          />
+        )}
       </div>
     </div>
   );

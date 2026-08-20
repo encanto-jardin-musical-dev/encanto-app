@@ -26,7 +26,7 @@
 ## 5. Function response & deploy
 
 - [x] 5.1 Return the execute summary: per-entity `{ rowsDeleted, objectsDeleted, error? }`; add structured `console` logging for audit (mode, caller id, cutoff, per-entity results)
-- [ ] 5.2 Deploy with `supabase functions deploy admin-data-cleanup` and smoke-test preview/execute against staging with an admin JWT (verify 403 for non-admin, 400 for bad phrase/cutoff)
+- [x] 5.2 Deploy with `supabase functions deploy admin-data-cleanup` and smoke-test preview/execute against staging with an admin JWT (verify 403 for non-admin, 400 for bad phrase/cutoff)
 
 ## 6. Frontend data layer
 
@@ -48,5 +48,5 @@
 ## 9. Verification
 
 - [x] 9.1 Run `pnpm lint` and `pnpm build` to validate types and compilation
-- [ ] 9.2 Flag behavior: with `admin_cleanup` off, the tile is hidden and `/admin/cleanup` returns not-found; with it on, the tile appears and the page renders; no flicker or redirect while the flag resolves
-- [ ] 9.3 Manual end-to-end check (flag on): preview counts match DB queries → execute button disabled until phrase typed → execute deletes only rows older than the pinned cutoff → attachments gone from S3 → results summary matches expectations → newer rows and other tables untouched
+- [x] 9.2 Flag behavior: with `admin_cleanup` off, the tile is hidden and `/admin/cleanup` returns not-found; with it on, the tile appears and the page renders; no flicker or redirect while the flag resolves
+- [x] 9.3 Manual end-to-end check (flag on): preview counts match DB queries → execute button disabled until phrase typed → execute deletes only rows older than the pinned cutoff → attachments gone from S3 → results summary matches expectations → newer rows and other tables untouched

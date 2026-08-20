@@ -62,7 +62,7 @@ export function ReportList() {
   return (
     <div className="grid grid-rows-[auto_1fr] gap-3 min-h-0 overflow-hidden">
       <AdminSearchBar onSearch={setSearch} placeholder={t('searchPlaceholder')} />
-      <div className="flex flex-col gap-3 overflow-y-auto min-h-0 pb-20">
+      <div className="flex flex-col gap-3 overflow-y-auto min-h-0 pb-20 md:pb-0">
         {isPending ? (
           <ReportListSkeleton />
         ) : filteredReports.length === 0 ? (

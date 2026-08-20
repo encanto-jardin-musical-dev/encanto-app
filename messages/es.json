@@ -120,12 +120,24 @@
   "ActionButton": {
     "triggerLabel": "Acciones",
     "actions": {
+      "feed": "Inicio",
       "attendance": "Asistencia",
       "daily-report": "Reporte diario",
       "tasks": "Tareas",
       "messages": "Mensajes",
       "admin-options": "Administrar"
     }
+  },
+  "Sidebar": {
+    "navLabel": "Navegación principal",
+    "userLabel": "Usuario actual",
+    "appName": "Encanto App",
+    "toggleExpand": "Expandir menú",
+    "toggleCollapse": "Contraer menú"
+  },
+  "MessagesEmptyState": {
+    "title": "Selecciona una conversación",
+    "description": "Elige un contacto de la lista para ver los mensajes"
   },
   "Attendance": {
     "picker": {

@@ -124,7 +124,7 @@ export function ReportDetail({ reportId }: ReportDetailProps) {
 
   if (isEditing) {
     return (
-      <div className="flex flex-col gap-4 pb-20">
+      <div className="flex flex-col gap-4 pb-20 md:pb-0">
         <ReportForm
           ref={formRef}
           defaultValues={{
@@ -147,7 +147,7 @@ export function ReportDetail({ reportId }: ReportDetailProps) {
   const createdDate = report.created_at ? new Date(report.created_at) : null;
 
   return (
-    <div className="flex flex-col gap-4 pb-20">
+    <div className="flex flex-col gap-4 pb-20 md:pb-0">
       {imageAttachments.length === 0 && (
         <div className="relative h-40 w-full rounded-lg overflow-hidden">
           <Image src="/defaults/report-cover.jpg" alt="" fill className="object-cover" />

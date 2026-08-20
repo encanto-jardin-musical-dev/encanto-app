@@ -289,7 +289,7 @@ export default function FeedGroup() {
   );
 
   return (
-    <div className="w-full flex flex-col gap-4 h-full pb-[calc(5rem+2vh)]">
+    <div className="w-full flex flex-col gap-4 h-full pb-[calc(5rem+2vh)] md:pb-0">
       {isLoading && <Spinner />}
       {feedItems.length === 0 && !isLoading && !isPending ? (
         <EmptyFeed />

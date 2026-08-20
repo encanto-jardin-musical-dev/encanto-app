@@ -110,7 +110,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
 
   if (isEditing) {
     return (
-      <div className="flex flex-col gap-4 pb-20">
+      <div className="flex flex-col gap-4 pb-20 md:pb-0">
         <TaskForm
           ref={formRef}
           defaultValues={{
@@ -129,7 +129,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
   const dateOptions = { year: 'numeric', month: 'short', day: 'numeric' } as const;
 
   return (
-    <div className="flex flex-col gap-4 pb-20">
+    <div className="flex flex-col gap-4 pb-20 md:pb-0">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-lg font-bold text-foreground">{task.title}</h2>

@@ -8,6 +8,17 @@ Main sections are `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, and `Sec
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-08-20
+
+### Added
+
+- Desktop layout: authenticated routes now use a collapsible sidebar on larger screens.
+- Admin data cleanup: new admin feature to clean up/clear entity data.
+
+### Changed
+
+- Daily reports improvements: default cover image, PDF download CTA, and child name shown in the staff list.
+
 ## [1.2.0] - 2026-07-09
 
 ### Added

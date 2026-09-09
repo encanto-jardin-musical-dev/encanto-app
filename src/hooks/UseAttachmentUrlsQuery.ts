@@ -1,13 +1,15 @@
 'use client';
 
-// Fetches presigned GET URLs for message attachments from the sign-attachment-urls edge function.
-// Caches results with a staleTime of ~23 hours to stay within the 24-hour S3 presigned URL TTL.
+// Fetches signed GET URLs for message attachments from the sign-attachment-urls
+// edge function, which verifies participant access and signs Supabase Storage
+// URLs (private `message-attachments` bucket). Caches results with a staleTime
+// of ~23 hours to stay within the 24-hour signed-URL TTL.
 
 import type { Attachment } from '@/types/messages.types';
 import { createClient } from '@/utils/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
-// 23 hours in milliseconds — stays safely under the 24-hour presigned URL TTL
+// 23 hours in milliseconds — stays safely under the 24-hour signed URL TTL
 const STALE_TIME_MS = 23 * 60 * 60 * 1000;
 
 interface AttachmentRequest {
@@ -64,7 +66,7 @@ async function fetchSignedUrls(
 }
 
 /**
- * Fetches presigned GET URLs for a batch of message attachments.
+ * Fetches signed GET URLs for a batch of message attachments.
  * Results are cached for ~23 hours (staleTime) to avoid re-signing within the 24h TTL window.
  *
  * Returns a `signedUrlMap` keyed by attachment `key` for O(1) lookup in rendering.

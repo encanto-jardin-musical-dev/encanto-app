@@ -8,6 +8,21 @@ Main sections are `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, and `Sec
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-09-09
+
+### Changed
+
+- Message/report/task attachments now use private Supabase Storage (bucket `message-attachments`) instead of AWS S3: client uploads go directly to Supabase Storage, and reads are served via participant-gated signed URLs from the `sign-attachment-urls` edge function. Upload role gating (teacher/admin) is enforced by storage RLS. Attachment metadata and behavior (allowed types, 10 MB / 4-file limits, attachment-only messages, `attachments_enabled` gate) are unchanged.
+- Admin data cleanup now deletes attachment objects via the Supabase Storage API instead of S3 and no longer depends on AWS.
+
+### Added
+
+- Admin data cleanup: orphaned-attachment sweep (`orphan-preview` / `orphan-execute`) that removes unreferenced Supabase Storage objects older than one year, with a one-year age guard and admin-only, preview-first, typed-confirmation safeguards.
+
+### Removed
+
+- Direct-to-S3 attachment uploads via presigned PUT and the `upload-attachment-url` edge function.
+
 ## [1.3.0] - 2026-08-20
 
 ### Added

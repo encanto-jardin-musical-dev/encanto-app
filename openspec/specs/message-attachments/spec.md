@@ -1,19 +1,19 @@
 ## ADDED Requirements
 
 ### Requirement: Role-gated attachment uploads
-The system SHALL allow only users with `teacher` or `admin` role to upload attachments to messages. Parents MUST be prevented from uploading attachments in v1.
+The system SHALL allow only users with `teacher` or `admin` role to upload attachments to messages. Parents MUST be prevented from uploading attachments. The role restriction SHALL be enforced by a Supabase Storage RLS policy on the `message-attachments` bucket (INSERT), in addition to any client-side gating.
 
-#### Scenario: Teacher requests a presigned upload URL
-- **WHEN** an authenticated user with role `teacher` calls the `upload-attachment-url` edge function with a valid file descriptor
-- **THEN** the function returns a presigned S3 PUT URL bound to the requested content type and size limit
+#### Scenario: Teacher uploads an attachment
+- **WHEN** an authenticated user with role `teacher` uploads a valid file to the `message-attachments` bucket
+- **THEN** the storage INSERT policy permits the upload and the object is stored
 
-#### Scenario: Parent attempts to request an upload URL
-- **WHEN** an authenticated user with role `parent` calls the `upload-attachment-url` edge function
-- **THEN** the function returns HTTP 403 and no S3 URL is issued
+#### Scenario: Parent attempts to upload
+- **WHEN** an authenticated user with role `parent` attempts to upload to the `message-attachments` bucket
+- **THEN** the storage INSERT policy denies the request and no object is stored
 
 #### Scenario: Unauthenticated caller
-- **WHEN** a caller with no valid Supabase JWT calls the `upload-attachment-url` edge function
-- **THEN** the function returns HTTP 401
+- **WHEN** a caller with no valid Supabase session attempts to upload to the `message-attachments` bucket
+- **THEN** the request is denied
 
 ### Requirement: Allowed file types and sizes
 The system SHALL accept only the following MIME types for message attachments: `image/jpeg`, `image/png`, `image/webp`, and `application/pdf`. The maximum file size per attachment MUST be 10 megabytes. A single message MUST NOT contain more than 5 attachments.
@@ -41,16 +41,20 @@ The client SHALL validate file type and size before requesting a presigned URL, 
 - **WHEN** the user picks a `.mov` file in the message composer
 - **THEN** the file is rejected locally and an error toast is shown without calling any edge function
 
-### Requirement: Direct-to-S3 upload via presigned PUT
-The client SHALL upload attachment files directly to the S3 bucket using the presigned PUT URL returned by the edge function. Uploads MUST NOT be proxied through the Next.js server.
+### Requirement: Attachment upload via Supabase Storage
+The client SHALL upload attachment files to a private Supabase Storage bucket named `message-attachments` using the Supabase Storage client (`supabase.storage.from('message-attachments').upload(...)`). Uploads MUST NOT be proxied through the Next.js server and MUST NOT use AWS S3 or presigned PUT URLs. Each stored object's path SHALL be recorded as the `key` field of the attachment metadata.
 
 #### Scenario: Successful upload
-- **WHEN** the client receives a presigned PUT URL and issues a PUT with the matching content type
-- **THEN** S3 stores the object under the provided key and responds 200
+- **WHEN** an authorized teacher or admin uploads a valid file through the message composer
+- **THEN** the file is stored in the `message-attachments` bucket and its object path is captured as the attachment `key`
 
 #### Scenario: Upload failure aborts send
-- **WHEN** any attachment upload fails before the message is sent
+- **WHEN** any attachment upload to Supabase Storage fails before the message is sent
 - **THEN** the message is not inserted into the `messages` table and the user is shown a retry prompt
+
+#### Scenario: Upload does not touch the Next.js server or S3
+- **WHEN** an attachment is uploaded
+- **THEN** the file bytes are sent directly to Supabase Storage and no request is made to AWS S3 or a Next.js API route for the upload
 
 ### Requirement: Attachment persistence in messages.attachments
 The system SHALL persist attachment metadata in the existing `messages.attachments` jsonb column as an array. Each entry MUST include at least the fields `key`, `contentType`, `size`, and `name`.
@@ -64,19 +68,19 @@ The system SHALL persist attachment metadata in the existing `messages.attachmen
 - **THEN** the inserted `messages` row has `attachments = null`
 
 ### Requirement: Private bucket with presigned GET on read
-The S3 bucket SHALL block all public access. When a message participant fetches a thread, the system SHALL provide presigned GET URLs with a **24-hour TTL** that can be used to display the attachments.
+The `message-attachments` Supabase Storage bucket SHALL block all public access. When a message participant renders a thread, the system SHALL generate signed URLs via the Supabase Storage client (`createSignedUrls`) for the attachment object paths it needs to display. Access to sign/read an object SHALL be restricted to participants of the message that references that object.
 
 #### Scenario: Participant loads a thread with attachments
 - **WHEN** an authenticated participant loads a message thread containing attachments
-- **THEN** the client receives presigned GET URLs for each attachment key it needs to render
+- **THEN** the client obtains signed URLs for each attachment `key` it needs to render
 
-#### Scenario: Non-participant attempts to sign a URL
-- **WHEN** an authenticated user who is not a participant of a message calls the signing function for that message's attachment keys
-- **THEN** the function returns HTTP 403 and no URLs are issued
+#### Scenario: Non-participant attempts to read an attachment
+- **WHEN** an authenticated user who is not a participant of a message attempts to sign or read that message's attachment object
+- **THEN** the request is denied and no signed URL is returned for that object
 
-#### Scenario: GET URL expires
-- **WHEN** more than 24 hours have passed since a GET URL was signed
-- **THEN** the URL no longer authorizes S3 access
+#### Scenario: Signed URL expires
+- **WHEN** the configured signed-URL TTL has elapsed since a URL was generated
+- **THEN** the URL no longer authorizes access to the object
 
 ### Requirement: HEIC upload handling
 **[DEFERRED — Phase 2]** The client SHALL attempt to convert HEIC files to WEBP before upload. When conversion fails, the client MAY upload the raw HEIC file and MUST display a warning indicating the preview may not render on some devices.

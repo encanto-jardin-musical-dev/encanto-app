@@ -55,6 +55,7 @@ next-env.d.ts
 .opencode/*
 .mcp.*
 .kilo/*
+.kiro/*
 .pi/*
 
 # Serwist

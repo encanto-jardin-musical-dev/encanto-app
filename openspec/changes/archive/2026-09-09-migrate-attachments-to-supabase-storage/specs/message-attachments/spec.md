@@ -32,7 +32,7 @@ The system SHALL allow only users with `teacher` or `admin` role to upload attac
 - **WHEN** a caller with no valid Supabase session attempts to upload to the `message-attachments` bucket
 - **THEN** the request is denied
 
-### Requirement: Private bucket with signed URLs on read
+### Requirement: Private bucket with presigned GET on read
 The `message-attachments` Supabase Storage bucket SHALL block all public access. When a message participant renders a thread, the system SHALL generate signed URLs via the Supabase Storage client (`createSignedUrls`) for the attachment object paths it needs to display. Access to sign/read an object SHALL be restricted to participants of the message that references that object.
 
 #### Scenario: Participant loads a thread with attachments

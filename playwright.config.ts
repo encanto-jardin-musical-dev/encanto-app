@@ -20,6 +20,10 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
+      // `env` replaces process.env entirely rather than merging with it, so
+      // spread it explicitly — otherwise the dev server loses
+      // NEXT_PUBLIC_SUPABASE_URL and everything else the CI job exports.
+      ...process.env,
       NEXT_PUBLIC_E2E_FEATURE_FLAGS:
         'admin_options_attendance,admin_options_reports,admin_options_tasks',
     },

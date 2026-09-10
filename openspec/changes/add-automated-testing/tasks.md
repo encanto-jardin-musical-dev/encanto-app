@@ -9,11 +9,11 @@
 
 ## 2. Unit tests for queries and hooks
 
-- [ ] 2.1 Write unit tests for existing functions in `src/queries/` (success path, error path) using the Supabase client mock
-- [ ] 2.2 Write unit tests for existing hooks in `src/hooks/` that wrap `useQuery`/`useMutation`, asserting query keys, `enabled` conditions, and error propagation
-- [ ] 2.3 Write unit tests for `src/hooks/UseGetMessagesQuery.ts` (or equivalent) covering keyset pagination behavior (`getNextPageParam` cursor logic)
-- [ ] 2.4 Write unit/component tests for role-gated logic (e.g. the "+" action button's per-role/per-flag visibility)
-- [ ] 2.5 Run `pnpm test:coverage` and iterate until `src/queries/**` and `src/hooks/**` meet the 80% threshold
+- [x] 2.1 Write unit tests for existing functions in `src/queries/` (success path, error path) using the Supabase client mock
+- [x] 2.2 Write unit tests for existing hooks in `src/hooks/` that wrap `useQuery`/`useMutation`, asserting query keys, `enabled` conditions, and error propagation
+- [x] 2.3 Write unit tests for `src/hooks/UseGetMessagesQuery.ts` (or equivalent) covering keyset pagination behavior (`getNextPageParam` cursor logic)
+- [x] 2.4 Write unit/component tests for role-gated logic (e.g. the "+" action button's per-role/per-flag visibility)
+- [x] 2.5 Run `pnpm test:coverage` and iterate until `src/queries/**` and `src/hooks/**` meet the 80% threshold
 
 ## 3. Playwright setup
 

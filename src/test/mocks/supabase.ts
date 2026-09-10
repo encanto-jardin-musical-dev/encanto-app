@@ -84,7 +84,7 @@ export function createSupabaseClientMock(fromResults: Record<string, MockResult>
 
   return {
     from,
-    rpc: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    rpc: vi.fn((): Promise<MockResult> => Promise.resolve({ data: null, error: null })),
     storage: {
       from: vi.fn(() => ({
         createSignedUrl: vi.fn(() => Promise.resolve({ data: null, error: null })),

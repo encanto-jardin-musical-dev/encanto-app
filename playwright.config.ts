@@ -5,7 +5,13 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: './e2e/specs',
-  fullyParallel: true,
+  // All projects share one `pnpm dev` server and one local Supabase/Postgres
+  // instance (not one per worker), so parallel workers race the same app
+  // instance and produce flaky failures (auth redirects, RLS-scoped reads
+  // returning stale data) under load. Single-worker keeps the suite reliable
+  // at the cost of some speed — acceptable for this suite's current size.
+  fullyParallel: false,
+  workers: 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: 'html',

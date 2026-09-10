@@ -4,7 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 import { request as playwrightRequest, type FullConfig } from '@playwright/test';
 import { seedFixtures, type SeededFixtures } from './seed';
 
-const AUTH_DIR = path.join(__dirname, '..', '.auth');
+// This project is ESM ("type": "module"), so __dirname isn't available here.
+const AUTH_DIR = path.join(import.meta.dirname, '..', '.auth');
 export const FIXTURES_PATH = path.join(AUTH_DIR, 'fixtures.json');
 
 async function signIn(email: string, password: string) {

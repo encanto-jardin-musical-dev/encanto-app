@@ -17,8 +17,12 @@ import { test, expect } from '@playwright/test';
 test('parent can view their feed and message the group teacher', async ({ page }) => {
   await page.goto('/feed');
   await expect(page).toHaveURL(/\/feed$/);
-  // FeedUser header renders the signed-in parent's name.
-  await expect(page.getByText('Parent E2E')).toBeVisible();
+  // FeedUser header renders the signed-in parent's name. Scoped to the
+  // sidebar's user-label region: a bare getByText also matches the feed
+  // heading "Hola, Parent E2E" (substring match), tripping strict mode.
+  await expect(
+    page.getByLabel('Usuario actual').getByText('Parent E2E', { exact: true })
+  ).toBeVisible();
 
   await page.goto('/messages');
   const teacherContact = page.getByRole('link', { name: /Teacher E2E/ });

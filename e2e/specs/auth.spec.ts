@@ -29,7 +29,12 @@ test('magic-link session bypass lands the user on /feed with role-appropriate na
   await page.goto('/');
   await expect(page).toHaveURL(/\/feed$/);
 
-  await expect(page.getByText(DISPLAY_NAME[role])).toBeVisible();
+  // Scoped to the sidebar's user-label region: a bare getByText(name) also
+  // matches the feed heading "Hola, {name}" (substring match), which is a
+  // separate element and trips Playwright's strict-mode check.
+  await expect(
+    page.getByLabel('Usuario actual').getByText(DISPLAY_NAME[role], { exact: true })
+  ).toBeVisible();
 
   const nav = page.getByRole('navigation', { name: 'Navegación principal' });
   await expect(nav.getByRole('link', { name: 'Inicio' })).toBeVisible();

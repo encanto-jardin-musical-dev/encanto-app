@@ -22,6 +22,20 @@ COMMENT ON SCHEMA "public" IS 'standard public schema';
 
 
 
+-- pg_net (required by the new_message/new_report triggers' call to
+-- supabase_functions.http_request, which uses net.http_post) isn't captured
+-- by a schema-scoped dump — confirmed missing locally by reproducing
+-- "schema \"net\" does not exist" on message insert. Must be created with NO
+-- explicit schema clause: pg_net is non-relocatable and its install script
+-- hardcodes `create schema if not exists net`, so `WITH SCHEMA net` (schema
+-- must already exist) or any other schema fails outright. Needs a non-empty
+-- search_path (set to '' above) to have somewhere to register the extension.
+SET search_path TO "public";
+CREATE EXTENSION IF NOT EXISTS "pg_net";
+SELECT pg_catalog.set_config('search_path', '', false);
+
+
+
 CREATE TYPE "public"."attendance_status" AS ENUM (
     'present',
     'absent',
@@ -1113,6 +1127,16 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "anon";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "authenticated";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "service_role";
+
+
+
+-- Realtime publication membership isn't schema DDL, so `supabase db dump
+-- --schema public` doesn't capture it — confirmed against the linked remote
+-- project via a full (non schema-scoped) dump. Without these, the feed/
+-- messaging UI's realtime subscriptions never fire locally.
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."daily_reports";
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."messages";
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."tasks";
 
 
 

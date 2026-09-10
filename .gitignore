@@ -6,6 +6,8 @@
 # pnpm
 .pnpm-store/
 .pnpm-debug.log*
+/global/
+/package-manager-store/
 
 # Yarn (legacy - not used)
 /.pnp
@@ -18,6 +20,12 @@
 
 # testing
 /coverage
+
+# Playwright
+/e2e/.auth/
+/playwright-report/
+/test-results/
+/blob-report/
 
 # next.js
 /.next/
@@ -65,5 +73,9 @@ public/swe-worker*
 # Firebase (generated at build time)
 public/firebase-messaging-sw.js
 
-# Supabase
+# Supabase (config.toml and migrations are tracked — needed so `supabase
+# start` builds the real schema locally and in CI; functions/.temp stay local)
 supabase/*
+!supabase/config.toml
+!supabase/migrations
+!supabase/migrations/**

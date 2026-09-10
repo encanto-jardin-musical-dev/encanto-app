@@ -34,7 +34,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
           </HeroUIProvider>
         </JotaiProvider>
       </PostHogProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* Hidden during e2e runs — its floating toggle button overlaps and
+          intercepts clicks on real UI (e.g. the message composer's submit
+          button) since it renders in `next dev`, which e2e always runs against. */}
+      {!process.env.NEXT_PUBLIC_E2E_FEATURE_FLAGS && (
+        <ReactQueryDevtools initialIsOpen={false} />
+      )}
     </QueryClientProvider>
   );
 }

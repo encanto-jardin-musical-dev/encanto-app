@@ -19,18 +19,31 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
+    env: {
+      NEXT_PUBLIC_E2E_FEATURE_FLAGS:
+        'admin_options_attendance,admin_options_reports,admin_options_tasks',
+    },
   },
+  // Each project only runs the specs written for that role's storageState:
+  // `auth.spec.ts` runs under all three (it asserts the same "lands on
+  // /feed" behavior with role-appropriate differences), while
+  // parent/teacher/admin/permissions specs are scoped to the one role they
+  // need. Without this, every spec would run once per project against every
+  // role's session.
   projects: [
     {
       name: 'parent',
+      testMatch: /(auth|parent|permissions)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], storageState: 'e2e/.auth/parent.json' },
     },
     {
       name: 'teacher',
+      testMatch: /(auth|teacher)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], storageState: 'e2e/.auth/teacher.json' },
     },
     {
       name: 'admin',
+      testMatch: /(auth|admin)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], storageState: 'e2e/.auth/admin.json' },
     },
   ],

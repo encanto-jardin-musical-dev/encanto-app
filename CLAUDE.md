@@ -19,6 +19,12 @@ pnpm start:https            # Start production server with HTTPS
 # Code quality
 pnpm lint                   # Run ESLint
 
+# Testing (see `## Testing` below and TESTING.md for conventions)
+pnpm test                   # Run unit tests once (Vitest)
+pnpm test:watch             # Run unit tests in watch mode
+pnpm test:coverage          # Run unit tests with coverage (80% gate on src/queries/** and src/hooks/**)
+pnpm test:e2e               # Run Playwright e2e suite (requires `supabase start`)
+
 # Database (if Supabase CLI is installed locally)
 supabase start             # Start local Supabase instance
 supabase db reset          # Reset local database (destructive, clears all data)
@@ -231,6 +237,14 @@ Two service workers coexist on the same origin with non-overlapping scopes:
 - Always register `/firebase-messaging-sw.js` with scope `/firebase-cloud-messaging-push-scope` (see `src/utils/pushNotifications/index.ts`)
 - Call `removeDeviceToken` **before** `supabase.auth.signOut()` while the session is still active (done in `NotificationSettingsPopover.tsx`)
 
+## Testing
+
+Vitest (unit) and Playwright (e2e) are both set up — see `TESTING.md` for full conventions (directory layout, naming, running locally, seeding local Supabase). Summary:
+
+- **Unit tests**: colocated `*.test.ts(x)` next to the source file. Coverage is gated at 80% lines/statements, scoped to `src/queries/**` and `src/hooks/**` only — not the whole `src/` tree. The Supabase client is mocked (`src/test/mocks/supabase.ts`) so unit tests never hit a real database.
+- **E2e tests**: Playwright specs under `e2e/specs/`, run against a local Supabase instance (`supabase start`), never against staging/production. Auth is bypassed via a test-only session endpoint rather than real magic-link email — see `TESTING.md`.
+- **CI**: `.github/workflows/ci.yml` runs both suites on every PR to `main`, currently in report-only (non-blocking) mode while the suite stabilizes.
+
 ## Development Notes
 
 - Uses experimental HTTPS support (`pnpm dev:https`) for PWA testing (requires the `certificates/` dir)
@@ -238,7 +252,6 @@ Two service workers coexist on the same origin with non-overlapping scopes:
 - PostHog analytics proxied through `/d4t4-3nc4nt0/` endpoint (rewrites in both `next.config.ts` and `vercel.json` — keep them in sync)
 - Sentry is wired via `withSentryConfig` in `next.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`, and `src/instrumentation.ts`
 - Bruno API client configurations in `bru_encanto_app/` for API testing
-- **No test framework is configured** — do not add tests without confirming the approach with the user first
 
 ## Git Commit Guidelines
 

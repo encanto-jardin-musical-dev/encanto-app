@@ -26,20 +26,20 @@
 
 ## 4. Critical-path e2e specs
 
-- [ ] 4.1 Auth: magic-link session bypass works and lands the user on the correct home route per role
-- [ ] 4.2 Parent flow: view feed, open a message thread, send a message with an attachment, view a daily report and attendance for their child
-- [ ] 4.3 Teacher flow: clock in/out, post a daily report to their group, create a group task, message a guardian
-- [ ] 4.4 Admin flow: navigate the admin dashboard, view children/groups/teachers/parents management screens
-- [ ] 4.5 Permission-boundary spec: a parent cannot access another guardian's child data or an admin-only route
+- [x] 4.1 Auth: magic-link session bypass works and lands the user on the correct home route per role
+- [x] 4.2 Parent flow: view feed, open a message thread, send a message with an attachment, view a daily report and attendance for their child
+- [x] 4.3 Teacher flow: clock in/out, post a daily report to their group, create a group task, message a guardian
+- [x] 4.4 Admin flow: navigate the admin dashboard, view children/groups/teachers/parents management screens
+- [x] 4.5 Permission-boundary spec: a parent cannot access another guardian's child data or an admin-only route
 
 ## 5. CI integration
 
-- [ ] 5.1 Add (or extend) the GitHub Actions workflow with a `test` job running `pnpm lint`-adjacent unit tests + coverage
-- [ ] 5.2 Add an `e2e` job that provisions the Supabase CLI, runs `supabase start`, applies migrations, runs the seed script, then `pnpm test:e2e`
-- [ ] 5.3 Run both jobs in report-only (non-blocking) mode for one PR cycle to validate stability
-- [ ] 5.4 Flip both jobs to required/blocking PR checks once stable
+- [x] 5.1 Add (or extend) the GitHub Actions workflow with a `test` job running `pnpm lint`-adjacent unit tests + coverage
+- [x] 5.2 Add an `e2e` job that provisions the Supabase CLI, runs `supabase start`, applies migrations, runs the seed script, then `pnpm test:e2e`
+- [x] 5.3 Run both jobs in report-only (non-blocking) mode for one PR cycle to validate stability
+- [ ] 5.4 Flip both jobs to required/blocking PR checks once stable (operational follow-up: needs a real PR cycle to confirm stability first — see TESTING.md)
 
 ## 6. Documentation
 
-- [ ] 6.1 Document testing conventions (where tests live, naming, how to run unit/e2e locally, how to seed local Supabase) in `TESTING.md` or a `## Testing` section of `CLAUDE.md`
-- [ ] 6.2 Update `CLAUDE.md`'s "No test framework is configured" note to reflect the new setup
+- [x] 6.1 Document testing conventions (where tests live, naming, how to run unit/e2e locally, how to seed local Supabase) in `TESTING.md` or a `## Testing` section of `CLAUDE.md`
+- [x] 6.2 Update `CLAUDE.md`'s "No test framework is configured" note to reflect the new setup

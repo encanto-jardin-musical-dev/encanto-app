@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Unit tests + coverage
+    runs-on: ubuntu-latest
+    # Report-only for now — see TESTING.md for the plan to make this blocking.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm test:coverage
+
+  e2e:
+    name: E2e tests (Playwright + local Supabase)
+    runs-on: ubuntu-latest
+    # Report-only for now — see TESTING.md for the plan to make this blocking.
+    continue-on-error: true
+    env:
+      E2E_TEST_AUTH_SECRET: e2e-ci-secret
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase (applies supabase/migrations)
+        run: supabase start
+
+      - name: Export local Supabase connection details
+        run: supabase status -o env >> "$GITHUB_ENV"
+
+      - name: Run Playwright e2e suite
+        run: pnpm test:e2e
+        env:
+          SUPABASE_URL: ${{ env.API_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ env.API_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ env.SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ env.ANON_KEY }}
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

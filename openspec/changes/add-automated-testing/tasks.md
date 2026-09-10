@@ -18,11 +18,11 @@
 ## 3. Playwright setup
 
 - [x] 3.1 Add `@playwright/test` as a dev dependency and run `pnpm exec playwright install`
-- [ ] 3.2 Create `playwright.config.ts` (base URL pointing at local dev server, projects for the roles' storage states, `webServer` block to boot `pnpm dev` if not already running)
-- [ ] 3.3 Create `e2e/` directory structure (`e2e/fixtures/`, `e2e/specs/`)
-- [ ] 3.4 Write a fixture-seeding script (`e2e/fixtures/seed.ts`) that uses the Supabase service role to create parent/teacher/admin users, a group, a child, and a guardian link
-- [ ] 3.5 Write a `globalSetup` that runs the seed script and mints a session per role via the Supabase admin API, saving each as a Playwright `storageState` file
-- [ ] 3.6 Add a `pnpm test:e2e` script wired to the Playwright config
+- [x] 3.2 Create `playwright.config.ts` (base URL pointing at local dev server, projects for the roles' storage states, `webServer` block to boot `pnpm dev` if not already running)
+- [x] 3.3 Create `e2e/` directory structure (`e2e/fixtures/`, `e2e/specs/`)
+- [x] 3.4 Write a fixture-seeding script (`e2e/fixtures/seed.ts`) that uses the Supabase service role to create parent/teacher/admin users, a group, a child, and a guardian link
+- [x] 3.5 Write a `globalSetup` that runs the seed script and mints a session per role via the Supabase admin API, saving each as a Playwright `storageState` file
+- [x] 3.6 Add a `pnpm test:e2e` script wired to the Playwright config
 
 ## 4. Critical-path e2e specs
 

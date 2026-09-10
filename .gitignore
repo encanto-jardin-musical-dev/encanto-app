@@ -6,6 +6,8 @@
 # pnpm
 .pnpm-store/
 .pnpm-debug.log*
+/global/
+/package-manager-store/
 
 # Yarn (legacy - not used)
 /.pnp

@@ -53,7 +53,10 @@ jobs:
         run: supabase start
 
       - name: Export local Supabase connection details
-        run: supabase status -o env >> "$GITHUB_ENV"
+        # `supabase status -o env` quotes every value (KEY="value"); GITHUB_ENV
+        # takes everything after `=` literally, so unquote before appending or
+        # every var ends up wrapped in literal quote characters.
+        run: supabase status -o env | sed -E 's/^([A-Z_0-9]+)="(.*)"$/\1=\2/' >> "$GITHUB_ENV"
 
       - name: Run Playwright e2e suite
         run: pnpm test:e2e

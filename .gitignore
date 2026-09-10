@@ -73,5 +73,9 @@ public/swe-worker*
 # Firebase (generated at build time)
 public/firebase-messaging-sw.js
 
-# Supabase
+# Supabase (config.toml and migrations are tracked — needed so `supabase
+# start` builds the real schema locally and in CI; functions/.temp stay local)
 supabase/*
+!supabase/config.toml
+!supabase/migrations
+!supabase/migrations/**

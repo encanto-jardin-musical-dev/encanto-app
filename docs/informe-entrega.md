@@ -141,14 +141,14 @@ Una lectura directa de qué está sólido, qué necesita una decisión, y qué f
 | ✅ Corregido | La limpieza de fixtures de e2e ya quedó corregida | `teardownFixtures()` no borraba filas en `messages`, `daily_reports`, `tasks` ni `attendance` antes de eliminar los usuarios de prueba (esas tablas usan `ON DELETE RESTRICT`), y el error de `deleteUser` se ignoraba. Corregido y verificado con corridas consecutivas en verde. |
 | ✅ Corregido | Flake de selector en `teacher.spec.ts` corregido | `getByLabel('Grupo')` coincidía con dos elementos (el `<select>` nativo oculto de HeroUI y su botón visible), causando una falla intermitente. Se acotó a `getByRole('button', {name: /Grupo/})`. |
 | ✅ Listo | CI ahora bloquea sobre pruebas fallidas | Con varias corridas consecutivas en verde (cuatro corridas de PR más una corrida manual que incluyó el fix de fixtures), se quitó `continue-on-error` de ambos jobs en `ci.yml` — un PR con una prueba rota ya no puede integrarse a `main`. |
-| ⚠️ Necesita acción | Quedan 2 de 3 acciones del asesor de Supabase pendientes | El asesor de seguridad en vivo ya no marca el vencimiento largo de OTP (resuelto), pero **protección contra contraseñas filtradas** y **actualización de Postgres** (`supabase-postgres-15.8.1.114`) siguen abiertas — ambas solo configurables desde el panel de Supabase, no vía migración. |
+| 🔒 Bloqueado por plan | Quedan 2 de 3 acciones del asesor de Supabase pendientes | El asesor de seguridad en vivo ya no marca el vencimiento largo de OTP (resuelto), pero **protección contra contraseñas filtradas** y **actualización de Postgres** (`supabase-postgres-15.8.1.114`) siguen abiertas — ambas no son alcanzables en el plan gratuito actual del proyecto en Supabase; requieren subir a un plan pago antes de poder resolverse. |
 | ℹ️ Decisión de alcance | Producto en un solo idioma, por diseño | Todos los textos son en español vía next-intl. No es una brecha a resolver: el alcance del proyecto es un único cliente hispanohablante, así que no está planeado dar soporte a otros idiomas. |
 | ℹ️ Decisión de alcance | Un solo cliente, por diseño | Los grupos y roles asumen un único jardín (Encanto Jardín Musical) porque este trabajo se hizo para un solo cliente — no está planeado dar soporte multi-tenant a otros jardines. |
 
 ## Próximos pasos
 
-**01 · Cerrar las 2 acciones restantes del asesor de Supabase**
-De las tres acciones de panel documentadas como pendientes del operador en el cambio archivado `openspec/changes/archive/2026-09-10-fix-supabase-advisories/operator-actions.md`, una ya se resolvió (vencimiento de OTP). Quedan dos, solo configurables desde el dashboard de Supabase: activar protección contra contraseñas filtradas (HaveIBeenPwned) y actualizar la versión de Postgres.
+**01 · Decidir sobre las 2 acciones restantes del asesor de Supabase, bloqueadas por el plan**
+De las tres acciones de panel documentadas como pendientes del operador en el cambio archivado `openspec/changes/archive/2026-09-10-fix-supabase-advisories/operator-actions.md`, una ya se resolvió (vencimiento de OTP). Las otras dos — protección contra contraseñas filtradas (HaveIBeenPwned) y actualización de la versión de Postgres — no son alcanzables en el plan gratuito actual del proyecto en Supabase: requieren subir a un plan pago. Queda pendiente de negocio decidir si se sube de plan para cerrarlas.
 
 ---
 

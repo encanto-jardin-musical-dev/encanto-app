@@ -37,7 +37,7 @@
 - [x] 5.1 Add (or extend) the GitHub Actions workflow with a `test` job running `pnpm lint`-adjacent unit tests + coverage
 - [x] 5.2 Add an `e2e` job that provisions the Supabase CLI, runs `supabase start`, applies migrations, runs the seed script, then `pnpm test:e2e`
 - [x] 5.3 Run both jobs in report-only (non-blocking) mode for one PR cycle to validate stability
-- [ ] 5.4 Flip both jobs to required/blocking PR checks once stable (operational follow-up: needs a real PR cycle to confirm stability first — see TESTING.md)
+- [x] 5.4 Flip both jobs to required/blocking PR checks once stable (operational follow-up: needs a real PR cycle to confirm stability first — see TESTING.md)
 
 ## 6. Documentation
 

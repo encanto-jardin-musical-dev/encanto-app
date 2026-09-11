@@ -172,8 +172,25 @@ export async function teardownFixtures(): Promise<void> {
   const existingFixtureUsers = (usersPage?.users ?? []).filter((u) =>
     u.email ? fixtureEmails.has(u.email) : false
   );
+  const existingFixtureIds = existingFixtureUsers.map((u) => u.id);
 
-  await Promise.all(
-    existingFixtureUsers.map((user) => admin.auth.admin.deleteUser(user.id))
-  );
+  // messages/daily_reports/tasks/attendance use ON DELETE RESTRICT (not
+  // CASCADE) on the fixture user's id, so specs that send a message, clock
+  // in, or create a report/task leave rows that block deleteUser below.
+  // Without this cleanup, deleteUser fails, the stale fixture user survives,
+  // and the next run's createUser errors with "already registered".
+  if (existingFixtureIds.length > 0) {
+    const idList = existingFixtureIds.join(',');
+    await admin.from('messages').delete().or(`sender_id.in.(${idList}),receiver_id.in.(${idList})`);
+    await admin.from('daily_reports').delete().in('teacher_id', existingFixtureIds);
+    await admin.from('tasks').delete().in('teacher_id', existingFixtureIds);
+    await admin.from('attendance').delete().in('recorded_by', existingFixtureIds);
+  }
+
+  for (const user of existingFixtureUsers) {
+    const { error } = await admin.auth.admin.deleteUser(user.id);
+    if (error) {
+      throw new Error(`Failed to delete fixture user ${user.email}: ${error.message}`);
+    }
+  }
 }

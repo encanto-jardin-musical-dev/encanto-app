@@ -15,7 +15,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:local": "env $(grep -v '^#' .env.e2e | grep -v '^$' | xargs) pnpm test:e2e"
   },
   "type": "module",
   "dependencies": {

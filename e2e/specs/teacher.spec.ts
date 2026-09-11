@@ -63,7 +63,11 @@ test('teacher can post a daily report visible to the child\'s parent', async ({
   await page.getByRole('button', { name: 'Agregar reporte' }).click();
   await expect(page).toHaveURL(/\/reports\/new$/);
 
-  await page.getByLabel('Grupo', { exact: true }).click();
+  // HeroUI's Select renders a hidden native <select> alongside its visible
+  // trigger button, both carrying the "Grupo" accessible label — getByLabel
+  // matches both and trips Playwright's strict mode. Scope to the visible
+  // trigger (role="button") to disambiguate.
+  await page.getByRole('button', { name: /Grupo/ }).click();
   await page.getByRole('option', { name: GROUP_NAME }).click();
 
   await page.getByLabel('Título').fill(reportTitle);
@@ -91,7 +95,11 @@ test('teacher can create a task for their group', async ({ page }) => {
   await expect(page).toHaveURL(/\/tasks\/new$/);
 
   await page.getByLabel('Título').fill(taskTitle);
-  await page.getByLabel('Grupo', { exact: true }).click();
+  // HeroUI's Select renders a hidden native <select> alongside its visible
+  // trigger button, both carrying the "Grupo" accessible label — getByLabel
+  // matches both and trips Playwright's strict mode. Scope to the visible
+  // trigger (role="button") to disambiguate.
+  await page.getByRole('button', { name: /Grupo/ }).click();
   await page.getByRole('option', { name: GROUP_NAME }).click();
 
   await page.getByRole('button', { name: 'Guardar tarea' }).click();

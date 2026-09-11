@@ -141,8 +141,8 @@ Una lectura directa de qué está sólido, qué necesita una decisión, y qué f
 | ✅ Corregido | La limpieza de fixtures de e2e ya quedó corregida | `teardownFixtures()` no borraba filas en `messages`, `daily_reports`, `tasks` ni `attendance` antes de eliminar los usuarios de prueba (esas tablas usan `ON DELETE RESTRICT`), y el error de `deleteUser` se ignoraba. Corregido y verificado con corridas consecutivas en verde. |
 | ✅ Corregido | Flake de selector en `teacher.spec.ts` corregido | `getByLabel('Grupo')` coincidía con dos elementos (el `<select>` nativo oculto de HeroUI y su botón visible), causando una falla intermitente. Se acotó a `getByRole('button', {name: /Grupo/})`. |
 | ⚠️ Necesita decisión | CI todavía no bloquea sobre pruebas fallidas | El workflow corre unit + e2e en cada PR pero en modo reporte — un PR puede integrarse a `main` aunque una prueba falle, mientras la suite recién agregada se estabiliza. |
-| ⚠️ Necesita decisión | Producto en un solo idioma | Todos los textos son en español vía next-intl. Adecuado para el jardín actual; se necesita una decisión antes de vender a mercados no hispanohablantes. |
-| ⚠️ Necesita decisión | Modelo de datos de un solo cliente (single-tenant) | Los grupos y roles asumen un único jardín. Incorporar un segundo jardín es una conversación de alcance, no un simple ajuste de configuración. |
+| ℹ️ Decisión de alcance | Producto en un solo idioma, por diseño | Todos los textos son en español vía next-intl. No es una brecha a resolver: el alcance del proyecto es un único cliente hispanohablante, así que no está planeado dar soporte a otros idiomas. |
+| ℹ️ Decisión de alcance | Un solo cliente, por diseño | Los grupos y roles asumen un único jardín (Encanto Jardín Musical) porque este trabajo se hizo para un solo cliente — no está planeado dar soporte multi-tenant a otros jardines. |
 
 ## Próximos pasos
 
@@ -152,10 +152,7 @@ Con la suite ya en verde (364/364 unitarias, cobertura sobre el umbral, e2e esta
 **02 · Confirmar el fix de fixtures en CI**
 El hueco de limpieza de `teardownFixtures()` y el selector inestable en `teacher.spec.ts` ya están corregidos y verificados localmente en corridas consecutivas — falta confirmar que se mantienen en verde una vez que CI corra este cambio.
 
-**03 · Decidir sobre soporte multi-jardín**
-Confirmar si el roadmap necesita más de un jardín antes de que el modelo de datos se consolide aún más alrededor de un solo cliente.
-
-**04 · Cerrar las acciones pendientes del asesor de Supabase**
+**03 · Cerrar las acciones pendientes del asesor de Supabase**
 Tres acciones de panel (auth/DB config) siguen documentadas como pendientes del operador en el cambio `fix-supabase-advisories` — no requieren migración, pero sí que alguien las ejecute manualmente.
 
 ---

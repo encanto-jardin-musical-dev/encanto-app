@@ -106,7 +106,7 @@ Cada tabla aplica seguridad a nivel de fila (RLS) asociada al usuario autenticad
 - `device_push_tokens`
 - `subscriptions`
 
-El acceso se resuelve a través de una sola función de base de datos, `get_user_groups(user_id, user_role)` — el rol de un padre solo alcanza los grupos de sus propios hijos, el de un docente solo los grupos que tiene asignados. Las migraciones del 2026-09-09 reforzaron aún más esa capa: índices de cobertura sobre llaves foráneas, una reescritura de políticas RLS señaladas por reevaluarse en cada fila, consolidación de políticas permisivas redundantes, y revocación del permiso de ejecución sobre funciones security-definer a roles que no lo necesitaban — todos hallazgos del asesor de seguridad de Supabase resueltos antes de este informe. Tres acciones adicionales (solo configurables desde el panel de Supabase, no vía migración) quedaron documentadas como pendientes del operador en `openspec/changes/fix-supabase-advisories/`.
+El acceso se resuelve a través de una sola función de base de datos, `get_user_groups(user_id, user_role)` — el rol de un padre solo alcanza los grupos de sus propios hijos, el de un docente solo los grupos que tiene asignados. Las migraciones del 2026-09-09 reforzaron aún más esa capa: índices de cobertura sobre llaves foráneas, una reescritura de políticas RLS señaladas por reevaluarse en cada fila, consolidación de políticas permisivas redundantes, y revocación del permiso de ejecución sobre funciones security-definer a roles que no lo necesitaban — todos hallazgos del asesor de seguridad de Supabase resueltos antes de este informe. El cambio quedó archivado (`openspec/changes/archive/2026-09-10-fix-supabase-advisories/`) y su especificación (`database-hardening`, 5 requisitos) ya está sincronizada en `openspec/specs/database-hardening/spec.md`. Tres acciones adicionales (solo configurables desde el panel de Supabase, no vía migración) siguen pendientes del operador — ver `operator-actions.md` dentro del cambio archivado.
 
 ## Línea de tiempo
 
@@ -153,7 +153,7 @@ Con la suite ya en verde (364/364 unitarias, cobertura sobre el umbral, e2e esta
 El hueco de limpieza de `teardownFixtures()` y el selector inestable en `teacher.spec.ts` ya están corregidos y verificados localmente en corridas consecutivas — falta confirmar que se mantienen en verde una vez que CI corra este cambio.
 
 **03 · Cerrar las acciones pendientes del asesor de Supabase**
-Tres acciones de panel (auth/DB config) siguen documentadas como pendientes del operador en el cambio `fix-supabase-advisories` — no requieren migración, pero sí que alguien las ejecute manualmente.
+Tres acciones de panel (auth/DB config) siguen documentadas como pendientes del operador en el cambio archivado `openspec/changes/archive/2026-09-10-fix-supabase-advisories/operator-actions.md` — no requieren migración, pero sí que alguien las ejecute manualmente en el dashboard de Supabase.
 
 ---
 

@@ -63,4 +63,4 @@ vi.mock('@/utils/supabase/client', () => ({ supabase: mockSupabaseClient }));
 - **`test`** job: `pnpm test:coverage` (fails locally-equivalent if the 80% gate isn't met).
 - **`e2e`** job: provisions the Supabase CLI, runs `supabase start` (applying all migrations), then `pnpm test:e2e` against that local instance.
 
-Both jobs currently run with `continue-on-error: true` (report-only, non-blocking) while the suite proves itself stable over a PR cycle or two. Once stable, remove `continue-on-error` from both jobs in `ci.yml` to make them required/blocking checks.
+Both jobs are blocking: a failing `test` or `e2e` job fails the PR check. They ran report-only (`continue-on-error: true`) until the suite proved stable across several PR and manual-dispatch runs.

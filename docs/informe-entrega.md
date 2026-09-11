@@ -111,7 +111,7 @@ El acceso se resuelve a través de una sola función de base de datos, `get_user
 ## Línea de tiempo
 
 **Sin versión** · 2026-09-10
-Se agregó infraestructura de pruebas automatizadas: Vitest para pruebas unitarias (364 pruebas, 96.8% de cobertura en `src/queries/` y `src/hooks/`, con un umbral del 80% exigido en CI) y Playwright para e2e (flujos críticos de auth, padres, docentes y administradores, con fixtures y sesiones de prueba aisladas de producción). CI corre ambas suites en cada PR a `main`, por ahora en modo solo-reporte mientras la suite se estabiliza. Verificado hoy contra una instancia local real de Supabase: dos huecos encontrados durante la verificación — la limpieza de fixtures entre corridas y un selector inestable en `teacher.spec.ts` — quedaron corregidos y reverificados en verde (11/11) en corridas consecutivas.
+Se agregó infraestructura de pruebas automatizadas: Vitest para pruebas unitarias (364 pruebas, 96.8% de cobertura en `src/queries/` y `src/hooks/`, con un umbral del 80% exigido en CI) y Playwright para e2e (flujos críticos de auth, padres, docentes y administradores, con fixtures y sesiones de prueba aisladas de producción). Verificado contra una instancia local real de Supabase: dos huecos encontrados durante la verificación — la limpieza de fixtures entre corridas y un selector inestable en `teacher.spec.ts` — quedaron corregidos y reverificados en verde (11/11) en corridas consecutivas, y confirmados en verde también en CI (job de unit tests y de e2e, corrida manual sobre `main`). Con la suite estable en varias corridas de PR y una corrida manual, se quitó `continue-on-error` de ambos jobs en `ci.yml`: CI ahora bloquea la integración a `main` si una prueba falla.
 
 **1.4.0** · 2026-09-09
 Los adjuntos migraron de AWS S3 a Supabase Storage por completo — las subidas van directo desde el cliente, y las descargas están protegidas por URLs firmadas restringidas a los participantes de la conversación. Se agregó una limpieza de adjuntos huérfanos para administradores, con un paso de vista previa y un resguardo de un año de antigüedad antes de eliminar cualquier cosa.
@@ -140,20 +140,15 @@ Una lectura directa de qué está sólido, qué necesita una decisión, y qué f
 | ✅ Corregido | La suite e2e ya se verificó contra Supabase local | Los 11 specs de Playwright corrieron y pasaron (11/11) contra una instancia local real, en corridas consecutivas. |
 | ✅ Corregido | La limpieza de fixtures de e2e ya quedó corregida | `teardownFixtures()` no borraba filas en `messages`, `daily_reports`, `tasks` ni `attendance` antes de eliminar los usuarios de prueba (esas tablas usan `ON DELETE RESTRICT`), y el error de `deleteUser` se ignoraba. Corregido y verificado con corridas consecutivas en verde. |
 | ✅ Corregido | Flake de selector en `teacher.spec.ts` corregido | `getByLabel('Grupo')` coincidía con dos elementos (el `<select>` nativo oculto de HeroUI y su botón visible), causando una falla intermitente. Se acotó a `getByRole('button', {name: /Grupo/})`. |
-| ⚠️ Necesita decisión | CI todavía no bloquea sobre pruebas fallidas | El workflow corre unit + e2e en cada PR pero en modo reporte — un PR puede integrarse a `main` aunque una prueba falle, mientras la suite recién agregada se estabiliza. |
+| ✅ Listo | CI ahora bloquea sobre pruebas fallidas | Con varias corridas consecutivas en verde (cuatro corridas de PR más una corrida manual que incluyó el fix de fixtures), se quitó `continue-on-error` de ambos jobs en `ci.yml` — un PR con una prueba rota ya no puede integrarse a `main`. |
+| ⚠️ Necesita acción | Quedan 2 de 3 acciones del asesor de Supabase pendientes | El asesor de seguridad en vivo ya no marca el vencimiento largo de OTP (resuelto), pero **protección contra contraseñas filtradas** y **actualización de Postgres** (`supabase-postgres-15.8.1.114`) siguen abiertas — ambas solo configurables desde el panel de Supabase, no vía migración. |
 | ℹ️ Decisión de alcance | Producto en un solo idioma, por diseño | Todos los textos son en español vía next-intl. No es una brecha a resolver: el alcance del proyecto es un único cliente hispanohablante, así que no está planeado dar soporte a otros idiomas. |
 | ℹ️ Decisión de alcance | Un solo cliente, por diseño | Los grupos y roles asumen un único jardín (Encanto Jardín Musical) porque este trabajo se hizo para un solo cliente — no está planeado dar soporte multi-tenant a otros jardines. |
 
 ## Próximos pasos
 
-**01 · Pasar CI de solo-reporte a bloqueante**
-Con la suite ya en verde (364/364 unitarias, cobertura sobre el umbral, e2e estabilizado), definir cuándo un PR con pruebas rotas deja de poder integrarse a `main`.
-
-**02 · Confirmar el fix de fixtures en CI**
-El hueco de limpieza de `teardownFixtures()` y el selector inestable en `teacher.spec.ts` ya están corregidos y verificados localmente en corridas consecutivas — falta confirmar que se mantienen en verde una vez que CI corra este cambio.
-
-**03 · Cerrar las acciones pendientes del asesor de Supabase**
-Tres acciones de panel (auth/DB config) siguen documentadas como pendientes del operador en el cambio archivado `openspec/changes/archive/2026-09-10-fix-supabase-advisories/operator-actions.md` — no requieren migración, pero sí que alguien las ejecute manualmente en el dashboard de Supabase.
+**01 · Cerrar las 2 acciones restantes del asesor de Supabase**
+De las tres acciones de panel documentadas como pendientes del operador en el cambio archivado `openspec/changes/archive/2026-09-10-fix-supabase-advisories/operator-actions.md`, una ya se resolvió (vencimiento de OTP). Quedan dos, solo configurables desde el dashboard de Supabase: activar protección contra contraseñas filtradas (HaveIBeenPwned) y actualizar la versión de Postgres.
 
 ---
 

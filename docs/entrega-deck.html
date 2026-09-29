@@ -100,6 +100,22 @@ td.cat{color:var(--muted); white-space:nowrap; font-size:.85rem}
 .r-row p{margin:2px 0 0; color:var(--muted); font-size:.86rem; line-height:1.45}
 @media (max-width:760px){.r-row{grid-template-columns:auto 1fr} .r-row .r-detail{grid-column:1/-1}}
 .demo-note{border:1px dashed var(--accent); border-radius:14px; padding:14px 18px; color:var(--accent-ink); font-size:.95rem; background:var(--chip-ok-bg)}
+.toggle-btn{appearance:none; border:1px solid var(--line); background:var(--card); color:var(--fg); border-radius:999px; padding:8px 16px; font-size:.85rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; align-self:flex-start}
+.toggle-btn:hover{border-color:var(--accent); color:var(--accent-ink)}
+.toggle-btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.notes-panel{display:flex; flex-direction:column; gap:10px; max-width:720px}
+.notes-panel[hidden]{display:none}
+.notes-panel ul{margin:4px 0 0; padding-left:1.2em; color:var(--muted); font-size:.88rem; line-height:1.55}
+.notes-panel ul li{margin-bottom:3px}
+details.flow{border:1px solid var(--line); border-radius:12px; background:var(--card); padding:2px 16px}
+details.flow[open]{padding-bottom:12px}
+details.flow summary{cursor:pointer; padding:12px 0; font-family:var(--font-display); font-size:1rem; font-weight:600; list-style:none; display:flex; align-items:center; justify-content:space-between; gap:10px}
+details.flow summary::-webkit-details-marker{display:none}
+details.flow summary::after{content:'+'; font-family:var(--font-mono); color:var(--accent); font-size:1.1rem}
+details.flow[open] summary::after{content:'–'}
+details.flow ol{margin:0; padding-left:1.2em; color:var(--muted); font-size:.87rem; line-height:1.6}
+details.flow ol li{margin-bottom:4px}
+.fallback{border:1px dashed var(--amber); border-radius:12px; padding:12px 16px; background:var(--chip-lock-bg); color:var(--chip-lock-fg); font-size:.88rem}
 footer.nav{
   flex:0 0 auto; display:flex; align-items:center; justify-content:center; gap:14px;
   padding:10px calc(16px + env(safe-area-inset-bottom,0px)) calc(12px + env(safe-area-inset-bottom,0px));
@@ -246,10 +262,75 @@ a{color:var(--accent-ink)}
     <p class="small" style="max-width:60ch">Todo lo demás en el estado de avance depende de trabajo ya hecho, no de decisiones abiertas.</p>
   </section>
 
-  <section class="slide" data-narrow="0">
+  <section class="slide" data-narrow="1">
     <div class="eyebrow">Cierre</div>
     <h1 style="font-size:clamp(1.6rem,4vw,2.6rem)">Demo en vivo</h1>
-    <div class="demo-note">Recordatorio: mostrar aquí el recorrido padre → docente → administrador (feed, mensajería, reporte diario con foto, asistencia, una tarea) antes de abrir a preguntas.</div>
+    <div class="demo-note">Recordatorio: mostrar aquí el recorrido padre → docente → administrador (feed, mensajería, reporte diario con foto, asistencia, una tarea, límite de permisos) antes de abrir a preguntas.</div>
+
+    <button class="toggle-btn" id="notes-toggle" aria-expanded="false" aria-controls="demo-notes">Notas del presentador ▾</button>
+
+    <div class="notes-panel" id="demo-notes" hidden>
+      <div class="card kicker-card">
+        <b>Antes de empezar</b>
+        <ul>
+          <li>No usar las cuentas fixture de e2e (<code>e2e-parent@encanto.test</code>, etc.) — <code>teardownFixtures()</code> las borra en cada corrida. Usar un set de datos de staging estable.</li>
+          <li>Tener 3 perfiles/pestañas ya logueados: padre, docente, administrador — sin enlace mágico en vivo.</li>
+          <li>Confirmar que /attendance, /reports y /tasks estén habilitados por feature flag para las cuentas demo (<code>FeatureFlagRoleGate</code>).</li>
+          <li>Tener una foto lista en el escritorio para el paso de reporte diario.</li>
+          <li>Tener lista una segunda cuenta de padre para el caso de límite de permisos.</li>
+        </ul>
+      </div>
+
+      <details class="flow">
+        <summary>1 · Auth (30 seg)</summary>
+        <ol>
+          <li>Mostrar /login una vez, mencionar el enlace mágico, y pasar directo a las pestañas ya autenticadas.</li>
+        </ol>
+      </details>
+
+      <details class="flow">
+        <summary>2 · Flujo padre (~3 min)</summary>
+        <ol>
+          <li>/feed — señalar las rutas paralelas: novedades personales (@user) vs. grupales (@group) en una sola vista.</li>
+          <li>/messages → abrir el hilo con el docente del grupo (/messages/[senderID]) → enviar un mensaje en vivo.</li>
+          <li>Cambiar a la pestaña docente y mostrar el mensaje llegando en tiempo real, sin refrescar.</li>
+          <li>Volver al padre: abrir un reporte diario desde el feed, mostrar la foto y el botón de descarga en PDF.</li>
+        </ol>
+      </details>
+
+      <details class="flow">
+        <summary>3 · Flujo docente (~4 min)</summary>
+        <ol>
+          <li>/attendance/[groupId] — marcar entrada de un niño, señalar el contador de presentes en vivo.</li>
+          <li>/reports/new — publicar un reporte diario (grupal o de un niño), adjuntar la foto, publicar.</li>
+          <li>Cambiar a la pestaña padre — el nuevo reporte y su notificación aparecen sin refrescar.</li>
+          <li>/tasks/new — crear una tarea para el grupo.</li>
+          <li>Marcar salida del niño en /attendance/[groupId] — cierra el ciclo de asistencia.</li>
+        </ol>
+      </details>
+
+      <details class="flow">
+        <summary>4 · Flujo administrador (~3 min)</summary>
+        <ol>
+          <li>/admin/groups — mostrar un grupo y su docente asignado.</li>
+          <li>/admin/children o /admin/parents — abrir un registro, mostrar el detalle de perfil.</li>
+          <li>/admin/teachers → acción de reenviar invitación.</li>
+          <li>/admin/attendance — vista general de asistencia a nivel administrador.</li>
+          <li>Mencionar /admin/cleanup (limpieza de adjuntos huérfanos, con vista previa) sin ejecutarla en vivo.</li>
+        </ol>
+      </details>
+
+      <details class="flow">
+        <summary>5 · Límite de permisos (~2 min) — el momento de seguridad</summary>
+        <ol>
+          <li>En la pestaña padre, mostrar que el ítem de navegación de administrador simplemente no existe.</li>
+          <li>Con la segunda cuenta de padre, intentar abrir por URL directa el registro de un niño de otra familia — mostrar que la base de datos lo rechaza, no solo la interfaz.</li>
+        </ol>
+      </details>
+
+      <div class="fallback"><b>Plan de respaldo:</b> si el Wi-Fi o el staging fallan, tener grabaciones de pantalla de cada flujo — una demo en vivo trabada consume el tiempo de la reunión más rápido que una grabación de una corrida real.</div>
+    </div>
+
     <p class="lede">Encanto App · informe interno de entrega · v1.4.0 · main · 2026-09-28</p>
   </section>
 
@@ -291,6 +372,17 @@ a{color:var(--accent-ink)}
     if (e.key === 'ArrowRight' || e.key === ' ') { go(i+1); }
     else if (e.key === 'ArrowLeft') { go(i-1); }
   });
+
+  var notesToggle = document.getElementById('notes-toggle');
+  var notesPanel = document.getElementById('demo-notes');
+  if (notesToggle && notesPanel) {
+    notesToggle.addEventListener('click', function(){
+      var isHidden = notesPanel.hidden;
+      notesPanel.hidden = !isHidden;
+      notesToggle.setAttribute('aria-expanded', String(isHidden));
+      notesToggle.textContent = isHidden ? 'Notas del presentador ▴' : 'Notas del presentador ▾';
+    });
+  }
 
   var touchStartX = null;
   document.addEventListener('touchstart', function(e){ touchStartX = e.touches[0].clientX; }, {passive:true});

@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Entrega Encanto App</title>
+<style>
+:root{
+  --bg:#f6f4ee; --fg:#1c2621; --muted:#5c6b60; --line:rgba(28,38,33,.14);
+  --card:#ffffff; --accent:#1c7a57; --accent-ink:#0e3d2c; --amber:#c8842f;
+  --chip-ok-bg:#e4f2ea; --chip-ok-fg:#0e5a3b;
+  --chip-lock-bg:#fbeadf; --chip-lock-fg:#8a4a0f;
+  --chip-info-bg:#eef1ea; --chip-info-fg:#4a5a4e;
+  --font-display:'Fraunces',Georgia,'Iowan Old Style',serif;
+  --font-body:'Public Sans','Segoe UI',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,'SF Mono',monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121712; --fg:#eef1ea; --muted:#a6b3ab; --line:rgba(238,241,234,.16);
+    --card:#182019; --accent:#4fbf8f; --accent-ink:#bff0d8; --amber:#e0a75c;
+    --chip-ok-bg:#173829; --chip-ok-fg:#8fe0bb;
+    --chip-lock-bg:#3a2712; --chip-lock-fg:#f0c48e;
+    --chip-info-bg:#232b23; --chip-info-fg:#c3cdc6;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121712; --fg:#eef1ea; --muted:#a6b3ab; --line:rgba(238,241,234,.16);
+  --card:#182019; --accent:#4fbf8f; --accent-ink:#bff0d8; --amber:#e0a75c;
+  --chip-ok-bg:#173829; --chip-ok-fg:#8fe0bb;
+  --chip-lock-bg:#3a2712; --chip-lock-fg:#f0c48e;
+  --chip-info-bg:#232b23; --chip-info-fg:#c3cdc6;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+img{max-width:100%}
+[hidden]{display:none!important}
+.stage{
+  flex:1 1 auto; min-height:0; position:relative; padding:0 16px;
+  display:flex; align-items:center; justify-content:center;
+}
+.slide{
+  position:absolute; inset:0; display:none; padding:clamp(20px,4vw,64px) clamp(16px,6vw,96px);
+  overflow-y:auto;
+}
+.slide.active{display:flex; flex-direction:column; justify-content:center; gap:clamp(10px,2vh,22px)}
+.slide[data-narrow="1"].active{justify-content:flex-start; padding-top:clamp(28px,6vh,72px)}
+.eyebrow{
+  font-family:var(--font-mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--accent); font-weight:600;
+}
+h1{font-family:var(--font-display); font-weight:600; font-size:clamp(1.8rem,4.6vw,3.4rem); line-height:1.05; margin:.2em 0; text-wrap:balance}
+h2{font-family:var(--font-display); font-weight:600; font-size:clamp(1.4rem,3.2vw,2.2rem); margin:0 0 .1em; text-wrap:balance}
+p.lede{font-size:clamp(1rem,1.6vw,1.25rem); color:var(--muted); max-width:62ch; line-height:1.55}
+.grid{display:grid; gap:clamp(10px,1.6vw,18px)}
+.grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.grid.cols-2{grid-template-columns:repeat(2,1fr)}
+@media (max-width:760px){.grid.cols-3{grid-template-columns:1fr 1fr} .grid.cols-2{grid-template-columns:1fr}}
+.card{
+  background:var(--card); border:1px solid var(--line); border-radius:14px;
+  padding:clamp(14px,2vw,20px); min-width:0;
+}
+.stat .num{font-family:var(--font-mono); font-size:clamp(1.6rem,3.4vw,2.6rem); font-weight:600; color:var(--accent-ink); line-height:1; font-variant-numeric:tabular-nums}
+.stat .label{margin-top:6px; color:var(--muted); font-size:.92rem; line-height:1.35}
+table{border-collapse:collapse; width:100%; font-size:.94rem}
+th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top}
+th{font-family:var(--font-mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600}
+td.cat{color:var(--muted); white-space:nowrap; font-size:.85rem}
+.tablewrap{overflow-x:auto; max-width:100%}
+.chip{display:inline-flex; align-items:center; gap:6px; padding:3px 10px; border-radius:999px; font-size:.78rem; font-weight:600; white-space:nowrap}
+.chip.ok{background:var(--chip-ok-bg); color:var(--chip-ok-fg)}
+.chip.lock{background:var(--chip-lock-bg); color:var(--chip-lock-fg)}
+.chip.info{background:var(--chip-info-bg); color:var(--chip-info-fg)}
+.arch{display:flex; flex-direction:column; align-items:center; gap:6px}
+.arch .box{width:100%; max-width:640px; border:1px solid var(--line); background:var(--card); border-radius:14px; padding:14px 18px}
+.arch .box b{font-family:var(--font-display); font-size:1.05rem}
+.arch .box small{display:block; color:var(--muted); margin-top:4px; line-height:1.4}
+.arch .arrow{font-family:var(--font-mono); color:var(--accent); font-size:1.1rem}
+.arch .services{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; width:100%; max-width:640px}
+@media (max-width:760px){.arch .services{grid-template-columns:repeat(2,1fr)}}
+.arch .services .svc{border:1px solid var(--line); background:var(--card); border-radius:12px; padding:10px; text-align:center; font-size:.82rem}
+.arch .services .svc b{display:block; font-size:.86rem; margin-bottom:2px}
+.timeline{display:flex; flex-direction:column; gap:14px}
+.tl-item{display:grid; grid-template-columns:120px 1fr; gap:16px; padding-bottom:14px; border-bottom:1px solid var(--line)}
+.tl-item:last-child{border-bottom:none}
+.tl-date{font-family:var(--font-mono); font-size:.82rem; color:var(--accent); white-space:nowrap}
+.tl-item p{margin:2px 0 0; color:var(--muted); font-size:.92rem; line-height:1.5}
+@media (max-width:700px){.tl-item{grid-template-columns:1fr}}
+.readiness{display:flex; flex-direction:column; gap:10px}
+.r-row{display:grid; grid-template-columns:auto 200px 1fr; gap:14px; align-items:start; padding:10px 0; border-bottom:1px solid var(--line)}
+.r-row:last-child{border-bottom:none}
+.r-row b{font-size:.95rem}
+.r-row p{margin:2px 0 0; color:var(--muted); font-size:.86rem; line-height:1.45}
+@media (max-width:760px){.r-row{grid-template-columns:auto 1fr} .r-row .r-detail{grid-column:1/-1}}
+.demo-note{border:1px dashed var(--accent); border-radius:14px; padding:14px 18px; color:var(--accent-ink); font-size:.95rem; background:var(--chip-ok-bg)}
+footer.nav{
+  flex:0 0 auto; display:flex; align-items:center; justify-content:center; gap:14px;
+  padding:10px calc(16px + env(safe-area-inset-bottom,0px)) calc(12px + env(safe-area-inset-bottom,0px));
+  border-top:1px solid var(--line);
+}
+.nav button{
+  appearance:none; border:1px solid var(--line); background:var(--card); color:var(--fg);
+  width:38px; height:38px; border-radius:50%; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.nav button:hover{border-color:var(--accent); color:var(--accent-ink)}
+.nav button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.dots{display:flex; gap:7px}
+.dot{width:7px; height:7px; border-radius:50%; background:var(--line); border:none; padding:0; cursor:pointer}
+.dot.on{background:var(--accent); width:20px; border-radius:5px}
+.counter{font-family:var(--font-mono); font-size:.78rem; color:var(--muted); min-width:52px; text-align:center}
+.small{font-size:.9rem; color:var(--muted)}
+a{color:var(--accent-ink)}
+.tag-row{display:flex; flex-wrap:wrap; gap:8px}
+.kicker-card{border-left:3px solid var(--accent); padding-left:14px}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+</head>
+<body>
+
+<div class="stage" id="stage">
+
+  <section class="slide" data-narrow="0">
+    <div class="eyebrow">Informe para stakeholders · v1.4.0</div>
+    <h1>Encanto App</h1>
+    <p class="lede">Entrega de producto — arquitectura, seguridad y estado de avance antes de un lanzamiento más amplio.</p>
+    <div class="grid cols-3" style="margin-top:8px">
+      <div class="card stat"><div class="num">3</div><div class="label">roles: padres, docentes, administradores</div></div>
+      <div class="card stat"><div class="num">5</div><div class="label">módulos centrales en uso activo</div></div>
+      <div class="card stat"><div class="num">1.4.0</div><div class="label">versión actual · Vercel + Supabase</div></div>
+    </div>
+    <div class="small" style="margin-top:6px">28 de septiembre de 2026</div>
+  </section>
+
+  <section class="slide" data-narrow="0">
+    <div class="eyebrow">Resumen</div>
+    <h2>Un solo código, tres roles</h2>
+    <p class="lede">Los padres siguen el día de su hijo; los docentes lo reportan; los administradores gestionan los grupos y el personal detrás de escena.</p>
+    <div class="grid cols-3">
+      <div class="card stat"><div class="num">5</div><div class="label">módulos: feed, mensajes, reportes diarios, asistencia, tareas</div></div>
+      <div class="card stat"><div class="num">364</div><div class="label">pruebas unitarias automatizadas (Vitest)</div></div>
+      <div class="card stat"><div class="num">96.8%</div><div class="label">cobertura en queries / hooks</div></div>
+      <div class="card stat"><div class="num">1.0 → 1.4</div><div class="label">versiones publicadas desde oct. 2025</div></div>
+      <div class="card stat"><div class="num">PWA</div><div class="label">instalable, con caché sin conexión</div></div>
+      <div class="card stat"><div class="num">Vivo</div><div class="label">mensajes, feed y asistencia en tiempo real</div></div>
+    </div>
+  </section>
+
+  <section class="slide" data-narrow="1">
+    <div class="eyebrow">Arquitectura</div>
+    <h2>Una app, servida por seis proveedores administrados</h2>
+    <p class="small" style="max-width:60ch">Sin infraestructura propia que operar. Next.js atiende tanto la interfaz como la lógica de servidor; Supabase resuelve datos e identidad; Firebase entrega el push.</p>
+    <div class="arch" style="margin-top:6px">
+      <div class="box"><b>Navegador / PWA instalada</b><small>Padres · Docentes · Administradores — service worker con caché offline + FCM</small></div>
+      <div class="arrow">↕</div>
+      <div class="box"><b>Next.js 16 (App Router) — Vercel</b><small>Middleware de sesión · Server Components · Server Actions · TanStack Query + Jotai · HeroUI + Tailwind</small></div>
+      <div class="arrow">↓</div>
+      <div class="services">
+        <div class="svc"><b>Supabase</b>Postgres · Auth · Realtime · Storage · Edge Functions</div>
+        <div class="svc"><b>Firebase FCM</b>Push a dispositivos instalados</div>
+        <div class="svc"><b>Sentry</b>Errores y rendimiento</div>
+        <div class="svc"><b>PostHog</b>Analítica y feature flags</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-narrow="1">
+    <div class="eyebrow">Servicios y proveedores</div>
+    <h2>Seis servicios externos, cada uno cubriendo una función</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Servicio</th><th>Función</th><th>Categoría</th></tr></thead>
+        <tbody>
+          <tr><td><b>Vercel</b></td><td>Aloja y construye la app; previews por PR y despliegues a producción.</td><td class="cat">Hosting</td></tr>
+          <tr><td><b>Supabase</b></td><td>Postgres, auth (enlace mágico), RLS, realtime, storage, edge functions.</td><td class="cat">Backend</td></tr>
+          <tr><td><b>Firebase (FCM)</b></td><td>Notificaciones push a dispositivos instalados, app cerrada incluida.</td><td class="cat">Notificaciones</td></tr>
+          <tr><td><b>Sentry</b></td><td>Errores y trazas de rendimiento, navegador y servidor.</td><td class="cat">Monitoreo</td></tr>
+          <tr><td><b>PostHog</b></td><td>Analítica de producto y feature flags para lanzamientos graduales.</td><td class="cat">Analítica</td></tr>
+          <tr><td><b>GitHub Actions + Vercel Git</b></td><td>CI en cada PR: lint, build, pruebas unitarias y e2e.</td><td class="cat">CI/CD</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">Retirado en 1.4.0: subidas directas a AWS S3 y sus credenciales — un proveedor menos que asegurar.</p>
+  </section>
+
+  <section class="slide" data-narrow="1">
+    <div class="eyebrow">Datos y seguridad</div>
+    <h2>La base de datos rechaza lo que no corresponde al rol</h2>
+    <p class="lede">Cada tabla aplica RLS asociada al usuario autenticado — no es solo la interfaz, es la propia base de datos.</p>
+    <div class="grid cols-2">
+      <div class="card kicker-card">
+        <b>Acceso por rol</b>
+        <p class="small" style="margin:6px 0 0">Una sola función, <code>get_user_groups(user_id, user_role)</code>: un padre solo alcanza los grupos de sus hijos; un docente, solo los grupos que tiene asignados.</p>
+      </div>
+      <div class="card kicker-card">
+        <b>Refuerzo del 2026-09-09</b>
+        <p class="small" style="margin:6px 0 0">Índices de cobertura en llaves foráneas, políticas RLS reescritas para no reevaluarse por fila, políticas permisivas consolidadas, permisos de funciones security-definer revocados.</p>
+      </div>
+    </div>
+    <div class="tag-row" style="margin-top:4px">
+      <span class="chip ok">✓ profiles · children · child_guardians · groups</span>
+      <span class="chip ok">✓ messages · daily_reports · attendance · tasks</span>
+      <span class="chip ok">✓ 4 buckets de storage, todos privados</span>
+    </div>
+    <p class="small">El asesor de rendimiento marca 18 índices como "no usados" — esperable con el tráfico bajo actual, no una regresión.</p>
+  </section>
+
+  <section class="slide" data-narrow="1">
+    <div class="eyebrow">Línea de tiempo</div>
+    <h2>De mensajería directa a suite de pruebas en CI</h2>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-date">Sep 2026</div><div><b>Pruebas automatizadas</b><p>364 pruebas unitarias (96.8% cobertura) + Playwright e2e por rol. Verificado contra Supabase local, 11/11 en verde. CI ahora bloquea sobre pruebas fallidas.</p></div></div>
+      <div class="tl-item"><div class="tl-date">1.4.0 · Sep 09</div><div><b>Adjuntos a Supabase Storage</b><p>Migración completa desde AWS S3; descargas protegidas por URLs firmadas restringidas a participantes de la conversación.</p></div></div>
+      <div class="tl-item"><div class="tl-date">1.3.0 · Ago 20</div><div><b>Escritorio y limpieza de datos</b><p>Barra lateral colapsable, herramientas de limpieza para administradores, mejoras a reportes diarios.</p></div></div>
+      <div class="tl-item"><div class="tl-date">1.2.0 · Jul 09</div><div><b>Reportes diarios</b><p>Personal publica actualizaciones grupales o individuales con fotos; padres las ven en el feed y reciben notificación.</p></div></div>
+      <div class="tl-item"><div class="tl-date">1.1.0 · Jul 07</div><div><b>El salto más grande</b><p>Panel de administrador, asistencia, tareas grupales, adjuntos en mensajes, push multi-dispositivo.</p></div></div>
+      <div class="tl-item"><div class="tl-date">1.0.0 · Oct 2025</div><div><b>Primera versión</b><p>Mensajería directa, enlace mágico, feature flagging con PostHog.</p></div></div>
+    </div>
+  </section>
+
+  <section class="slide" data-narrow="1">
+    <div class="eyebrow">Estado de avance</div>
+    <h2>Qué está sólido, qué necesita una decisión</h2>
+    <div class="readiness">
+      <div class="r-row"><span class="chip ok">Listo</span><b>Superficie central completa</b><p class="r-detail">Mensajería, feed, reportes, asistencia y tareas — publicado y en uso activo por los tres roles.</p></div>
+      <div class="r-row"><span class="chip ok">Listo</span><b>Postura de seguridad reforzada</b><p class="r-detail">RLS en todas las tablas, más las correcciones del 2026-09-09.</p></div>
+      <div class="r-row"><span class="chip ok">Listo</span><b>Suite de pruebas automatizadas en CI</b><p class="r-detail">Vitest (364 pruebas) + Playwright (e2e por rol), bloqueante en cada PR.</p></div>
+      <div class="r-row"><span class="chip lock">Bloqueado por plan</span><b>2 de 3 acciones del asesor de Supabase</b><p class="r-detail">Vencimiento de OTP ya resuelto. Protección contra contraseñas filtradas y actualización de Postgres requieren subir de plan gratuito.</p></div>
+      <div class="r-row"><span class="chip info">Alcance</span><b>Un solo idioma, un solo cliente — por diseño</b><p class="r-detail">Español único vía next-intl; grupos y roles asumen un único jardín. No son brechas, son decisiones de alcance del proyecto.</p></div>
+    </div>
+  </section>
+
+  <section class="slide" data-narrow="1">
+    <div class="eyebrow">Próximos pasos</div>
+    <h2>Una decisión de negocio pendiente</h2>
+    <div class="card kicker-card" style="max-width:640px">
+      <b>Subir de plan en Supabase, para cerrar 2 acciones del asesor</b>
+      <p class="small" style="margin-top:8px">Protección contra contraseñas filtradas (HaveIBeenPwned) y actualización de versión de Postgres — ninguna alcanzable en el plan gratuito actual. La tercera acción (vencimiento de OTP) ya quedó resuelta.</p>
+    </div>
+    <p class="small" style="max-width:60ch">Todo lo demás en el estado de avance depende de trabajo ya hecho, no de decisiones abiertas.</p>
+  </section>
+
+  <section class="slide" data-narrow="0">
+    <div class="eyebrow">Cierre</div>
+    <h1 style="font-size:clamp(1.6rem,4vw,2.6rem)">Demo en vivo</h1>
+    <div class="demo-note">Recordatorio: mostrar aquí el recorrido padre → docente → administrador (feed, mensajería, reporte diario con foto, asistencia, una tarea) antes de abrir a preguntas.</div>
+    <p class="lede">Encanto App · informe interno de entrega · v1.4.0 · main · 2026-09-28</p>
+  </section>
+
+</div>
+
+<footer class="nav">
+  <button id="prev" aria-label="Anterior">‹</button>
+  <div class="dots" id="dots"></div>
+  <span class="counter" id="counter"></span>
+  <button id="next" aria-label="Siguiente">›</button>
+</footer>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var dotsEl = document.getElementById('dots');
+  var counterEl = document.getElementById('counter');
+  var i = 0;
+
+  slides.forEach(function(_, idx){
+    var b = document.createElement('button');
+    b.className = 'dot';
+    b.setAttribute('aria-label', 'Diapositiva ' + (idx+1));
+    b.addEventListener('click', function(){ go(idx); });
+    dotsEl.appendChild(b);
+  });
+  var dotEls = Array.prototype.slice.call(dotsEl.children);
+
+  function go(n){
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function(s, idx){ s.classList.toggle('active', idx === i); s.scrollTop = 0; });
+    dotEls.forEach(function(d, idx){ d.classList.toggle('on', idx === i); });
+    counterEl.textContent = (i+1) + ' / ' + slides.length;
+  }
+
+  document.getElementById('prev').addEventListener('click', function(){ go(i-1); });
+  document.getElementById('next').addEventListener('click', function(){ go(i+1); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === ' ') { go(i+1); }
+    else if (e.key === 'ArrowLeft') { go(i-1); }
+  });
+
+  var touchStartX = null;
+  document.addEventListener('touchstart', function(e){ touchStartX = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if (touchStartX === null) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) { go(dx < 0 ? i+1 : i-1); }
+    touchStartX = null;
+  }, {passive:true});
+
+  go(0);
+})();
+</script>
+
+</body>
+</html>

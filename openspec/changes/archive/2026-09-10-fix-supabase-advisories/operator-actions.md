@@ -4,12 +4,12 @@ These three advisories cannot be resolved by SQL migration. They must be applied
 by an operator with dashboard/platform access. Perform them after the migrations
 in this change are merged.
 
-## 5.1 Email OTP expiry < 1 hour (`auth_otp_long_expiry`)
+## 5.1 Email OTP expiry < 1 hour (`auth_otp_long_expiry`) — ✅ RESOLVED (2026-09-28)
 
 - **Where:** Supabase Dashboard → Authentication → Providers → Email → "Email OTP Expiration".
 - **Action:** Set the OTP expiry to a value under one hour (e.g. 3600 seconds or less; 1800s recommended).
 - **Reference:** https://supabase.com/docs/guides/platform/going-into-prod#security
-- **Verify:** Re-run the security advisors; `auth_otp_long_expiry` should report 0 findings.
+- **Verify:** Re-run the security advisors; `auth_otp_long_expiry` should report 0 findings. Confirmed resolved — the live security advisor no longer lists this finding.
 
 ## 5.2 Enable leaked-password protection (`auth_leaked_password_protection`)
 

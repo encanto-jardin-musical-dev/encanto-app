@@ -108,6 +108,8 @@ Cada tabla aplica seguridad a nivel de fila (RLS) asociada al usuario autenticad
 
 El acceso se resuelve a través de una sola función de base de datos, `get_user_groups(user_id, user_role)` — el rol de un padre solo alcanza los grupos de sus propios hijos, el de un docente solo los grupos que tiene asignados. Las migraciones del 2026-09-09 reforzaron aún más esa capa: índices de cobertura sobre llaves foráneas, una reescritura de políticas RLS señaladas por reevaluarse en cada fila, consolidación de políticas permisivas redundantes, y revocación del permiso de ejecución sobre funciones security-definer a roles que no lo necesitaban — todos hallazgos del asesor de seguridad de Supabase resueltos antes de este informe. El cambio quedó archivado (`openspec/changes/archive/2026-09-10-fix-supabase-advisories/`) y su especificación (`database-hardening`, 5 requisitos) ya está sincronizada en `openspec/specs/database-hardening/spec.md`. Tres acciones adicionales (solo configurables desde el panel de Supabase, no vía migración) siguen pendientes del operador — ver `operator-actions.md` dentro del cambio archivado.
 
+El asesor de rendimiento de Supabase marca 18 índices (varios de ellos, los mismos índices de cobertura agregados el 2026-09-09 sobre `attendance`, `messages`, `daily_reports`, `tasks` y `child_guardians`, entre otros) como "no usados" — esperable con el tráfico todavía bajo de producción, no una regresión. Se están monitoreando y no requieren acción mientras el tráfico no crezca lo suficiente para ejercitarlos.
+
 ## Línea de tiempo
 
 **Sin versión** · 2026-09-10

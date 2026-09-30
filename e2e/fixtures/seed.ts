@@ -17,6 +17,7 @@ export type SeededFixtures = {
   teacher: SeededRole;
   admin: SeededRole;
   groupId: string;
+  teacherlessGroupId: string;
   childId: string;
 };
 
@@ -99,6 +100,16 @@ export async function seedFixtures(): Promise<SeededFixtures> {
     throw new Error(`Failed to link fixture teacher to group: ${groupTeacherError.message}`);
   }
 
+  const { data: teacherlessGroup, error: teacherlessGroupError } = await admin
+    .from('groups')
+    .insert({ name: 'E2E Teacherless Group' })
+    .select('id')
+    .single();
+
+  if (teacherlessGroupError || !teacherlessGroup) {
+    throw new Error(`Failed to create teacherless fixture group: ${teacherlessGroupError?.message}`);
+  }
+
   const { data: child, error: childError } = await admin
     .from('children')
     .insert({
@@ -118,7 +129,10 @@ export async function seedFixtures(): Promise<SeededFixtures> {
 
   const { error: childGroupError } = await admin
     .from('child_groups')
-    .insert({ child_id: child.id, group_id: group.id });
+    .insert([
+      { child_id: child.id, group_id: group.id },
+      { child_id: child.id, group_id: teacherlessGroup.id },
+    ]);
 
   if (childGroupError) {
     throw new Error(`Failed to link fixture child to group: ${childGroupError.message}`);
@@ -132,7 +146,14 @@ export async function seedFixtures(): Promise<SeededFixtures> {
     throw new Error(`Failed to link fixture guardian to child: ${guardianError.message}`);
   }
 
-  return { parent, teacher, admin: adminUser, groupId: group.id, childId: child.id };
+  return {
+    parent,
+    teacher,
+    admin: adminUser,
+    groupId: group.id,
+    teacherlessGroupId: teacherlessGroup.id,
+    childId: child.id,
+  };
 }
 
 /**
@@ -146,7 +167,10 @@ export async function teardownFixtures(): Promise<void> {
     .from('children')
     .select('id')
     .eq('document_number', 'e2e-child');
-  const { data: groups } = await admin.from('groups').select('id').eq('name', 'E2E Test Group');
+  const { data: groups } = await admin
+    .from('groups')
+    .select('id')
+    .in('name', ['E2E Test Group', 'E2E Teacherless Group']);
 
   const childIds = (children ?? []).map((c) => c.id);
   const groupIds = (groups ?? []).map((g) => g.id);

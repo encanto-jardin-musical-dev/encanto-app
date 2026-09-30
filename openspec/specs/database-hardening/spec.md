@@ -40,19 +40,34 @@ Every foreign key column on the in-scope tables SHALL have a covering btree inde
 
 ### Requirement: SECURITY DEFINER helper functions are not publicly executable
 
-`SECURITY DEFINER` functions that are not intended as public RPC endpoints SHALL have `EXECUTE` revoked from the `anon` and `authenticated` roles. This applies to `handle_new_user_registration()`, `update_updated_at_column()`, `is_admin(uuid)`, and `is_staff(uuid)`. Their use inside RLS policies and triggers SHALL continue to work.
+`SECURITY DEFINER` functions that are not intended as public RPC endpoints SHALL have `EXECUTE` revoked from `anon` and `authenticated` where possible. This applies to `handle_new_user_registration()` and `update_updated_at_column()`. The RLS helper functions `is_admin(uuid)` and `is_staff(uuid)` SHALL use `SECURITY INVOKER`, because they only read `public.profiles` and authenticated callers can read that table under its RLS policy. They SHALL remain executable by `authenticated` (and `service_role`) so RLS policy and attendance RPC evaluation works, and SHALL remain non-executable by `anon` and `PUBLIC`. Internal `SECURITY DEFINER` helpers SHALL remain revoked from `anon` and `authenticated`.
 
-#### Scenario: No executable-definer-function findings
-- **WHEN** the Supabase security advisors `anon_security_definer_function_executable` and `authenticated_security_definer_function_executable` are run after the change
-- **THEN** they report zero findings for `handle_new_user_registration`, `update_updated_at_column`, `is_admin`, and `is_staff`
+#### Scenario: No executable-definer-function findings for anon
+- **WHEN** the Supabase security advisor `anon_security_definer_function_executable` is run after the change
+- **THEN** it reports zero findings for `handle_new_user_registration`, `update_updated_at_column`, `is_admin`, and `is_staff`
 
-#### Scenario: RLS helpers still function
-- **WHEN** a policy using `is_staff((select auth.uid()))` is evaluated after EXECUTE is revoked from `anon`/`authenticated`
-- **THEN** the policy continues to authorize correctly (the helper runs in the policy's definer context)
+#### Scenario: Authenticated helpers remain executable for policy evaluation
+- **WHEN** an `authenticated` user triggers evaluation of a policy using `is_staff((select auth.uid()))` or `is_admin((select auth.uid()))`
+- **THEN** the policy authorizes correctly (the caller holds `EXECUTE` on the helper)
 
-#### Scenario: Direct RPC call is rejected
-- **WHEN** an `anon` or `authenticated` caller invokes `/rest/v1/rpc/is_staff` (or the other listed functions) directly
+#### Scenario: Direct RPC call by anon is rejected
+- **WHEN** an `anon` caller invokes `/rest/v1/rpc/is_staff` (or `is_admin`, or the other listed functions) directly
 - **THEN** the call is rejected due to missing EXECUTE privilege
+
+#### Scenario: Direct RPC call by authenticated to internal helpers is rejected
+
+- **WHEN** an `authenticated` caller invokes `/rest/v1/rpc/handle_new_user_registration` or `/rest/v1/rpc/update_updated_at_column` directly
+- **THEN** the call is rejected due to missing EXECUTE privilege
+
+#### Scenario: No authenticated advisor findings for RLS helpers
+
+- **WHEN** the Supabase security advisor `authenticated_security_definer_function_executable` is run after the change
+- **THEN** it reports no findings for `is_admin`, `is_staff`, `handle_new_user_registration`, or `update_updated_at_column`
+
+#### Scenario: Invoker helpers preserve policy behavior
+
+- **WHEN** authenticated RLS policies call `is_admin((select auth.uid()))` or `is_staff((select auth.uid()))`
+- **THEN** the helpers return the caller's role result using the caller's profile visibility and existing admin/staff policy behavior is preserved
 
 ### Requirement: Auth and database configuration follow production recommendations
 

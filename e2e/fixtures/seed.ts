@@ -14,12 +14,29 @@ export type SeededRole = {
 
 export type SeededFixtures = {
   parent: SeededRole;
+  parent2: SeededRole;
   teacher: SeededRole;
   admin: SeededRole;
   groupId: string;
   teacherlessGroupId: string;
+  secondGroupId: string;
   childId: string;
+  secondChildId: string;
 };
+
+/** Group names the fixtures own — teardown matches on these to stay re-runnable. */
+const FIXTURE_GROUP_NAMES = [
+  'E2E Test Group',
+  'E2E Teacherless Group',
+  'E2E Second Teacher Group',
+] as const;
+
+const FIXTURE_EMAILS = [
+  'e2e-parent@encanto.test',
+  'e2e-parent2@encanto.test',
+  'e2e-teacher@encanto.test',
+  'e2e-admin@encanto.test',
+] as const;
 
 function getAdminClient() {
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
@@ -36,9 +53,11 @@ function getAdminClient() {
 
 async function createRoleUser(
   admin: ReturnType<typeof getAdminClient>,
-  role: 'parent' | 'teacher' | 'admin'
+  role: 'parent' | 'teacher' | 'admin',
+  /** Overrides the email slug so a role can be seeded more than once. */
+  slug: string = role
 ): Promise<SeededRole> {
-  const email = `e2e-${role}@encanto.test`;
+  const email = `e2e-${slug}@encanto.test`;
 
   const { data, error } = await admin.auth.admin.createUser({
     email,
@@ -53,9 +72,13 @@ async function createRoleUser(
   const { error: profileError } = await admin.from('profiles').upsert({
     id: data.user.id,
     role,
-    first_name: role.charAt(0).toUpperCase() + role.slice(1),
+    // Slug-derived so a second user of the same role is distinguishable in the
+    // UI (the contacts list renders "Parent E2E" and "Parent2 E2E").
+    first_name: slug.charAt(0).toUpperCase() + slug.slice(1),
     last_name: 'E2E',
-    document_number: `e2e-${role}`,
+    // Slug-scoped so a second user of the same role doesn't collide on a
+    // unique document_number.
+    document_number: `e2e-${slug}`,
     document_type: 'other',
   });
 
@@ -67,17 +90,25 @@ async function createRoleUser(
 }
 
 /**
- * Creates a parent, teacher, and admin fixture user, plus one group with the
- * teacher assigned and one child in that group linked to the parent as
- * guardian. Safe to re-run: existing fixture users/rows are deleted first.
+ * Creates parent/teacher/admin fixture users plus:
+ *
+ * - `E2E Test Group` — teacher assigned, child 1 (guardian: parent 1)
+ * - `E2E Teacherless Group` — no teacher assigned, child 1 also belongs here
+ * - `E2E Second Teacher Group` — teacher assigned, child 2 (guardian: parent 2)
+ *
+ * The teacher belonging to two groups is what makes the Feed group selector
+ * switchable; the two-parent split is what makes "the other group's guardian
+ * must not see the message" assertable. Safe to re-run: existing fixture
+ * users/rows are deleted first.
  */
 export async function seedFixtures(): Promise<SeededFixtures> {
   const admin = getAdminClient();
 
   await teardownFixtures();
 
-  const [parent, teacher, adminUser] = await Promise.all([
+  const [parent, parent2, teacher, adminUser] = await Promise.all([
     createRoleUser(admin, 'parent'),
+    createRoleUser(admin, 'parent', 'parent2'),
     createRoleUser(admin, 'teacher'),
     createRoleUser(admin, 'admin'),
   ]);
@@ -110,6 +141,26 @@ export async function seedFixtures(): Promise<SeededFixtures> {
     throw new Error(`Failed to create teacherless fixture group: ${teacherlessGroupError?.message}`);
   }
 
+  const { data: secondGroup, error: secondGroupError } = await admin
+    .from('groups')
+    .insert({ name: 'E2E Second Teacher Group' })
+    .select('id')
+    .single();
+
+  if (secondGroupError || !secondGroup) {
+    throw new Error(`Failed to create second teacher fixture group: ${secondGroupError?.message}`);
+  }
+
+  const { error: secondGroupTeacherError } = await admin
+    .from('group_teachers')
+    .insert({ group_id: secondGroup.id, teacher_id: teacher.userId });
+
+  if (secondGroupTeacherError) {
+    throw new Error(
+      `Failed to link fixture teacher to second group: ${secondGroupTeacherError.message}`
+    );
+  }
+
   const { data: child, error: childError } = await admin
     .from('children')
     .insert({
@@ -127,11 +178,29 @@ export async function seedFixtures(): Promise<SeededFixtures> {
     throw new Error(`Failed to create fixture child: ${childError?.message}`);
   }
 
+  const { data: secondChild, error: secondChildError } = await admin
+    .from('children')
+    .insert({
+      first_name: 'E2E',
+      last_name: 'Second Child',
+      birth_date: '2021-01-01',
+      document_number: 'e2e-child-2',
+      document_type: 'other',
+      gender: 'female',
+    })
+    .select('id')
+    .single();
+
+  if (secondChildError || !secondChild) {
+    throw new Error(`Failed to create second fixture child: ${secondChildError?.message}`);
+  }
+
   const { error: childGroupError } = await admin
     .from('child_groups')
     .insert([
       { child_id: child.id, group_id: group.id },
       { child_id: child.id, group_id: teacherlessGroup.id },
+      { child_id: secondChild.id, group_id: secondGroup.id },
     ]);
 
   if (childGroupError) {
@@ -140,7 +209,14 @@ export async function seedFixtures(): Promise<SeededFixtures> {
 
   const { error: guardianError } = await admin
     .from('child_guardians')
-    .insert({ child_id: child.id, guardian_id: parent.userId, relationship: 'mother' });
+    .insert([
+      { child_id: child.id, guardian_id: parent.userId, relationship: 'mother' },
+      {
+        child_id: secondChild.id,
+        guardian_id: parent2.userId,
+        relationship: 'father',
+      },
+    ]);
 
   if (guardianError) {
     throw new Error(`Failed to link fixture guardian to child: ${guardianError.message}`);
@@ -148,11 +224,14 @@ export async function seedFixtures(): Promise<SeededFixtures> {
 
   return {
     parent,
+    parent2,
     teacher,
     admin: adminUser,
     groupId: group.id,
     teacherlessGroupId: teacherlessGroup.id,
+    secondGroupId: secondGroup.id,
     childId: child.id,
+    secondChildId: secondChild.id,
   };
 }
 
@@ -166,11 +245,11 @@ export async function teardownFixtures(): Promise<void> {
   const { data: children } = await admin
     .from('children')
     .select('id')
-    .eq('document_number', 'e2e-child');
+    .in('document_number', ['e2e-child', 'e2e-child-2']);
   const { data: groups } = await admin
     .from('groups')
     .select('id')
-    .in('name', ['E2E Test Group', 'E2E Teacherless Group']);
+    .in('name', [...FIXTURE_GROUP_NAMES]);
 
   const childIds = (children ?? []).map((c) => c.id);
   const groupIds = (groups ?? []).map((g) => g.id);
@@ -190,9 +269,7 @@ export async function teardownFixtures(): Promise<void> {
   }
 
   const { data: usersPage } = await admin.auth.admin.listUsers();
-  const fixtureEmails = new Set(
-    (['parent', 'teacher', 'admin'] as const).map((role) => `e2e-${role}@encanto.test`)
-  );
+  const fixtureEmails = new Set<string>(FIXTURE_EMAILS);
   const existingFixtureUsers = (usersPage?.users ?? []).filter((u) =>
     u.email ? fixtureEmails.has(u.email) : false
   );

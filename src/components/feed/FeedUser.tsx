@@ -58,16 +58,10 @@ export default function FeedUser({ user, avatarSignedUrl }: FeedUserProps) {
     return () => clearTimeout(timer);
   }, []);
 
-  // group context selection (Decision 4: stays in FeedUser, coupled to feed UI)
-  useEffect(() => {
-    if (selectOptions.length > 0 && groupContextSelection === undefined) {
-      if (selectOptions[0]?.key !== undefined) {
-        const initialValue = new Set([selectOptions[0].key]);
-        setGroupContextSelection(initialValue);
-      }
-    }
-  }, [selectOptions, groupContextSelection, setGroupContextSelection]);
-
+  // Group context selection is owned by `UserHydrator` (see the reconcile there):
+  // the context is app-wide state that `MessageInput` also reads, so it cannot
+  // depend on this component mounting. This `Select` is only its UI.
+  //
   // get select placeholder
   const getSelectPlaceholder = () => {
     if (user?.role === USER_ROLES.ADMIN || user?.role === USER_ROLES.TEACHER) {
@@ -117,7 +111,6 @@ export default function FeedUser({ user, avatarSignedUrl }: FeedUserProps) {
           placeholder={getSelectPlaceholder()}
           selectedKeys={getSelectedKey()}
           onSelectionChange={setGroupContextSelection}
-          isDisabled={user.role === USER_ROLES.TEACHER}
         >
           {option => <SelectItem key={option.key} textValue={option.label}>{option.label}</SelectItem>}
         </Select>

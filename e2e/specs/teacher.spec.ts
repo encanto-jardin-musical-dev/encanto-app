@@ -112,6 +112,13 @@ test('teacher can create a task for their group', async ({ page }) => {
 });
 
 test('teacher can message the group guardian', async ({ page }) => {
+  // Visit the feed first so the teacher's group context is established before
+  // composing. A teacher's message is tagged with that context, and the composer
+  // refuses to send without one — it is app-wide state hydrated by UserHydrator,
+  // so this also avoids racing the hydration on a direct /messages navigation.
+  await page.goto('/feed');
+  await expect(page.getByRole('button', { name: /Grupos?/ })).toBeVisible();
+
   await page.goto('/messages');
   const parentContact = page.getByRole('link', { name: /Parent E2E/ });
   await expect(parentContact).toBeVisible();

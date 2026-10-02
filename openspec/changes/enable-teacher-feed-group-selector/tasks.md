@@ -12,7 +12,12 @@
 - [x] 2.4 On an invalid selection with zero options, clear it via the existing `RESET` write supported by `groupContextSelectedAtom`
 - [x] 2.5 Ensure the effect is a no-op while `selectOptions` is still loading (empty) so it does not clear a valid selection before the groups query resolves, and that it re-runs when options resolve
 
-> **Deviation from design D3 (resolved during implementation).** Tasks 2.4 and 2.5 both key off `selectOptions.length === 0`, which cannot distinguish "still loading" from "genuinely no groups" — `UserHydrator` used to write `[]` mid-load. Resolved by making `[]` mean only "resolved and empty": each role branch in `buildAndSetOptions` now bails while its query `isPending`. The reconcile logic itself is a pure function (`reconcileGroupContextSelection` in `src/utils/jotai/index.ts`) so 2.2–2.4 are unit-testable without a component.
+> **Deviations from design D3 (both resolved during implementation).**
+>
+> 1. Tasks 2.4 and 2.5 both key off `selectOptions.length === 0`, which cannot distinguish "still loading" from "genuinely no groups" — `UserHydrator` used to write `[]` mid-load. Resolved by making an empty list mean only "resolved and empty": each role branch in `buildAndSetOptions` now bails while its query `isPending`.
+> 2. The reconcile moved from `FeedUser` to `UserHydrator`. CI caught this: the group context is app-wide state (`MessageInput` reads it to tag a teacher's outgoing message), so reconciling it in a component that only mounts on `/feed` left it unset for a teacher navigating straight to `/messages`, and task 4.1's guard then refused the send — failing the pre-existing `teacher can message the group guardian` spec. `UserHydrator` is mounted in the root `providers.tsx`, which is the correct owner.
+>
+> The reconcile logic itself remains a pure function (`reconcileGroupContextSelection` in `src/utils/jotai/index.ts`), so 2.2–2.4 stay unit-testable without a component.
 
 ## 3. Re-scope feed queries on group change
 

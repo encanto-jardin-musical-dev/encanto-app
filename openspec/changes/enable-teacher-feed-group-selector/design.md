@@ -49,15 +49,17 @@ Add `groupID` (and `userID`) to `useGetUserFeedMessages`'s `queryKey`, so a grou
 
 Tasks and reports need no equivalent change: `['tasks','group',groupId]` and `['reports',groupId,childId,includeAllChildren]` already key on the group.
 
-### D3 — Reconcile the persisted context in `FeedUser`, once, role-agnostically
+### D3 — Reconcile the persisted context in `UserHydrator`, once, role-agnostically
 
-Replace the current `if (selectOptions.length > 0 && groupContextSelection === undefined)` auto-select effect with a reconcile effect: if the stored selection resolves to a key that is not present in `selectOptions` (including the `'all'` fallback and the empty value), fall back to `selectOptions[0]`; if there are no options at all, clear via `RESET`. `groupContextSelectedAtom` already accepts `RESET`, so no new atom API is needed.
+Once the role's options query resolves, reconcile the stored selection against the options actually offered: if the resolved key is not among them (including the `'all'` fallback and the empty value), fall back to the first option; if there are no options at all, clear via `RESET`. `groupContextSelectedAtom` already accepts `RESET`, so no new atom API is needed.
 
-This is required for correctness, not tidiness: `tasks` and `daily_reports` SELECT policies grant any `is_staff` user access regardless of `group_teachers` membership, so a stale `groupContext` in `localStorage` keeps returning another group's rows to a teacher who has since been unassigned. Doing it in `FeedUser` keeps it next to the other selection wiring and applies to admins and parents for free.
+This is required for correctness, not tidiness: `tasks` and `daily_reports` SELECT policies grant any `is_staff` user access regardless of `group_teachers` membership, so a stale `groupContext` in `localStorage` keeps returning another group's rows to a teacher who has since been unassigned. Doing it once in `UserHydrator` applies to admins and parents for free.
 
-The reconcile itself is a pure function — `reconcileGroupContextSelection(selection, optionKeys)` in `src/utils/jotai/index.ts`, returning `keep` / `clear` / `select` — so the branching rules are unit-testable without mounting a component. `FeedUser`'s effect just acts on the result.
+**Why the root and not the Feed.** The first draft reconciled inside `FeedUser`, next to the existing auto-select effect. That is wrong, and CI caught it: the group context is *app-wide* state — `MessageInput` reads it to tag a teacher's outgoing message, and the feed reads it to scope queries — so reconciling it in a component that only mounts on `/feed` leaves it unset for a teacher who navigates straight to `/messages`, where D5's guard then correctly refuses to send. `UserHydrator` is mounted in the root `providers.tsx`, so establishing the context there means a teacher always has one when they have groups, and D5's guard fires only for a genuinely group-less teacher.
 
-One prerequisite this decision depends on: `selectOptions.length === 0` must mean "this user genuinely has no groups", never "still loading". `UserHydrator` previously wrote `[]` mid-load (`Array.isArray(undefined)` → `[]`), which made those two states indistinguishable. Each role branch in `buildAndSetOptions` now returns early while its query `isPending`, establishing that invariant at the source.
+The reconcile itself is a pure function — `reconcileGroupContextSelection(selection, optionKeys)` in `src/utils/jotai/index.ts`, returning `keep` / `clear` / `select` — so the branching rules are unit-testable without mounting a component.
+
+One prerequisite this decision depends on: an empty option list must mean "this user genuinely has no groups", never "still loading". `UserHydrator` previously wrote `[]` mid-load (`Array.isArray(undefined)` → `[]`), which made those two states indistinguishable. Each role branch in `buildAndSetOptions` now returns early while its query `isPending`, establishing that invariant at the source.
 
 *Alternative:* tighten `staff_or_guardian_select_tasks` / `staff_or_guardian_select_daily_reports` to require `group_teachers` membership. Rejected for this change — it is a migration with a wider blast radius (attendance and report visibility share the same helpers), and the app already treats the client option list as the source of truth for every role.
 

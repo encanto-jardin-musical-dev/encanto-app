@@ -45,9 +45,9 @@
 
 ## 6. Verify
 
-- [ ] 6.1 Manually confirm a multi-group teacher can switch groups in the Feed and the feed re-scopes messages, tasks, and reports with no flash of the previous group's content
-- [ ] 6.2 Manually confirm an admin and a parent see no behavior change in the Feed
-- [ ] 6.3 Manually confirm a teacher unassigned from their persisted group is reconciled to a current group on next load and no longer sees the stale group's content
+- [x] 6.1 Manually confirm a multi-group teacher can switch groups in the Feed and the feed re-scopes messages, tasks, and reports with no flash of the previous group's content _(closed on owner decision after CI e2e green. Automated backing: selector enabled / lists both assigned groups / unassigned group not offered, task re-scoping in both directions, and outgoing-message group-tagging are all asserted in `e2e/specs/teacher.spec.ts`. **Not asserted by any test:** report-card re-scoping on switch, and the no-flash-mid-switch property — the assertions check settled state, not intermediate frames.)_
+- [x] 6.2 Manually confirm an admin and a parent see no behavior change in the Feed _(closed on owner decision after CI e2e green. The parent, admin, permissions, and auth specs all pass unchanged across this branch, which is direct regression evidence for both roles — the `auth` spec additionally asserts per-role nav differences and that parents see no `Asistencia`/`Tareas`/`Administrar` links.)_
+- [x] 6.3 Manually confirm a teacher unassigned from their persisted group is reconciled to a current group on next load and no longer sees the stale group's content _(closed on owner decision. The reconcile logic is unit-tested in `src/utils/jotai/index.test.ts` — 8 cases including "stored key no longer offered → first option", "no options → clear via RESET", and the `all` / storage-marker fallbacks — and is now driven from the root `UserHydrator` rather than `FeedUser`. Not covered end-to-end in a browser: unassigning a live teacher mid-session.)_
 - [x] 6.4 Confirm no database migration, RLS policy, or i18n key changes were needed, and that `supabase/migrations/` is untouched _(verified: `git status --short -- supabase/ messages/` is empty)_
 
-> 6.1–6.3 still need a manual browser pass — they are click-through checks against a seeded multi-group teacher.
+> 6.1–6.3 were closed by owner decision rather than by a browser pass. The annotations on each record what is and is not backed by an automated test — most notably, report-card re-scoping on switch and the no-flash-mid-switch property remain unasserted, and 6.3 has unit coverage but no end-to-end browser coverage.

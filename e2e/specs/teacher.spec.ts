@@ -21,12 +21,15 @@ import { FIXTURES_PATH } from '../fixtures/global-setup';
 
 const fixtures = JSON.parse(fs.readFileSync(FIXTURES_PATH, 'utf-8')) as {
   parent: { userId: string };
+  parent2: { userId: string };
   teacher: { userId: string };
   groupId: string;
+  secondGroupId: string;
   childId: string;
 };
 
 const GROUP_NAME = 'E2E Test Group';
+const SECOND_GROUP_NAME = 'E2E Second Teacher Group';
 const CHILD_NAME = 'E2E Child';
 
 test('teacher can clock a child in and out', async ({ page }) => {
@@ -122,4 +125,106 @@ test('teacher can message the group guardian', async ({ page }) => {
 
   await expect(page.getByText(messageText)).toBeVisible();
   await expect(page.getByPlaceholder('Mensaje')).toHaveValue('');
+});
+
+test('teacher can switch the feed group selector and only sees that group', async ({
+  page,
+}) => {
+  const taskTitle = `Tarea grupo 1 ${Date.now()}`;
+  const secondTaskTitle = `Tarea grupo 2 ${Date.now()}`;
+
+  // One task per assigned group so we can tell which group the feed is scoped to.
+  for (const [title, groupName] of [
+    [taskTitle, GROUP_NAME],
+    [secondTaskTitle, SECOND_GROUP_NAME],
+  ] as const) {
+    await page.goto('/tasks');
+    await page.getByRole('button', { name: 'Agregar tarea' }).click();
+    await expect(page).toHaveURL(/\/tasks\/new$/);
+    await page.getByLabel('Título').fill(title);
+    await page.getByRole('button', { name: /Grupo/ }).click();
+    await page.getByRole('option', { name: groupName }).click();
+    await page.getByRole('button', { name: 'Guardar tarea' }).click();
+    await expect(page).toHaveURL(/\/tasks$/);
+  }
+
+  await page.goto('/feed');
+
+  // The selector is enabled and lists exactly the teacher's two groups.
+  const selector = page.getByRole('button', { name: /Grupos?/ }).first();
+  await expect(selector).toBeEnabled();
+  await selector.click();
+  await expect(page.getByRole('option', { name: GROUP_NAME })).toBeVisible();
+  await expect(page.getByRole('option', { name: SECOND_GROUP_NAME })).toBeVisible();
+  // A group the teacher is not assigned to must not be offered.
+  await expect(page.getByRole('option', { name: 'E2E Teacherless Group' })).toHaveCount(0);
+
+  // Select the first group explicitly rather than relying on the default:
+  // `getUserGroups` has no ORDER BY, so which group lands at index 0 is not
+  // guaranteed.
+  await page.getByRole('option', { name: GROUP_NAME }).click();
+  await expect(page.getByText(taskTitle)).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(secondTaskTitle)).toHaveCount(0);
+
+  // Switching re-scopes the feed to the other group, with nothing left over.
+  await selector.click();
+  await page.getByRole('option', { name: SECOND_GROUP_NAME }).click();
+
+  await expect(page.getByText(secondTaskTitle)).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(taskTitle)).toHaveCount(0);
+});
+
+test('message sent after switching groups is scoped to the selected group', async ({
+  page,
+  browser,
+}) => {
+  const messageText = `Mensaje grupo 2 ${Date.now()}`;
+
+  // Point the teacher's feed context at the second group.
+  await page.goto('/feed');
+  const selector = page.getByRole('button', { name: /Grupos?/ }).first();
+  await expect(selector).toBeEnabled();
+  await selector.click();
+  await page.getByRole('option', { name: SECOND_GROUP_NAME }).click();
+
+  // Send to parent 2, who is a guardian of a child in that group.
+  await page.goto('/messages');
+  const parentContact = page.getByRole('link', { name: /Parent2 E2E/ });
+  await expect(parentContact).toBeVisible();
+  await parentContact.click();
+  await expect(page).toHaveURL(new RegExp(`/messages/${fixtures.parent2.userId}$`));
+
+  await page.getByPlaceholder('Mensaje').fill(messageText);
+  await page.getByRole('button', { name: 'submit message' }).click();
+  await expect(page.getByText(messageText)).toBeVisible();
+
+  // Parent 2 (guardian in the selected group) sees it in their feed.
+  const parent2Context = await browser.newContext({
+    storageState: 'e2e/.auth/parent2.json',
+  });
+  try {
+    const parent2Page = await parent2Context.newPage();
+    await parent2Page.goto('/feed');
+    await expect(parent2Page.getByText(messageText)).toBeVisible({ timeout: 15_000 });
+  } finally {
+    await parent2Context.close();
+  }
+
+  // Parent 1 (guardian in the other group) must not see it.
+  const parent1Context = await browser.newContext({
+    storageState: 'e2e/.auth/parent.json',
+  });
+  try {
+    const parent1Page = await parent1Context.newPage();
+    await parent1Page.goto('/feed');
+    // Anchor on the sidebar user label (the pattern parent.spec.ts relies on)
+    // so the feed has actually rendered before asserting absence. A parent's
+    // group selector is labelled "Hij@", not "Grupo", so it is no use here.
+    await expect(
+      parent1Page.getByLabel('Usuario actual').getByText('Parent E2E', { exact: true })
+    ).toBeVisible({ timeout: 15_000 });
+    await expect(parent1Page.getByText(messageText)).toHaveCount(0);
+  } finally {
+    await parent1Context.close();
+  }
 });

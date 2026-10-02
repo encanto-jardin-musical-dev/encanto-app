@@ -26,7 +26,7 @@ async function signIn(email: string, password: string) {
 
 async function saveStorageState(
   baseURL: string,
-  role: 'parent' | 'teacher' | 'admin',
+  role: 'parent' | 'parent2' | 'teacher' | 'admin',
   session: { access_token: string; refresh_token: string }
 ) {
   const secret = process.env.E2E_TEST_AUTH_SECRET;
@@ -58,7 +58,10 @@ export default async function globalSetup(config: FullConfig) {
   const fixtures: SeededFixtures = await seedFixtures();
   const baseURL = config.projects[0]?.use?.baseURL ?? 'http://localhost:3000';
 
-  for (const role of ['parent', 'teacher', 'admin'] as const) {
+  // `parent2` gets a storage state too (not a Playwright project) so
+  // teacher.spec.ts can open it as a second browser context to assert the
+  // other group's guardian cannot see a group message.
+  for (const role of ['parent', 'parent2', 'teacher', 'admin'] as const) {
     const { email, password } = fixtures[role];
     const session = await signIn(email, password);
     await saveStorageState(baseURL, role, session);

@@ -69,22 +69,29 @@ export function UserHydrator() {
     posthog,
   ]);
 
-  const { data: userChildren } = useUserChildrenQuery({
+  const { data: userChildren, isPending: childrenPending } = useUserChildrenQuery({
     params: { userID: localUserId },
     options: {
       enabled: !!localUserId && localUserRole === USER_ROLES.PARENT,
     },
   });
-  const { data: userGroups } = useUserGroupsQuery(localUserId, {
+  const { data: userGroups, isPending: groupsPending } = useUserGroupsQuery(localUserId, {
     enabled: !!localUserId && localUserRole === USER_ROLES.TEACHER,
   });
-  const { data: allGroups } = useUserAllGroupsQuery({
+  const { data: allGroups, isPending: allGroupsPending } = useUserAllGroupsQuery({
     enabled: !!localUserId && localUserRole === USER_ROLES.ADMIN,
   });
 
   const buildAndSetOptions = useCallback(() => {
     if (!localUserId) return;
+
+    // Each role branch bails out while its query is still pending so that an empty
+    // option list only ever means "this user genuinely has no groups", never "not
+    // loaded yet". The Feed's group-context reconcile in `FeedUser` depends on
+    // that distinction: clearing a persisted selection is correct for the former
+    // and destructive for the latter.
     if (localUserRole === USER_ROLES.ADMIN) {
+      if (allGroupsPending) return;
       const formatted = Array.isArray(allGroups)
         ? allGroups.map(group => ({
             key: group?.id as Key,
@@ -93,6 +100,7 @@ export function UserHydrator() {
         : [];
       setSelectOptions(formatted);
     } else if (localUserRole === USER_ROLES.TEACHER) {
+      if (groupsPending) return;
       const formatted = Array.isArray(userGroups)
         ? userGroups.map(group => ({
             key: group?.id as Key,
@@ -101,6 +109,7 @@ export function UserHydrator() {
         : [];
       setSelectOptions(formatted);
     } else {
+      if (childrenPending) return;
       const formatted = Array.isArray(userChildren)
         ? userChildren.map(child => ({
             key: child?.children?.child_groups[0]?.group_id as Key,
@@ -113,8 +122,11 @@ export function UserHydrator() {
     localUserId,
     localUserRole,
     allGroups,
+    allGroupsPending,
     userGroups,
+    groupsPending,
     userChildren,
+    childrenPending,
     setSelectOptions,
   ]);
 

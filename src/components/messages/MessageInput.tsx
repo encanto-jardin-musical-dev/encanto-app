@@ -149,6 +149,24 @@ export default function MessageInput({ receiverId }: MessageInputProps) {
       return;
     }
 
+    // A teacher's message is tagged with the group selected in the Feed. With no
+    // group to post to (teacher assigned to no groups, or context not yet
+    // reconciled) the insert would carry an empty uuid and fail at the database,
+    // so bail out here — before uploading attachments — using the same error
+    // surface as a failed send.
+    if (userRole === USER_ROLES.TEACHER && !groupContextId) {
+      addToast({
+        title: t('noGroupTitle', { defaultValue: 'Sin grupo seleccionado' }),
+        description: t('noGroupDescription', {
+          defaultValue:
+            'Selecciona un grupo en el feed antes de enviar un mensaje.',
+        }),
+        color: 'danger',
+        hideIcon: true,
+      });
+      return;
+    }
+
     // 8.5 Wire send action: validate → upload → send
     let attachments: Attachment[] | undefined;
 

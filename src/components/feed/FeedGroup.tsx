@@ -40,7 +40,6 @@ export default function FeedGroup() {
 
   const {
     data: feedMeessages,
-    refetch: refetchMessages,
     isLoading,
     isPending,
   } = useGetUserFeedMessages({
@@ -165,11 +164,12 @@ export default function FeedGroup() {
     };
   }, []);
 
+  // Clear the moment the group context changes: the messages query is keyed by
+  // group, so until the new group's rows arrive the atom would still hold the
+  // previous group's messages and the feed would render them.
   useEffect(() => {
-    if (groupContextId) {
-      refetchMessages();
-    }
-  }, [groupContextId, refetchMessages]);
+    setGroupMessages([]);
+  }, [groupContextId, setGroupMessages]);
 
   useEffect(() => {
     if (feedMeessages) {

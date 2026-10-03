@@ -8,6 +8,16 @@ Main sections are `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, and `Sec
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-10-02
+
+### Added
+
+- Feed group selector enabled for teachers: a teacher assigned to several groups can switch between them, and outgoing messages are tagged with the active group. Previously the selector was disabled for teachers, so anyone covering more than one group was pinned to whichever group came first, and messages went only to that group's parents.
+
+### Security
+
+- Access to groups, children, and attendance is now scoped by row-level security to the staff assigned to them, replacing policies that let any signed-in user read every row. RLS helper functions now run as invoker with execution revoked from anonymous callers, and admin routes require an authenticated, email-confirmed admin.
+
 ## [1.4.0] - 2026-09-09
 
 ### Changed

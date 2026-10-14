@@ -4,7 +4,7 @@ import { contextGroupValue } from '@/lib/store/common';
 import { feedFilterAtom, groupMessagesAtom, groupReportsAtom, groupTasksAtom } from '@/lib/store/feed';
 import { DetailedMessage, Attachment } from '@/types/messages.types';
 import { useAtom, useAtomValue } from 'jotai';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import MessageFeedCard from './MessageFeedCard';
 import TaskFeedCard from './TaskFeedCard';
 import ReportFeedCard from './ReportFeedCard';
@@ -30,7 +30,6 @@ export default function FeedGroup() {
   const [groupTasks, setGroupTasks] = useAtom(groupTasksAtom);
   const [groupReports, setGroupReports] = useAtom(groupReportsAtom);
   const feedFilter = useAtomValue(feedFilterAtom);
-  const [pendingUserIds, setPendingUserIds] = useState<string[]>([]);
 
   const { id } = user;
 
@@ -109,6 +108,21 @@ export default function FeedGroup() {
     table: 'daily_reports',
     event: 'DELETE',
   });
+
+  // Users whose profiles are needed to render the latest realtime message,
+  // derived from that message (only when it is relevant to this user/group).
+  const pendingUserIds = useMemo(() => {
+    if (status !== 'connected' || !data) return [];
+    const isRelevant = data.receiver_id === id &&
+      (data.group_id === groupContextId || data.group_id === null);
+    return isRelevant && data.sender_id && data.receiver_id
+      ? [data.sender_id, data.receiver_id]
+      : [];
+  }, [data, status, id, groupContextId]);
+
+  // The realtime message already merged into the feed, so a later profile
+  // refetch doesn't apply it a second time.
+  const processedMessageRef = useRef<typeof data>(null);
 
   const { data: userProfiles = [] } = UseGetUserProfilesQuery({
     params: { userIds: pendingUserIds },
@@ -234,22 +248,10 @@ export default function FeedGroup() {
     }
   }, [deletedReportRow, reportDeleteStatus, setGroupReports]);
 
+  // Merge the realtime message into the feed once its profiles have loaded.
   useEffect(() => {
-    if (status === 'connected' && data) {
-      // Check if message is relevant to current user/group context
-      const isRelevant = data.receiver_id === id && 
-        (data.group_id === groupContextId || data.group_id === null);
-      
-      if (isRelevant && data.sender_id && data.receiver_id) {
-        // Set user IDs to fetch profiles for
-        setPendingUserIds([data.sender_id, data.receiver_id]);
-      }
-    }
-  }, [data, status, id, groupContextId]);
-
-  // Separate effect to handle profile data and message transformation
-  useEffect(() => {
-    if (data && userProfiles.length > 0 && pendingUserIds.length > 0) {
+    if (data && userProfiles.length > 0 && pendingUserIds.length > 0 && processedMessageRef.current !== data) {
+      processedMessageRef.current = data;
       const detailedMessage = transformMessageToDetailed(data, userProfiles);
       
       // Update groupMessages state
@@ -272,9 +274,6 @@ export default function FeedGroup() {
           return [detailedMessage, ...prev];
         }
       });
-      
-      // Clear pending user IDs
-      setPendingUserIds([]);
     }
   }, [data, userProfiles, pendingUserIds, transformMessageToDetailed, setGroupMessages]);
 

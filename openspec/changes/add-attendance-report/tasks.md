@@ -41,7 +41,7 @@
 
 - [x] 6.1 Seed local attendance rows for an e2e child (including a day with two check-ins and an open row without check-out)
 - [x] 6.2 Add `e2e/specs/attendance-report.spec.ts`: staff opens the report from the plus button, selects group and child, picks "This month", generates, sees rows in date/check-in order, downloads the CSV and asserts headers/row count; and a parent gets not-found
-- [ ] 6.3 Run `pnpm lint`, `pnpm test:coverage`, and `pnpm test:e2e`
+- [x] 6.3 Run `pnpm lint`, `pnpm test:coverage`, and `pnpm test:e2e`
 - [ ] 6.4 Manually verify on mobile and desktop viewports (and iOS PWA download behavior) with the flag on and off
 
 ## 7. Rollout

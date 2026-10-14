@@ -8,6 +8,16 @@ Main sections are `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, and `Sec
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-10-14
+
+### Added
+
+- Per-child attendance report for staff at `/attendance-report` (behind the `admin_options_attendance_report` flag): pick a group, a child and a date range (up to 90 days), review check-in/check-out times in the school timezone, and download the rows as CSV. Backed by a staff-only `get_attendance_report` RPC that runs as invoker, so attendance RLS still applies.
+
+### Changed
+
+- Resolved all `react-hooks` lint errors across the UI without changing behavior.
+
 ## [1.5.0] - 2026-10-02
 
 ### Added

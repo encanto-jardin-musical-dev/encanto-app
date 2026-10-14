@@ -43,7 +43,7 @@
 - Use `useFeatureFlagEnabled` from `posthog-js/react` for client-side flags
 - All flag hooks must run **unconditionally** and in a stable order (React rules)
 - Treat both `false` and `undefined` (loading) as off via `=== true` check
-- Current flags: `action_button_options`, `admin_options_attendance`, `admin_options_reports`, `admin_options_tasks`
+- Current flags: `action_button_options`, `admin_options_attendance`, `admin_options_attendance_report`, `admin_options_reports`, `admin_options_tasks`
 - Server-side tracking via `src/lib/posthog/server.ts` (`getPostHogServer`, `trackServerEvent`)
 
 ### Error Handling & Security
@@ -73,6 +73,7 @@ src/
 │   ├── auth/               # Supabase auth callbacks (callback/, confirm/)
 │   ├── admin/              # Admin module (children/, groups/, teachers/, parents/)
 │   ├── attendance/         # Attendance page
+│   ├── attendance-report/  # Per-child attendance report + CSV export (staff, flagged)
 │   ├── daily-report/       # Daily report page
 │   ├── error/              # Error boundary page
 │   ├── feed/               # Feed with parallel routes (@group, @user)

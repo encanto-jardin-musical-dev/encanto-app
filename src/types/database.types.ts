@@ -519,7 +519,7 @@ export type Database = {
           attendance_date: string
           attendance_id: string
           check_in: string
-          check_out: string
+          check_out: string | null
         }[]
       }
       get_profiles_by_guardian: {

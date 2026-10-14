@@ -117,7 +117,7 @@ The report data SHALL be served by the database function `get_attendance_report(
 The generated report SHALL show the selected child's full name as its heading, the date range, and the total number of rows. Each row SHALL display the attendance date, check-in time, and check-out time, and SHALL NOT display who recorded it. Rows SHALL be sorted by date descending (most recent day first) and, within the same date, by check-in time ascending. Times SHALL be displayed in the school timezone (`America/Bogota`). A row without a check-out SHALL show a localized "no check-out" placeholder. On viewports below the desktop breakpoint rows SHALL render as stacked cards; on desktop they SHALL render as a table. All labels SHALL come from the i18n catalog.
 
 #### Scenario: Displaying a complete row
-- **WHEN** a row has check-in 2026-10-10T12:05:00Z and check-out 2026-10-10T21:30:00Z
+- **WHEN** a row has a stored check-in of 12:05 and check-out of 21:30 (UTC time of day)
 - **THEN** the report shows the date 2026-10-10 with check-in 07:05 and check-out 16:30
 
 #### Scenario: Open attendance row

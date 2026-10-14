@@ -53,7 +53,7 @@ const rows = [
   {
     attendance_id: 'a1',
     attendance_date: '2026-10-10',
-    check_in: '2026-10-10T12:05:00Z',
+    check_in: '07:05:00',
     check_out: null,
   },
 ];

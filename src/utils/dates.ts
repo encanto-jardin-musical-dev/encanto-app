@@ -95,15 +95,12 @@ export function formatReportDate(date: string): string {
   }).format(parsed);
 }
 
-/** Formats a timestamptz as 24h "HH:mm" in the school timezone. Empty string if invalid. */
+/**
+ * Formats a report time as 24h "HH:mm". `get_attendance_report` already
+ * returns the school-local (America/Bogota) time of day as `HH:mm:ss[.ffffff]`,
+ * so no timezone conversion happens here. Empty string if missing or invalid.
+ */
 export function formatReportTime(value: string | null | undefined): string {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat('es-CO', {
-    timeZone: SCHOOL_TIMEZONE,
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  }).format(date);
+  const match = value ? /^(\d{2}):(\d{2})/.exec(value) : null;
+  return match ? `${match[1]}:${match[2]}` : '';
 }

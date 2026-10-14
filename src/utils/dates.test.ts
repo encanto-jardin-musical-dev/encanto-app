@@ -66,13 +66,9 @@ describe('isValidReportRange / getReportRangeError', () => {
 });
 
 describe('report formatters', () => {
-  it('converts UTC timestamps to Bogotá 24h time', () => {
-    expect(formatReportTime('2026-10-10T12:05:00Z')).toBe('07:05');
-    expect(formatReportTime('2026-10-10T21:30:00Z')).toBe('16:30');
-  });
-
-  it('uses the school day across the UTC midnight boundary', () => {
-    expect(formatReportTime('2026-10-11T02:30:00Z')).toBe('21:30');
+  it('formats the school-local time of day as 24h HH:mm', () => {
+    expect(formatReportTime('07:05:00')).toBe('07:05');
+    expect(formatReportTime('16:30:12.345678')).toBe('16:30');
   });
 
   it('returns empty string for null or invalid values', () => {

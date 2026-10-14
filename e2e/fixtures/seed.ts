@@ -234,7 +234,8 @@ export async function seedFixtures(): Promise<SeededFixtures> {
   // History for the attendance report. Kept on past days only: the teacher
   // clock-in spec expects the child to have no attendance *today*. Yesterday
   // has two check-in cycles (the second left open); two days ago has one.
-  // Bogotá is UTC-5, so 12:00Z = 07:00 local.
+  // check_in/check_out are `time` columns holding the UTC time of day; Bogotá
+  // is UTC-5, so 12:00 stored = 07:00 shown in the report.
   const yesterday = schoolDate(1);
   const twoDaysAgo = schoolDate(2);
   const { error: attendanceError } = await admin.from('attendance').insert([
@@ -242,15 +243,15 @@ export async function seedFixtures(): Promise<SeededFixtures> {
       child_id: child.id,
       attendance_date: yesterday,
       status: 'present',
-      check_in: `${yesterday}T12:00:00Z`,
-      check_out: `${yesterday}T17:00:00Z`,
+      check_in: '12:00:00',
+      check_out: '17:00:00',
       recorded_by: teacher.userId,
     },
     {
       child_id: child.id,
       attendance_date: yesterday,
       status: 'present',
-      check_in: `${yesterday}T19:00:00Z`,
+      check_in: '19:00:00',
       check_out: null,
       recorded_by: teacher.userId,
     },
@@ -258,8 +259,8 @@ export async function seedFixtures(): Promise<SeededFixtures> {
       child_id: child.id,
       attendance_date: twoDaysAgo,
       status: 'present',
-      check_in: `${twoDaysAgo}T13:00:00Z`,
-      check_out: `${twoDaysAgo}T21:00:00Z`,
+      check_in: '13:00:00',
+      check_out: '21:00:00',
       recorded_by: teacher.userId,
     },
   ]);

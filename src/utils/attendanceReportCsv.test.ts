@@ -10,13 +10,13 @@ const headers = { date: 'Fecha', checkIn: 'Entrada', checkOut: 'Salida', noCheck
 const row = (over: Partial<Parameters<typeof buildAttendanceReportCsv>[0][number]> = {}) => ({
   attendance_id: 'a1',
   attendance_date: '2026-10-10',
-  check_in: '2026-10-10T12:05:00Z',
-  check_out: '2026-10-10T21:30:00Z' as string | null,
+  check_in: '07:05:00',
+  check_out: '16:30:00' as string | null,
   ...over,
 });
 
 describe('buildAttendanceReportCsv', () => {
-  it('starts with a BOM, uses CRLF and school-timezone times', () => {
+  it('starts with a BOM and uses CRLF', () => {
     const csv = buildAttendanceReportCsv([row()], headers);
 
     expect(csv.startsWith('﻿')).toBe(true);

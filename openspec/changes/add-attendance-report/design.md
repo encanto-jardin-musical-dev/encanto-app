@@ -1,6 +1,6 @@
 ## Context
 
-- Attendance is written by `clock_in_children` / `clock_out_children` RPCs into `public.attendance` (`child_id`, `attendance_date`, `check_in`, `check_out`, `recorded_by`, `status`). A child can have **several rows per day** (re-entry after checkout). `attendance_date` is the school's local day (`America/Bogota`); `check_in`/`check_out` are `timestamptz`.
+- Attendance is written by `clock_in_children` / `clock_out_children` RPCs into `public.attendance` (`child_id`, `attendance_date`, `check_in`, `check_out`, `recorded_by`, `status`). A child can have **several rows per day** (re-entry after checkout). `attendance_date` is the school's local day (`America/Bogota`); `check_in`/`check_out` are `time without time zone` columns holding the **UTC** time of day (the clock RPCs insert `now()` under a UTC session).
 - Attendance RLS (`assigned_staff_select_attendance`): admins see all rows; teachers see rows only for children currently in groups assigned to them. An index exists on `(child_id, attendance_date)`, which matches the report's access pattern exactly.
 - Plus button and desktop sidebar both derive their items from `STAFF_ACTIONS` in `src/components/common/navigation.ts`, filtered by `useActionFlagState()` in `src/hooks/UseNavItems.ts`. Adding an entry there covers both mobile and desktop.
 - Routes are gated client-side with `FeatureFlagRoleGate` (flag + roles → `notFound()`).
@@ -29,12 +29,12 @@
 ```sql
 get_attendance_report(p_child_id uuid, p_from date, p_to date)
 returns table (
-  attendance_id uuid, attendance_date date, check_in timestamptz, check_out timestamptz
+  attendance_id uuid, attendance_date date, check_in time, check_out time
 )
 language sql stable security invoker set search_path = public, pg_catalog
 ```
 
-- Selects from `attendance` where `child_id = p_child_id`, `attendance_date between p_from and p_to`, `check_in is not null`; orders by `attendance_date desc, check_in asc`.
+- Converts the stored UTC time of day to school-local time (`America/Bogota`) in SQL and orders by the converted value. Selects from `attendance` where `child_id = p_child_id`, `attendance_date between p_from and p_to`, `check_in is not null`; orders by `attendance_date desc, check_in asc`.
 - Raises if the caller is not staff (`is_staff(auth.uid())`), if `p_to < p_from`, or if the inclusive span exceeds **90 days** (`p_to - p_from > 89`).
 - **Security invoker** so the existing attendance RLS decides visibility: a teacher passing a child outside their groups gets zero rows.
 - The group is only a UI step to narrow the child list; it is not a parameter, because authorization already comes from RLS on the child's rows.
@@ -68,7 +68,7 @@ Components (under `src/components/attendance/report/`):
 ### 5. Date presets and timezone
 
 - A pure helper `getReportDateRange(preset, today)` in `src/utils/dates.ts` returns `{ from, to }` as `YYYY-MM-DD` strings computed from the school's "today" (`todayDateString()`), so presets agree with how `attendance_date` is written. `isValidReportRange(from, to)` enforces order and the 90-day cap (mirrors the RPC). "This month" and "Last month" never exceed 31 days, so presets are always valid.
-- Times are formatted with `Intl.DateTimeFormat('es-CO', { timeZone: SCHOOL_TIMEZONE, hour: '2-digit', minute: '2-digit' })`. A missing `check_out` renders a localized "Sin salida".
+- The RPC returns school-local times, so the client only trims them to `HH:mm` (no client-side timezone conversion). A missing `check_out` renders a localized "Sin salida".
 
 ### 6. Download: client-side CSV
 

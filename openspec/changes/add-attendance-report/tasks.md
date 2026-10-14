@@ -2,7 +2,7 @@
 
 - [x] 1.1 Create migration `supabase migration new add_attendance_report_rpc` defining `public.get_attendance_report(p_child_id uuid, p_from date, p_to date)` returning `attendance_id, attendance_date, check_in, check_out` — `stable`, `security invoker`, `set search_path = public, pg_catalog`; filters `child_id = p_child_id`, `attendance_date between p_from and p_to`, `check_in is not null`; orders by `attendance_date desc, check_in asc`
 - [x] 1.2 Add guards in the function: raise if `not is_staff(auth.uid())`, if `p_to < p_from`, or if `p_to - p_from > 89` (90-day inclusive cap); `grant execute` to `authenticated` only and revoke from `anon`/`public`; add a `COMMENT ON FUNCTION`
-- [ ] 1.3 Apply locally with `supabase db reset` and verify via SQL as admin, as an assigned teacher, as a non-assigned teacher (expect 0 rows) and as a parent (expect error); check 90 vs 91-day ranges
+- [x] 1.3 Apply locally with `supabase db reset` and verify via SQL as admin, as an assigned teacher, as a non-assigned teacher (expect 0 rows) and as a parent (expect error); check 90 vs 91-day ranges
 - [x] 1.4 Run Supabase advisors (MCP `get_advisors`) and fix any security/performance findings for the new function
 - [x] 1.5 Regenerate `src/types/database.types.ts` with `supabase gen types typescript --local`
 

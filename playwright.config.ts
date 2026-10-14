@@ -29,7 +29,7 @@ export default defineConfig({
     // does not replace it), so only the addition needs to be listed here.
     env: {
       NEXT_PUBLIC_E2E_FEATURE_FLAGS:
-        'admin_options_attendance,admin_options_reports,admin_options_tasks',
+        'admin_options_attendance,admin_options_attendance_report,admin_options_reports,admin_options_tasks',
     },
   },
   // Each project only runs the specs written for that role's storageState:
@@ -46,7 +46,7 @@ export default defineConfig({
     },
     {
       name: 'teacher',
-      testMatch: /(auth|teacher)\.spec\.ts/,
+      testMatch: /(auth|teacher|attendance-report)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], storageState: 'e2e/.auth/teacher.json' },
     },
     {

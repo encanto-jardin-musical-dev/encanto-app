@@ -513,6 +513,15 @@ export type Database = {
     Functions: {
       clock_in_children: { Args: { child_ids: string[] }; Returns: undefined }
       clock_out_children: { Args: { child_ids: string[] }; Returns: undefined }
+      get_attendance_report: {
+        Args: { p_child_id: string; p_from: string; p_to: string }
+        Returns: {
+          attendance_date: string
+          attendance_id: string
+          check_in: string
+          check_out: string | null
+        }[]
+      }
       get_profiles_by_guardian: {
         Args: { p_child_id?: string }
         Returns: {

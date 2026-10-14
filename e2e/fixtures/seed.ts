@@ -38,6 +38,15 @@ const FIXTURE_EMAILS = [
   'e2e-admin@encanto.test',
 ] as const;
 
+/**
+ * Calendar date (YYYY-MM-DD) in the school's timezone, `daysAgo` days back.
+ * Mirrors `todayDateString` in src/utils/dates.ts.
+ */
+export function schoolDate(daysAgo = 0): string {
+  const now = new Date(Date.now() - daysAgo * 86_400_000);
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(now);
+}
+
 function getAdminClient() {
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
     throw new Error(
@@ -220,6 +229,44 @@ export async function seedFixtures(): Promise<SeededFixtures> {
 
   if (guardianError) {
     throw new Error(`Failed to link fixture guardian to child: ${guardianError.message}`);
+  }
+
+  // History for the attendance report. Kept on past days only: the teacher
+  // clock-in spec expects the child to have no attendance *today*. Yesterday
+  // has two check-in cycles (the second left open); two days ago has one.
+  // check_in/check_out are `time` columns holding the UTC time of day; Bogotá
+  // is UTC-5, so 12:00 stored = 07:00 shown in the report.
+  const yesterday = schoolDate(1);
+  const twoDaysAgo = schoolDate(2);
+  const { error: attendanceError } = await admin.from('attendance').insert([
+    {
+      child_id: child.id,
+      attendance_date: yesterday,
+      status: 'present',
+      check_in: '12:00:00',
+      check_out: '17:00:00',
+      recorded_by: teacher.userId,
+    },
+    {
+      child_id: child.id,
+      attendance_date: yesterday,
+      status: 'present',
+      check_in: '19:00:00',
+      check_out: null,
+      recorded_by: teacher.userId,
+    },
+    {
+      child_id: child.id,
+      attendance_date: twoDaysAgo,
+      status: 'present',
+      check_in: '13:00:00',
+      check_out: '21:00:00',
+      recorded_by: teacher.userId,
+    },
+  ]);
+
+  if (attendanceError) {
+    throw new Error(`Failed to seed fixture attendance: ${attendanceError.message}`);
   }
 
   return {

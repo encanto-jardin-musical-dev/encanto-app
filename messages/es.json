@@ -122,6 +122,7 @@
     "actions": {
       "feed": "Inicio",
       "attendance": "Asistencia",
+      "attendance-report": "Reporte de asistencia",
       "daily-report": "Reporte diario",
       "tasks": "Tareas",
       "messages": "Mensajes",
@@ -160,6 +161,45 @@
       "emptyClockOut": "No hay niños adentro",
       "checkedOutBadge": "Salió"
     }
+  },
+  "AttendanceReport": {
+    "title": "Reporte de asistencia",
+    "filtersTitle": "Filtros",
+    "groupLabel": "Grupo",
+    "groupPlaceholder": "Selecciona un grupo",
+    "noGroups": "No hay grupos disponibles",
+    "childLabel": "Niño",
+    "childPlaceholder": "Selecciona un niño",
+    "childPlaceholderDisabled": "Selecciona primero un grupo",
+    "noChildren": "Este grupo no tiene niños",
+    "dateRangeLabel": "Rango de fechas",
+    "customRangeLabel": "Rango personalizado",
+    "presets": {
+      "today": "Hoy",
+      "last7": "Últimos 7 días",
+      "thisMonth": "Este mes",
+      "lastMonth": "Mes pasado",
+      "custom": "Personalizado"
+    },
+    "rangeErrors": {
+      "invalid": "Selecciona un rango de fechas válido",
+      "order": "La fecha final no puede ser anterior a la inicial",
+      "tooLong": "El rango no puede superar los 90 días"
+    },
+    "generate": "Generar reporte",
+    "columns": {
+      "date": "Fecha",
+      "checkIn": "Entrada",
+      "checkOut": "Salida"
+    },
+    "noCheckOut": "Sin salida",
+    "rangeSummary": "{from} – {to}",
+    "rowCount": "{count, plural, one {# registro} other {# registros}}",
+    "empty": "No hay registros de asistencia para este niño en el rango seleccionado",
+    "error": "No se pudo cargar el reporte",
+    "retry": "Reintentar",
+    "download": "Descargar CSV",
+    "resultsTableLabel": "Registros de asistencia"
   },
   "AdminOptionsPage": {
     "sections": {

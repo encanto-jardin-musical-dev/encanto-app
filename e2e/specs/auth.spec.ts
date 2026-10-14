@@ -47,11 +47,11 @@ test('magic-link session bypass lands the user on /feed with role-appropriate na
   }
 
   if (role === 'parent') {
-    await expect(nav.getByRole('link', { name: 'Asistencia' })).toHaveCount(0);
+    await expect(nav.getByRole('link', { name: 'Asistencia', exact: true })).toHaveCount(0);
     await expect(nav.getByRole('link', { name: 'Tareas' })).toHaveCount(0);
   } else {
     // teacher/admin, with admin_options_* flags force-enabled for e2e
-    await expect(nav.getByRole('link', { name: 'Asistencia' })).toBeVisible();
+    await expect(nav.getByRole('link', { name: 'Asistencia', exact: true })).toBeVisible();
     await expect(nav.getByRole('link', { name: 'Tareas' })).toBeVisible();
   }
 });

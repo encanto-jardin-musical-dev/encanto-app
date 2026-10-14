@@ -4,6 +4,7 @@ import {
   ClockIcon,
   Cog6ToothIcon,
   DocumentCheckIcon,
+  DocumentChartBarIcon,
   HomeIcon,
 } from "@heroicons/react/24/outline";
 import type { ComponentType } from "react";
@@ -28,6 +29,12 @@ export const STAFF_ACTIONS: NavItem[] = [
     route: "/attendance",
     icon: ClockIcon,
     flag: "admin_options_attendance",
+  },
+  {
+    key: "attendance-report",
+    route: "/attendance-report",
+    icon: DocumentChartBarIcon,
+    flag: "admin_options_attendance_report",
   },
   {
     key: "daily-report",

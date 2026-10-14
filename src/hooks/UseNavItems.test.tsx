@@ -50,11 +50,36 @@ describe('useNavItems', () => {
     expect(result.current.map((item) => item.key)).toEqual([
       'feed',
       'attendance',
+      'attendance-report',
       'daily-report',
       'tasks',
       'messages',
       'admin-options',
     ]);
+  });
+
+  it('shows the attendance report only when its own flag is enabled', () => {
+    useFeatureFlagEnabled.mockImplementation(
+      (flag: string) => flag === 'admin_options_attendance_report'
+    );
+
+    const { result } = renderHook(() => useNavItems(), { wrapper: renderWithRole('teacher') });
+
+    expect(result.current.map((item) => item.key)).toEqual([
+      'feed',
+      'attendance-report',
+      'messages',
+    ]);
+  });
+
+  it('hides the attendance report when only the attendance flag is enabled', () => {
+    useFeatureFlagEnabled.mockImplementation(
+      (flag: string) => flag === 'admin_options_attendance'
+    );
+
+    const { result } = renderHook(() => useNavItems(), { wrapper: renderWithRole('admin') });
+
+    expect(result.current.map((item) => item.key)).not.toContain('attendance-report');
   });
 
   it('treats an undefined (still loading) flag as off', () => {
@@ -79,6 +104,7 @@ describe('useStaffActionItems', () => {
     // parent with every flag enabled still gets the flag-gated items back.
     expect(result.current.actions.map((item) => item.key)).toEqual([
       'attendance',
+      'attendance-report',
       'daily-report',
       'tasks',
       'messages',
@@ -95,6 +121,7 @@ describe('useStaffActionItems', () => {
     expect(result.current.isStaff).toBe(true);
     expect(result.current.actions.map((item) => item.key)).toEqual([
       'attendance',
+      'attendance-report',
       'daily-report',
       'tasks',
       'messages',

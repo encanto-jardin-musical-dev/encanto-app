@@ -9,6 +9,7 @@ A Progressive Web App (PWA) for Encanto Jardín Musical, built with Next.js 16, 
 - **Real-time Messaging**: Live communication between parents and teachers, with attachments
 - **Daily Reports**: group or single-child updates with photos, PDF download
 - **Attendance**: staff clock-in/clock-out logging, live counters
+- **Attendance Report**: staff-only per-child report (group, child, date range up to 90 days) with CSV export, behind the `admin_options_attendance_report` flag
 - **Tasks**: group task management for staff and parents
 - **Push Notifications**: multi-device web push via Firebase Cloud Messaging
 - **Admin Panel**: manage children, groups, teachers, parents, and data cleanup

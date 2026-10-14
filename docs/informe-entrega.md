@@ -1,12 +1,12 @@
 # Encanto App — Arquitectura y estado de entrega
 
-**Informe para stakeholders · v1.4.0 · septiembre 2026**
+**Informe para stakeholders · v1.6.0 · octubre 2026**
 
 Una aplicación web progresiva que conecta a familias y personal del Encanto Jardín Musical — reportes diarios, asistencia, mensajería y tareas en una sola app instalable. Este informe cubre qué está construido, sobre qué corre, y qué falta antes de un lanzamiento general.
 
 | | |
 |---|---|
-| **Versión actual** | 1.4.0 · última rama publicada el 2026-09-10 |
+| **Versión actual** | 1.6.0 · publicada el 2026-10-14 |
 | **Usuarios** | padres, docentes, administradores |
 | **Hosting** | Vercel + Supabase |
 
@@ -30,8 +30,8 @@ Un solo código, tres roles. Los padres siguen el día de su hijo; los docentes 
 |---|---|
 | **5** módulos centrales | feed, mensajes, reportes diarios, asistencia, tareas |
 | **3** roles con permisos distintos | padre, docente, administrador |
-| **1.0 → 1.4** | versiones publicadas desde octubre 2025 |
-| **364** pruebas unitarias automatizadas (Vitest) | 96.8% cobertura en queries/hooks |
+| **1.0 → 1.6** | versiones publicadas desde octubre 2025 |
+| **424** pruebas unitarias automatizadas (Vitest) | 98% cobertura |
 | **Instalable** | PWA con caché sin conexión e instalación en pantalla de inicio |
 | **Tiempo real** | mensajes, feed y conteos de asistencia en vivo |
 
@@ -112,6 +112,12 @@ El asesor de rendimiento de Supabase marca 18 índices (varios de ellos, los mis
 
 ## Línea de tiempo
 
+**1.6.0** · 2026-10-14
+Nuevo reporte de asistencia por niño para el personal: se elige grupo, niño y rango de fechas (hasta 90 días), se revisan las horas de entrada y salida en la zona horaria del jardín y se descarga el resultado en CSV. Se mantiene detrás de un feature flag y respeta las políticas de acceso por fila. También se corrigieron los errores de lint de hooks de React en la interfaz.
+
+**1.5.0** · 2026-10-02
+El selector de grupo del feed ahora funciona para docentes con varios grupos, y los mensajes salientes se etiquetan con el grupo activo. Seguridad: el acceso a grupos, niños y asistencia quedó limitado por filas al personal asignado, y las rutas de administrador exigen un administrador autenticado con correo confirmado.
+
 **Sin versión** · 2026-09-10
 Se agregó infraestructura de pruebas automatizadas: Vitest para pruebas unitarias (364 pruebas, 96.8% de cobertura en `src/queries/` y `src/hooks/`, con un umbral del 80% exigido en CI) y Playwright para e2e (flujos críticos de auth, padres, docentes y administradores, con fixtures y sesiones de prueba aisladas de producción). Verificado contra una instancia local real de Supabase: dos huecos encontrados durante la verificación — la limpieza de fixtures entre corridas y un selector inestable en `teacher.spec.ts` — quedaron corregidos y reverificados en verde (11/11) en corridas consecutivas, y confirmados en verde también en CI (job de unit tests y de e2e, corrida manual sobre `main`). Con la suite estable en varias corridas de PR y una corrida manual, se quitó `continue-on-error` de ambos jobs en `ci.yml`: CI ahora bloquea la integración a `main` si una prueba falla.
 
@@ -138,7 +144,7 @@ Una lectura directa de qué está sólido, qué necesita una decisión, y qué f
 |---|---|---|
 | ✅ Listo | La superficie central del producto está completa | Mensajería, feed, reportes diarios, asistencia y tareas — todo publicado y en uso activo por los tres roles. |
 | ✅ Listo | La postura de seguridad acaba de mejorar | Cobertura de RLS en todas las tablas, más las correcciones del 2026-09-09 (índices, reescritura de políticas, permisos de funciones definer). |
-| ✅ Listo | Ya existe una suite de pruebas automatizadas | Vitest (364 pruebas unitarias, 96.8% de cobertura en queries/hooks) y Playwright (e2e por rol) corren en CI en cada PR. |
+| ✅ Listo | Ya existe una suite de pruebas automatizadas | Vitest (424 pruebas unitarias, 98% de cobertura) y Playwright (e2e por rol) corren en CI en cada PR. |
 | ✅ Corregido | La suite e2e ya se verificó contra Supabase local | Los 11 specs de Playwright corrieron y pasaron (11/11) contra una instancia local real, en corridas consecutivas. |
 | ✅ Corregido | La limpieza de fixtures de e2e ya quedó corregida | `teardownFixtures()` no borraba filas en `messages`, `daily_reports`, `tasks` ni `attendance` antes de eliminar los usuarios de prueba (esas tablas usan `ON DELETE RESTRICT`), y el error de `deleteUser` se ignoraba. Corregido y verificado con corridas consecutivas en verde. |
 | ✅ Corregido | Flake de selector en `teacher.spec.ts` corregido | `getByLabel('Grupo')` coincidía con dos elementos (el `<select>` nativo oculto de HeroUI y su botón visible), causando una falla intermitente. Se acotó a `getByRole('button', {name: /Grupo/})`. |
@@ -154,4 +160,4 @@ De las tres acciones de panel documentadas como pendientes del operador en el ca
 
 ---
 
-*Encanto App · informe interno de entrega · v1.4.0 · main · 2026-09-10*
+*Encanto App · informe interno de entrega · v1.6.0 · main · 2026-10-14*

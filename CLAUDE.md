@@ -70,6 +70,7 @@ supabase gen types typescript --local > src/types/database.types.ts  # Generate 
 **App Structure:**
 - **Auth routes**: Login grouped under `src/app/(auth)/login/`. Supabase auth callbacks handled in `src/app/auth/` (`callback/`, `confirm/`). Magic-link based — see `src/components/auth/LoginForm.tsx` and `AuthRedirect.tsx`.
 - **Feed System** (`src/app/feed/`): Uses Next.js **parallel routes**. The layout renders three slots: `children`, `@user`, and `@group` (plus a `default.tsx` fallback). When touching the feed, keep the parallel-route contract in mind — missing `default.tsx` breaks navigation.
+- **Attendance Report** (`src/app/(app)/attendance-report/`, `src/components/attendance/report/`): staff-only, behind the `admin_options_attendance_report` PostHog flag. Data comes from the `get_attendance_report` RPC (security invoker, staff only, 90-day cap; times returned in `America/Bogota`); CSV export lives in `src/utils/attendanceReportCsv.ts`.
 - **Messaging** (`src/app/messages/`): Conversation list at `/messages`, individual thread at `/messages/[senderID]`.
 - **Role-based Access**: Parents, teachers, administrators — different group/contact permissions enforced at the DB level via RLS and `get_user_groups`.
 - **Push Notifications**: Firebase Cloud Messaging with VAPID keys for web push; subscriptions persisted in the `subscriptions` table.

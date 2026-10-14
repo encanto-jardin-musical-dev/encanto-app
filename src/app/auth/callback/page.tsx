@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database.types';
-
-type PageState = 'loading' | 'error';
 
 function parseHashError(hash: string): string | null {
   if (!hash.startsWith('#')) return null;
@@ -20,21 +19,22 @@ function parseHashError(hash: string): string | null {
   return description ?? error;
 }
 
+const subscribeToNothing = () => () => {};
+const readHashError = () => parseHashError(window.location.hash);
+const readHashErrorOnServer = () => null;
+
 export default function AuthCallbackPage() {
   const router = useRouter();
-  const [state, setState] = useState<PageState>('loading');
-  const [errorMessage, setErrorMessage] = useState('');
+  // Error in the URL hash (e.g. expired token). The hash only exists in the
+  // browser, so read it as external state rather than copying it into state.
+  const hashError = useSyncExternalStore(
+    subscribeToNothing,
+    readHashError,
+    readHashErrorOnServer,
+  );
 
   useEffect(() => {
-    const hash = window.location.hash;
-
-    // Handle error in hash first (e.g. expired token).
-    const hashError = parseHashError(hash);
-    if (hashError) {
-      setState('error');
-      setErrorMessage(hashError);
-      return;
-    }
+    if (hashError) return;
 
     // Use @supabase/supabase-js directly — it supports implicit flow (hash fragments)
     // natively via detectSessionInUrl. @supabase/ssr browser client uses PKCE only
@@ -62,14 +62,14 @@ export default function AuthCallbackPage() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [router]);
+  }, [router, hashError]);
 
-  if (state === 'error') {
+  if (hashError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4 px-4 text-center">
         <p className="text-danger text-lg font-medium">Enlace inválido</p>
-        <p className="text-default-500 text-sm max-w-sm">{errorMessage}</p>
-        <a href="/" className="text-primary text-sm underline">Volver al inicio</a>
+        <p className="text-default-500 text-sm max-w-sm">{hashError}</p>
+        <Link href="/" className="text-primary text-sm underline">Volver al inicio</Link>
       </div>
     );
   }

@@ -60,18 +60,15 @@ export default function MessageCard({
     }
   }, [isOwnMessage, is_read, markMessageAsRead, message_id]);
 
-  // Handle real-time read status updates with 3-second delay for own messages
+  // Read receipts are only shown on own messages. Delay the real-time read
+  // update by 3 seconds to show the "message delivered then read" progression.
   useEffect(() => {
     if (is_read && isOwnMessage && !isRead) {
-      // For own messages, add a 3-second delay to show "message delivered then read" progression
       const timer = setTimeout(() => {
         setIsRead(true);
       }, 3000);
-      
+
       return () => clearTimeout(timer);
-    } else if (!isOwnMessage) {
-      // For incoming messages, sync immediately with prop changes
-      setIsRead(is_read);
     }
   }, [is_read, isOwnMessage, isRead]);
 

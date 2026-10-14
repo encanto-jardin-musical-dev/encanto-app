@@ -11,7 +11,7 @@ import { Card, CardBody, CardHeader, Skeleton, Badge } from '@heroui/react';
 import { useAtom } from 'jotai';
 import { useFormatter, useNow, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 
 type MessageFeedCardProps = {
   message: MessageFeedResponse;
@@ -61,8 +61,6 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
 
   const [, setReceiver] = useAtom(receiverAtom);
   const [groupContextId] = useAtom(contextGroupValue);
-  const [parentSenderChild, setParentSenderChild] =
-    useState<FilteredParentChild | null>(null);
 
   const { data: senderUserChildren, isLoading } = useUserChildrenQuery({
     params: { userID: sender_id, groupID: groupContextId as string },
@@ -87,31 +85,23 @@ export default function MessageFeedCard({ message }: MessageFeedCardProps) {
     setReceiver,
   ]);
 
-  const fetchParentSenderChild = useCallback(async () => {
-    if (!groupContextId) return;
+  // The sender's child within the current group context (parent senders only).
+  const parentSenderChild = useMemo<FilteredParentChild | null>(() => {
+    if (sender_role !== USER_ROLES.PARENT || !groupContextId) return null;
 
-    try {
-      const children = Array.isArray(senderUserChildren)
-        ? (senderUserChildren as unknown as FilteredParentChild[])
-        : [];
-      const foundChild = children.find(
+    const children = Array.isArray(senderUserChildren)
+      ? (senderUserChildren as unknown as FilteredParentChild[])
+      : [];
+    return (
+      children.find(
         child =>
           Array.isArray(child.children?.child_groups) &&
           child.children.child_groups!.some(
             group => group.group_id === groupContextId
           )
-      ) ?? null;
-      setParentSenderChild(foundChild);
-    } catch {
-      // Failed to fetch parent sender children
-    }
-  }, [groupContextId, senderUserChildren]);
-
-  useEffect(() => {
-    if (sender_role === USER_ROLES.PARENT) {
-      fetchParentSenderChild();
-    }
-  }, [fetchParentSenderChild, sender_role]);
+      ) ?? null
+    );
+  }, [sender_role, groupContextId, senderUserChildren]);
 
   return (
     <Card

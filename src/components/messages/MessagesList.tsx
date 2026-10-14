@@ -240,8 +240,10 @@ export default function MessagesList({ senderID }: MessagesListProps) {
     appendToCache(processed);
 
     if (isAtBottomRef.current) {
-      requestAnimationFrame(() => scrollToBottom("smooth"));
-      setUnreadCount(0);
+      requestAnimationFrame(() => {
+        scrollToBottom("smooth");
+        setUnreadCount(0);
+      });
     } else {
       setUnreadCount((c) => c + 1);
     }
@@ -258,8 +260,10 @@ export default function MessagesList({ senderID }: MessagesListProps) {
     const processed = buildMessageFromRealtime(raw);
     appendToCache(processed);
 
-    requestAnimationFrame(() => scrollToBottom("smooth"));
-    setUnreadCount(0);
+    requestAnimationFrame(() => {
+      scrollToBottom("smooth");
+      setUnreadCount(0);
+    });
     isAtBottomRef.current = true;
   }, [outgoingMessage, outgoingStatus, senderID, userID, appendToCache, scrollToBottom]);
 

@@ -33,8 +33,13 @@ export default function MessageInput({ receiverId }: MessageInputProps) {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Tracks file → object URL for image preview chips. Keyed by file identity string.
-  // Using a ref (not state) to avoid re-renders on URL creation/revocation.
-  const objectUrlsRef = useRef<Map<string, string>>(new Map());
+  const [previewUrls, setPreviewUrls] = useState<Map<string, string>>(new Map());
+  // Mirrors `previewUrls` so unmount and send-success callbacks can revoke the
+  // latest URLs without going stale.
+  const previewUrlsRef = useRef(previewUrls);
+  useEffect(() => {
+    previewUrlsRef.current = previewUrls;
+  }, [previewUrls]);
 
   /** Stable key for a File object — combines name, size, and lastModified. */
   const fileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`;
@@ -55,10 +60,8 @@ export default function MessageInput({ receiverId }: MessageInputProps) {
 
   // 4.4 Revoke all object URLs on unmount to prevent memory leaks
   useEffect(() => {
-    const urlMap = objectUrlsRef.current;
     return () => {
-      urlMap.forEach(url => URL.revokeObjectURL(url));
-      urlMap.clear();
+      previewUrlsRef.current.forEach(url => URL.revokeObjectURL(url));
     };
   }, []);
 
@@ -97,33 +100,37 @@ export default function MessageInput({ receiverId }: MessageInputProps) {
     }
 
     // 4.1 Create object URLs for newly added image files
+    const nextUrls = new Map(previewUrls);
     for (const file of newFiles) {
       if (file.type.startsWith('image/')) {
         const key = fileKey(file);
-        if (!objectUrlsRef.current.has(key)) {
-          objectUrlsRef.current.set(key, URL.createObjectURL(file));
+        if (!nextUrls.has(key)) {
+          nextUrls.set(key, URL.createObjectURL(file));
         }
       }
     }
 
+    setPreviewUrls(nextUrls);
     setSelectedFiles(allFiles);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleRemoveFile = (index: number) => {
-    setSelectedFiles(prev => {
-      const file = prev[index];
-      // 4.3 Revoke object URL for image files when removed
-      if (file && file.type.startsWith('image/')) {
-        const key = fileKey(file);
-        const url = objectUrlsRef.current.get(key);
-        if (url) {
-          URL.revokeObjectURL(url);
-          objectUrlsRef.current.delete(key);
-        }
+    const file = selectedFiles[index];
+    // 4.3 Revoke object URL for image files when removed
+    if (file && file.type.startsWith('image/')) {
+      const key = fileKey(file);
+      const url = previewUrls.get(key);
+      if (url) {
+        URL.revokeObjectURL(url);
+        setPreviewUrls(prev => {
+          const next = new Map(prev);
+          next.delete(key);
+          return next;
+        });
       }
-      return prev.filter((_, i) => i !== index);
-    });
+    }
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const formatBytes = (bytes: number): string => {
@@ -235,8 +242,8 @@ export default function MessageInput({ receiverId }: MessageInputProps) {
         onSuccess: () => {
           setContent('');
           // Revoke all object URLs on successful send
-          objectUrlsRef.current.forEach(url => URL.revokeObjectURL(url));
-          objectUrlsRef.current.clear();
+          previewUrlsRef.current.forEach(url => URL.revokeObjectURL(url));
+          setPreviewUrls(new Map());
           setSelectedFiles([]);
           setFileProgress([]);
         },
@@ -262,7 +269,7 @@ export default function MessageInput({ receiverId }: MessageInputProps) {
           {selectedFiles.map((file, index) => {
             const progress = fileProgress.find(fp => fp.file === file);
             const isImage = file.type.startsWith('image/');
-            const objectUrl = isImage ? objectUrlsRef.current.get(fileKey(file)) : undefined;
+            const objectUrl = isImage ? previewUrls.get(fileKey(file)) : undefined;
 
             return (
               <div key={`${file.name}-${index}`} className="flex flex-col gap-1">

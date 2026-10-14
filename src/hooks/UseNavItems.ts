@@ -19,6 +19,8 @@ function useActionFlagState(): Record<string, boolean> {
   return {
     admin_options_attendance:
       useFeatureFlagEnabled("admin_options_attendance") === true,
+    admin_options_attendance_report:
+      useFeatureFlagEnabled("admin_options_attendance_report") === true,
     admin_options_reports:
       useFeatureFlagEnabled("admin_options_reports") === true,
     admin_options_tasks: useFeatureFlagEnabled("admin_options_tasks") === true,

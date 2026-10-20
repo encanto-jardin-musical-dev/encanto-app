@@ -147,6 +147,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID=
 - Use RLS-aware queries - Supabase automatically filters based on authenticated user
 - For complex operations, use database functions via `supabase.rpc()`
 - Always validate user authentication before queries
+- Every migration that creates a table or view in `public` must include explicit `GRANT`s in the same migration (Supabase stopped auto-granting Data API access to new `public` tables on 2026-10-30). Grant only what the app needs, e.g. `select, insert, update, delete` to `authenticated` and `service_role`, and `anon` only if truly required; RLS still filters rows
 
 **Component Organization:**
 - Domain-specific: `src/components/{domain}/` (messages, feed, auth)
